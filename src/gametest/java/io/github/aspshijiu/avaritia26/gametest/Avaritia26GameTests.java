@@ -28,6 +28,7 @@ import io.github.aspshijiu.avaritia26.singularity.SingularityManager;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.gametest.v1.CustomTestMethodInvoker;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
+import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
@@ -75,6 +76,7 @@ import net.minecraft.world.level.block.CraftingTableBlock;
 import net.minecraft.world.level.block.MagmaBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.EntityHitResult;
 
 public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	@GameTest
@@ -451,6 +453,61 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		var thirdSkeleton = helper.spawnWithNoFreeWill(EntityTypes.SKELETON, normalWeaponPos);
 		thirdSkeleton.hurtServer(helper.getLevel(), helper.getLevel().damageSources().playerAttack(player), 100.0F);
 		helper.assertTrue(skullDropsNear(helper, normalWeaponPos).isEmpty(), "普通钻石剑不应触发啄颅掉落");
+		helper.succeed();
+	}
+
+	@GameTest
+	public void infinitySwordCraftsKillsAndNeverWears(GameTestHelper helper) {
+		ItemStack sword = new ItemStack(ModItems.INFINITY_SWORD);
+		helper.assertTrue(
+				BuiltInRegistries.ITEM.getValue(ModItems.INFINITY_SWORD_KEY) == ModItems.INFINITY_SWORD,
+				"寰宇支配之剑没有注册到预期的 ResourceKey"
+		);
+		helper.assertTrue(sword.getMaxStackSize() == 1, "寰宇支配之剑应当不可堆叠");
+		helper.assertTrue(sword.getRarity() == Rarity.EPIC, "寰宇支配之剑应当是 EPIC 稀有度");
+		helper.assertFalse(sword.isDamageableItem(), "寰宇支配之剑不应存在可损耗耐久");
+		helper.assertTrue(sword.is(ItemTags.SWORDS), "寰宇支配之剑缺少原版剑标签");
+		var weapon = sword.get(DataComponents.WEAPON);
+		helper.assertTrue(weapon != null && weapon.itemDamagePerAttack() == 0, "寰宇支配之剑攻击不应损耗物品");
+		var modifiers = sword.get(DataComponents.ATTRIBUTE_MODIFIERS);
+		helper.assertTrue(modifiers != null, "寰宇支配之剑缺少武器属性组件");
+		helper.assertTrue(
+				modifiers.compute(Attributes.ATTACK_DAMAGE, 1.0, EquipmentSlot.MAINHAND) == 100.0,
+				"寰宇支配之剑主手面板攻击伤害应当是 100"
+		);
+		helper.assertTrue(
+				Math.abs(modifiers.compute(Attributes.ATTACK_SPEED, 4.0, EquipmentSlot.MAINHAND) - 1.6) < 0.0001,
+				"寰宇支配之剑主手攻击速度应当是 1.6"
+		);
+
+		CraftingInput input = infinitySwordInput();
+		assertExtremeRecipe(helper, "infinity_sword", input, ModItems.INFINITY_SWORD);
+		List<ItemStack> wrongStacks = copyStacks(input.items());
+		wrongStacks.set(40, new ItemStack(Items.DIRT));
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(Registries.RECIPE, Avaritia26.id("infinity_sword"));
+		helper.assertFalse(
+				helper.getLevel().getServer().getRecipeManager()
+						.getRecipeFor(ModRecipes.EXTREME_CRAFTING, CraftingInput.of(9, 9, wrongStacks), helper.getLevel())
+						.filter(candidate -> candidate.id().equals(recipeKey))
+						.isPresent(),
+				"寰宇支配之剑材料位置错误时不应匹配配方"
+		);
+
+		Player attacker = helper.makeMockServerPlayer(GameType.SURVIVAL);
+		attacker.setItemInHand(InteractionHand.MAIN_HAND, sword);
+		var warden = helper.spawnWithNoFreeWill(EntityTypes.WARDEN, new BlockPos(7, 1, 0));
+		helper.assertTrue(warden.getHealth() >= 500.0F, "终结测试目标应当具有高生命值");
+		var attackResult = AttackEntityCallback.EVENT.invoker().interact(
+				attacker,
+				helper.getLevel(),
+				InteractionHand.MAIN_HAND,
+				warden,
+				new EntityHitResult(warden)
+		);
+		helper.assertTrue(attackResult.consumesAction(), "寰宇支配之剑服务端攻击没有接管命中");
+		helper.assertTrue(warden.isDeadOrDying(), "寰宇支配之剑没有终结高生命值目标");
+		helper.assertTrue(sword.getDamageValue() == 0, "寰宇支配之剑攻击后不应产生耐久损耗");
+
 		helper.succeed();
 	}
 
@@ -1933,6 +1990,34 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 					case 'X' -> new ItemStack(Items.BLAZE_POWDER);
 					case ' ' -> ItemStack.EMPTY;
 					default -> throw new IllegalArgumentException("未知炽焰之啄颅剑配方符号: " + symbol);
+				};
+				stacks.add(stack);
+			}
+		}
+		return CraftingInput.of(9, 9, stacks);
+	}
+
+	private static CraftingInput infinitySwordInput() {
+		List<ItemStack> stacks = new java.util.ArrayList<>(81);
+		for (String row : List.of(
+				"       II",
+				"      III",
+				"     III ",
+				"    III  ",
+				" C III   ",
+				"  CII    ",
+				"  NC     ",
+				" N  C    ",
+				"X        "
+		)) {
+			for (char symbol : row.toCharArray()) {
+				ItemStack stack = switch (symbol) {
+					case 'C' -> new ItemStack(ModItems.CRYSTAL_MATRIX_INGOT);
+					case 'I' -> new ItemStack(ModItems.INFINITY_INGOT);
+					case 'N' -> new ItemStack(ModItems.NEUTRON_INGOT);
+					case 'X' -> new ItemStack(ModItems.INFINITY_CATALYST);
+					case ' ' -> ItemStack.EMPTY;
+					default -> throw new IllegalArgumentException("未知寰宇支配之剑配方符号: " + symbol);
 				};
 				stacks.add(stack);
 			}

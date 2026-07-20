@@ -1,0 +1,7 @@
+{
+	"parent": "minecraft:item/handheld",
+	"textures": {
+		"layer0": "avaritia26:item/infinity_sword",
+		"layer1": "avaritia26:item/infinity_sword_overlay"
+	}
+}

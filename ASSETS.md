@@ -37,6 +37,8 @@
 | `src/client/resources/assets/avaritia26/textures/item/blaze_cube.png` 与 `.png.mcmeta` | Re:Avaritia `src/main/resources/assets/avaritia/textures/item/resource/blaze/blaze_cube.png` 与 `.png.mcmeta` | Re:Avaritia `c331b7f4838667e6200b24c99dc45459e0b9dafb` | Nova Committee / Re:Avaritia artists | CC BY-NC-SA 4.0 | 仅调整资源路径，内容未修改 |
 | `src/client/resources/assets/avaritia26/textures/block/blaze_cube_block.png` 与 `.png.mcmeta` | Re:Avaritia `src/main/resources/assets/avaritia/textures/block/resource/blaze_cube_block.png` 与 `.png.mcmeta` | Re:Avaritia `c331b7f4838667e6200b24c99dc45459e0b9dafb` | Nova Committee / Re:Avaritia artists | CC BY-NC-SA 4.0 | 仅调整资源路径，内容未修改 |
 | `src/client/resources/assets/avaritia26/textures/item/skull_fire_sword.png` 与 `.png.mcmeta` | Re:Avaritia `src/main/resources/assets/avaritia/textures/item/tools/blaze_sword/layer_0.png` 与 `.png.mcmeta` | Re:Avaritia `c331b7f4838667e6200b24c99dc45459e0b9dafb` | Nova Committee / Re:Avaritia artists | CC BY-NC-SA 4.0 | 仅调整资源路径与文件名，内容未修改 |
+| `src/client/resources/assets/avaritia26/textures/item/infinity_sword.png` 与 `.png.mcmeta` | Re:Avaritia `src/main/resources/assets/avaritia/textures/item/tools/infinity_sword/layer_0.png` 与 `.png.mcmeta` | Re:Avaritia `c331b7f4838667e6200b24c99dc45459e0b9dafb` | Nova Committee / Re:Avaritia artists | CC BY-NC-SA 4.0 | 仅调整资源路径与文件名，内容未修改 |
+| `src/client/resources/assets/avaritia26/textures/item/infinity_sword_overlay.png` 与 `.png.mcmeta` | Re:Avaritia `src/main/resources/assets/avaritia/textures/item/tools/infinity_sword/layer_1.png` 与 `.png.mcmeta` | Re:Avaritia `c331b7f4838667e6200b24c99dc45459e0b9dafb` | Nova Committee / Re:Avaritia artists | CC BY-NC-SA 4.0 | 仅调整资源路径与文件名，内容未修改 |
 
 ## CC BY-NC-SA 4.0
 

@@ -1,0 +1,25 @@
+{
+  "type": "avaritia26:extreme_shaped",
+  "category": "equipment",
+  "key": {
+    "C": "avaritia26:crystal_matrix_ingot",
+    "I": "avaritia26:infinity_ingot",
+    "N": "avaritia26:neutron_ingot",
+    "X": "avaritia26:infinity_catalyst"
+  },
+  "pattern": [
+    "       II",
+    "      III",
+    "     III ",
+    "    III  ",
+    " C III   ",
+    "  CII    ",
+    "  NC     ",
+    " N  C    ",
+    "X        "
+  ],
+  "result": {
+    "count": 1,
+    "id": "avaritia26:infinity_sword"
+  }
+}

@@ -2,8 +2,11 @@ package io.github.aspshijiu.avaritia26.event;
 
 import java.util.List;
 
+import io.github.aspshijiu.avaritia26.item.InfinitySwordItem;
 import io.github.aspshijiu.avaritia26.registry.ModItems;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
+import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
@@ -19,6 +22,15 @@ public final class ModCombatEvents {
 
 	public static void initialize() {
 		ServerLivingEntityEvents.AFTER_DEATH.register(ModCombatEvents::dropWitherSkeletonSkull);
+		AttackEntityCallback.EVENT.register((player, level, hand, entity, hitResult) -> {
+			if (!(level instanceof ServerLevel serverLevel)
+					|| !(entity instanceof LivingEntity target)
+					|| !player.getItemInHand(hand).is(ModItems.INFINITY_SWORD)) {
+				return InteractionResult.PASS;
+			}
+			InfinitySwordItem.kill(target, player, serverLevel);
+			return InteractionResult.SUCCESS_SERVER;
+		});
 	}
 
 	private static void dropWitherSkeletonSkull(LivingEntity deadEntity, DamageSource source) {

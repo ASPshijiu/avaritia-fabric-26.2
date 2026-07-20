@@ -23,7 +23,7 @@
 | `ultimate_stew` | 终极炖菜 | 实现中 | 实现中 | 实现中 | 实现中 | — | — |
 | `cosmic_meatballs` | 寰宇肉丸 | 实现中 | 实现中 | 实现中 | 实现中 | — | — |
 | `skull_fire_sword` | 炽焰之啄颅剑 | 实现中 | 实现中 | 实现中 | 实现中 | — | — |
-| `infinity_sword` | 寰宇支配之剑 | 未开始 | — | — | — | — | — |
+| `infinity_sword` | 寰宇支配之剑 | 实现中 | 实现中 | 实现中 | 实现中 | — | — |
 | `infinity_hoe` | 无尽锄 | 未开始 | — | — | — | — | — |
 | `infinity_pickaxe` | 无尽镐 | 未开始 | — | — | — | — | — |
 | `infinity_shovel` | 无尽铲 | 未开始 | — | — | — | — | — |
