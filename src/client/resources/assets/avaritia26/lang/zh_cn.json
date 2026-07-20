@@ -27,6 +27,7 @@
 	"item.avaritia26.record_fragment": "唱片碎片",
 	"item.avaritia26.singularity": "奇点",
 	"item.avaritia26.singularity.empty": "未定义奇点",
+	"item.avaritia26.skull_fire_sword": "炽焰之啄颅剑",
 	"item.avaritia26.ultimate_stew": "终极炖菜",
 	"itemGroup.avaritia26.main": "无尽贪婪 26",
 	"singularity.avaritia26.amethyst_shard": "紫水晶奇点",
@@ -45,5 +46,6 @@
 	"singularity.avaritia26.redstone": "红石奇点",
 	"subtitles.avaritia26.gaping_void": "虚空漩涡坍缩",
 	"tooltip.avaritia26.matter_cluster.counter": "已存物品：%s / %s",
-	"tooltip.avaritia26.matter_cluster.more": "……以及另外 %s 组物品"
+	"tooltip.avaritia26.matter_cluster.more": "……以及另外 %s 组物品",
+	"tooltip.avaritia26.skull_fire_sword": "斩骷髅首级，后烧至焦黑。"
 }

@@ -7,13 +7,23 @@ import io.github.aspshijiu.avaritia26.item.EndestPearlItem;
 import io.github.aspshijiu.avaritia26.item.EternalSingularityItem;
 import io.github.aspshijiu.avaritia26.item.MatterClusterItem;
 import io.github.aspshijiu.avaritia26.item.SingularityItem;
+import io.github.aspshijiu.avaritia26.item.SkullFireSwordItem;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.ToolMaterial;
 
 public final class ModItems {
+	public static final ResourceKey<Item> SKULL_FIRE_SWORD_KEY = key("skull_fire_sword");
+	public static final Item SKULL_FIRE_SWORD = register(
+			SKULL_FIRE_SWORD_KEY,
+			SkullFireSwordItem::new,
+			new Item.Properties()
+					.rarity(Rarity.EPIC)
+					.sword(ToolMaterial.DIAMOND, 3.0F, -2.4F)
+	);
 	public static final ResourceKey<Item> BLAZE_CUBE_KEY = key("blaze_cube");
 	public static final Item BLAZE_CUBE = register(
 			BLAZE_CUBE_KEY,

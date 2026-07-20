@@ -27,6 +27,7 @@
 	"item.avaritia26.record_fragment": "Record Fragment",
 	"item.avaritia26.singularity": "Singularity",
 	"item.avaritia26.singularity.empty": "Undefined Singularity",
+	"item.avaritia26.skull_fire_sword": "Skullfire Sword",
 	"item.avaritia26.ultimate_stew": "Ultimate Stew",
 	"itemGroup.avaritia26.main": "Avaritia 26",
 	"singularity.avaritia26.amethyst_shard": "Amethyst Singularity",
@@ -45,5 +46,6 @@
 	"singularity.avaritia26.redstone": "Redstone Singularity",
 	"subtitles.avaritia26.gaping_void": "Gaping void collapses",
 	"tooltip.avaritia26.matter_cluster.counter": "Stored items: %s / %s",
-	"tooltip.avaritia26.matter_cluster.more": "...and %s more stacks"
+	"tooltip.avaritia26.matter_cluster.more": "...and %s more stacks",
+	"tooltip.avaritia26.skull_fire_sword": "Beheads skeletons and scorches them black."
 }

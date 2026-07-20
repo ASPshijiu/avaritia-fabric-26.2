@@ -34,15 +34,19 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
@@ -52,8 +56,10 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.Consumable;
 import net.minecraft.world.item.component.CustomModelData;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.component.UseCooldown;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
@@ -365,6 +371,86 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 				ModItems.BLAZE_CUBE,
 				9
 		);
+		helper.succeed();
+	}
+
+	@GameTest
+	public void skullFireSwordCraftsAndBeheadsSkeletons(GameTestHelper helper) {
+		ItemStack sword = new ItemStack(ModItems.SKULL_FIRE_SWORD);
+		helper.assertTrue(
+				BuiltInRegistries.ITEM.getValue(ModItems.SKULL_FIRE_SWORD_KEY) == ModItems.SKULL_FIRE_SWORD,
+				"炽焰之啄颅剑没有注册到预期的 ResourceKey"
+		);
+		helper.assertTrue(sword.getCount() == 1 && sword.getMaxStackSize() == 1, "炽焰之啄颅剑应当不可堆叠");
+		helper.assertTrue(sword.getRarity() == Rarity.EPIC, "炽焰之啄颅剑应当是 EPIC 稀有度");
+		helper.assertTrue(sword.getMaxDamage() == 1561, "炽焰之啄颅剑应当保留经典钻石剑耐久");
+		helper.assertTrue(sword.is(ItemTags.SWORDS), "炽焰之啄颅剑缺少原版剑标签");
+		var modifiers = sword.get(DataComponents.ATTRIBUTE_MODIFIERS);
+		helper.assertTrue(modifiers != null, "炽焰之啄颅剑缺少武器属性组件");
+		helper.assertTrue(
+				modifiers.compute(Attributes.ATTACK_DAMAGE, 1.0, EquipmentSlot.MAINHAND) == 7.0,
+				"炽焰之啄颅剑主手攻击伤害应当与经典钻石剑一致"
+		);
+		helper.assertTrue(
+				Math.abs(modifiers.compute(Attributes.ATTACK_SPEED, 4.0, EquipmentSlot.MAINHAND) - 1.6) < 0.0001,
+				"炽焰之啄颅剑主手攻击速度应当是 1.6"
+		);
+		List<Component> tooltip = new java.util.ArrayList<>();
+		ModItems.SKULL_FIRE_SWORD.appendHoverText(
+				sword,
+				Item.TooltipContext.of(helper.getLevel()),
+				TooltipDisplay.DEFAULT,
+				tooltip::add,
+				TooltipFlag.NORMAL
+		);
+		helper.assertTrue(tooltip.size() == 1, "炽焰之啄颅剑缺少经典功能说明");
+		helper.assertTrue(tooltip.getFirst().getStyle().isItalic(), "炽焰之啄颅剑功能说明应当使用斜体");
+
+		CraftingInput input = skullFireSwordInput();
+		assertExtremeRecipe(helper, "skull_fire_sword", input, ModItems.SKULL_FIRE_SWORD);
+		List<ItemStack> wrongStacks = copyStacks(input.items());
+		wrongStacks.set(40, new ItemStack(Items.DIRT));
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(Registries.RECIPE, Avaritia26.id("skull_fire_sword"));
+		helper.assertFalse(
+				helper.getLevel().getServer().getRecipeManager()
+						.getRecipeFor(ModRecipes.EXTREME_CRAFTING, CraftingInput.of(9, 9, wrongStacks), helper.getLevel())
+						.filter(candidate -> candidate.id().equals(recipeKey))
+						.isPresent(),
+				"炽焰之啄颅剑中心材料错误时不应匹配配方"
+		);
+
+		Player player = helper.makeMockServerPlayer(GameType.SURVIVAL);
+		BlockPos playerPos = helper.absolutePos(new BlockPos(10, 1, 0));
+		player.setPos(playerPos.getX() + 0.5, playerPos.getY(), playerPos.getZ() + 0.5);
+		player.setItemInHand(InteractionHand.MAIN_HAND, sword);
+		BlockPos guaranteedDropPos = new BlockPos(7, 1, 0);
+		var skeleton = helper.spawnWithNoFreeWill(EntityTypes.SKELETON, guaranteedDropPos);
+		helper.assertTrue(
+				skeleton.hurtServer(helper.getLevel(), helper.getLevel().damageSources().playerAttack(player), 100.0F),
+				"炽焰之啄颅剑击杀测试没有造成伤害"
+		);
+		List<ItemEntity> guaranteedSkulls = skullDropsNear(helper, guaranteedDropPos);
+		helper.assertTrue(
+				guaranteedSkulls.size() == 1 && guaranteedSkulls.getFirst().getItem().is(Items.WITHER_SKELETON_SKULL),
+				"炽焰之啄颅剑击杀普通骷髅应当保证掉落一个凋灵骷髅头"
+		);
+
+		BlockPos convertedDropPos = new BlockPos(12, 1, 0);
+		ItemEntity ordinarySkull = helper.spawnItem(Items.SKELETON_SKULL, convertedDropPos);
+		var secondSkeleton = helper.spawnWithNoFreeWill(EntityTypes.SKELETON, convertedDropPos);
+		secondSkeleton.hurtServer(helper.getLevel(), helper.getLevel().damageSources().playerAttack(player), 100.0F);
+		List<ItemEntity> convertedSkulls = skullDropsNear(helper, convertedDropPos);
+		helper.assertTrue(convertedSkulls.size() == 1, "已有普通骷髅头时不应额外生成第二个头颅");
+		helper.assertTrue(
+				ordinarySkull.getItem().is(Items.WITHER_SKELETON_SKULL),
+				"炽焰之啄颅剑没有把普通骷髅头烧成凋灵骷髅头"
+		);
+
+		BlockPos normalWeaponPos = new BlockPos(17, 1, 0);
+		player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.DIAMOND_SWORD));
+		var thirdSkeleton = helper.spawnWithNoFreeWill(EntityTypes.SKELETON, normalWeaponPos);
+		thirdSkeleton.hurtServer(helper.getLevel(), helper.getLevel().damageSources().playerAttack(player), 100.0F);
+		helper.assertTrue(skullDropsNear(helper, normalWeaponPos).isEmpty(), "普通钻石剑不应触发啄颅掉落");
 		helper.succeed();
 	}
 
@@ -1823,6 +1909,44 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 			}
 		}
 		return CraftingInput.of(5, 5, stacks);
+	}
+
+	private static CraftingInput skullFireSwordInput() {
+		List<ItemStack> stacks = new java.util.ArrayList<>(81);
+		for (String row : List.of(
+				"       IX",
+				"      IXI",
+				"     IXI ",
+				"    IXI  ",
+				" B IXI   ",
+				"  BXI    ",
+				"  WB     ",
+				" W  B    ",
+				"D        "
+		)) {
+			for (char symbol : row.toCharArray()) {
+				ItemStack stack = switch (symbol) {
+					case 'B' -> new ItemStack(Items.BONE);
+					case 'D' -> new ItemStack(Items.NETHER_STAR);
+					case 'I' -> new ItemStack(ModItems.CRYSTAL_MATRIX_INGOT);
+					case 'W' -> new ItemStack(Items.OAK_LOG);
+					case 'X' -> new ItemStack(Items.BLAZE_POWDER);
+					case ' ' -> ItemStack.EMPTY;
+					default -> throw new IllegalArgumentException("未知炽焰之啄颅剑配方符号: " + symbol);
+				};
+				stacks.add(stack);
+			}
+		}
+		return CraftingInput.of(9, 9, stacks);
+	}
+
+	private static List<ItemEntity> skullDropsNear(GameTestHelper helper, BlockPos relativePos) {
+		return helper.getLevel().getEntitiesOfClass(
+				ItemEntity.class,
+				new AABB(helper.absolutePos(relativePos)).inflate(2.0),
+				itemEntity -> itemEntity.getItem().is(Items.SKELETON_SKULL)
+						|| itemEntity.getItem().is(Items.WITHER_SKELETON_SKULL)
+		);
 	}
 
 	private static CraftingInput extremeCraftingTableInput() {

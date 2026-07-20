@@ -1,0 +1,6 @@
+{
+	"parent": "minecraft:item/handheld",
+	"textures": {
+		"layer0": "avaritia26:item/skull_fire_sword"
+	}
+}

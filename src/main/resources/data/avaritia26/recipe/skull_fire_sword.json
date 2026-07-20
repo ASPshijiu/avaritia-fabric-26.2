@@ -1,0 +1,26 @@
+{
+  "type": "avaritia26:extreme_shaped",
+  "category": "equipment",
+  "key": {
+    "B": "minecraft:bone",
+    "D": "minecraft:nether_star",
+    "I": "avaritia26:crystal_matrix_ingot",
+    "W": "#minecraft:logs",
+    "X": "minecraft:blaze_powder"
+  },
+  "pattern": [
+    "       IX",
+    "      IXI",
+    "     IXI ",
+    "    IXI  ",
+    " B IXI   ",
+    "  BXI    ",
+    "  WB     ",
+    " W  B    ",
+    "D        "
+  ],
+  "result": {
+    "count": 1,
+    "id": "avaritia26:skull_fire_sword"
+  }
+}
