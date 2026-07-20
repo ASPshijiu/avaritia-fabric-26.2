@@ -3,6 +3,7 @@ package io.github.aspshijiu.avaritia26.gametest;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import com.mojang.serialization.JsonOps;
 import io.github.aspshijiu.avaritia26.Avaritia26;
@@ -892,59 +893,67 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		);
 
 		Player player = helper.makeMockServerPlayer(GameType.SURVIVAL);
+		BlockPos bowOrigin = helper.absolutePos(new BlockPos(5, 10, 5));
+		player.setPos(bowOrigin.getX() + 0.5, bowOrigin.getY(), bowOrigin.getZ() + 0.5);
+		player.setXRot(0.0F);
+		player.setYRot(0.0F);
 		player.setItemInHand(InteractionHand.MAIN_HAND, bow);
-		List<Integer> existingPrimaryArrowIds = helper.getLevel().getEntitiesOfClass(
+		List<UUID> existingPrimaryArrowIds = helper.getLevel().getEntitiesOfClass(
 				HeavenArrowEntity.class,
 				player.getBoundingBox().inflate(8.0)
-		).stream().map(HeavenArrowEntity::getId).toList();
+		).stream().map(HeavenArrowEntity::getUUID).toList();
 		helper.assertTrue(player.getInventory().countItem(Items.ARROW) == 0, "天堂陨落长弓测试不应预置弹药");
 		var useResult = ModItems.INFINITY_BOW.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
 		helper.assertTrue(useResult.consumesAction() && player.isUsingItem(), "天堂陨落长弓没有在无弹药时开始蓄力");
 		helper.assertFalse(ModItems.INFINITY_BOW.releaseUsing(bow, helper.getLevel(), player, 7), "提前松开天堂陨落长弓不应发射");
 		helper.assertTrue(
 				helper.getLevel().getEntitiesOfClass(HeavenArrowEntity.class, player.getBoundingBox().inflate(8.0)).stream()
-						.noneMatch(arrow -> !existingPrimaryArrowIds.contains(arrow.getId())),
+						.noneMatch(arrow -> !existingPrimaryArrowIds.contains(arrow.getUUID())),
 				"提前松弦不应生成天堂箭"
 		);
 
 		ModItems.INFINITY_BOW.onUseTick(helper.getLevel(), player, bow, 1);
-		List<HeavenArrowEntity> primaryArrows = helper.getLevel().getEntitiesOfClass(
-				HeavenArrowEntity.class,
-				player.getBoundingBox().inflate(8.0)
-		).stream().filter(arrow -> !existingPrimaryArrowIds.contains(arrow.getId())).toList();
-		helper.assertTrue(primaryArrows.size() == 1, "满蓄力没有生成且仅生成一支天堂箭");
-		HeavenArrowEntity primaryArrow = primaryArrows.getFirst();
-		helper.assertTrue(primaryArrow.getOwner() == player, "天堂箭没有保留射手");
-		helper.assertTrue(primaryArrow.pickup == AbstractArrow.Pickup.CREATIVE_ONLY && primaryArrow.isCritArrow(), "天堂箭回收或暴击状态错误");
-		helper.assertTrue(primaryArrow.getDeltaMovement().length() > 2.9, "天堂箭初速度不足");
-		helper.assertTrue(player.getInventory().countItem(Items.ARROW) == 0 && bow.getDamageValue() == 0, "天堂陨落长弓不应消耗箭或耐久");
+		helper.runAfterDelay(1, () -> {
+			List<HeavenArrowEntity> primaryArrows = helper.getLevel().getEntitiesOfClass(
+					HeavenArrowEntity.class,
+					player.getBoundingBox().inflate(8.0)
+			).stream().filter(arrow -> !existingPrimaryArrowIds.contains(arrow.getUUID())).toList();
+			helper.assertTrue(primaryArrows.size() == 1, "满蓄力没有生成且仅生成一支天堂箭");
+			HeavenArrowEntity primaryArrow = primaryArrows.getFirst();
+			helper.assertTrue(primaryArrow.getOwner() == player, "天堂箭没有保留射手");
+			helper.assertTrue(primaryArrow.pickup == AbstractArrow.Pickup.CREATIVE_ONLY && primaryArrow.isCritArrow(), "天堂箭回收或暴击状态错误");
+			helper.assertTrue(primaryArrow.getDeltaMovement().length() > 2.9, "天堂箭初速度不足");
+			helper.assertTrue(player.getInventory().countItem(Items.ARROW) == 0 && bow.getDamageValue() == 0, "天堂陨落长弓不应消耗箭或耐久");
 
-		BlockPos impactPos = helper.absolutePos(new BlockPos(12, 5, 12));
-		List<Integer> existingSubArrowIds = helper.getLevel().getEntitiesOfClass(
-				HeavenSubArrowEntity.class,
-				new AABB(impactPos).inflate(8.0, 30.0, 8.0)
-		).stream().map(HeavenSubArrowEntity::getId).toList();
-		primaryArrow.createBarrage(helper.getLevel(), impactPos);
-		List<HeavenSubArrowEntity> subArrows = helper.getLevel().getEntitiesOfClass(
-				HeavenSubArrowEntity.class,
-				new AABB(impactPos).inflate(8.0, 30.0, 8.0)
-		).stream().filter(arrow -> !existingSubArrowIds.contains(arrow.getId())).toList();
-		helper.assertTrue(subArrows.size() == 10, "天堂箭落地后应当生成 10 支天降子箭");
-		helper.assertTrue(
-				subArrows.stream().allMatch(arrow -> arrow.getOwner() == player
-						&& arrow.pickup == AbstractArrow.Pickup.CREATIVE_ONLY
-						&& arrow.isCritArrow()
-						&& arrow.getDeltaMovement().y < -0.15),
-				"天降子箭的射手、回收、暴击或下落速度错误"
-		);
+			BlockPos impactPos = helper.absolutePos(new BlockPos(12, 5, 12));
+			List<UUID> existingSubArrowIds = helper.getLevel().getEntitiesOfClass(
+					HeavenSubArrowEntity.class,
+					new AABB(impactPos).inflate(8.0, 30.0, 8.0)
+			).stream().map(HeavenSubArrowEntity::getUUID).toList();
+			primaryArrow.createBarrage(helper.getLevel(), impactPos);
+			helper.runAfterDelay(1, () -> {
+				List<HeavenSubArrowEntity> subArrows = helper.getLevel().getEntitiesOfClass(
+						HeavenSubArrowEntity.class,
+						new AABB(impactPos).inflate(8.0, 30.0, 8.0)
+				).stream().filter(arrow -> !existingSubArrowIds.contains(arrow.getUUID())).toList();
+				helper.assertTrue(subArrows.size() == 10, "天堂箭落地后应当生成 10 支天降子箭");
+				helper.assertTrue(
+						subArrows.stream().allMatch(arrow -> arrow.getOwner() == player
+								&& arrow.pickup == AbstractArrow.Pickup.CREATIVE_ONLY
+								&& arrow.isCritArrow()
+								&& arrow.getDeltaMovement().y < -0.15),
+						"天降子箭的射手、回收、暴击或下落速度错误"
+				);
 
-		var target = helper.spawnWithNoFreeWill(EntityTypes.PIG, new BlockPos(30, 5, 30));
-		primaryArrow.setCritArrow(false);
-		primaryArrow.setPos(target.getX() - 1.0, target.getY() + target.getBbHeight() * 0.5, target.getZ());
-		primaryArrow.setDeltaMovement(3.0, 0.0, 0.0);
-		primaryArrow.tick();
-		helper.assertTrue(target.isDeadOrDying(), "天堂箭 20 点基础伤害没有击杀普通目标");
-		helper.succeed();
+				var target = helper.spawnWithNoFreeWill(EntityTypes.PIG, new BlockPos(30, 5, 30));
+				primaryArrow.setCritArrow(false);
+				primaryArrow.setPos(target.getX() - 1.0, target.getY() + target.getBbHeight() * 0.5, target.getZ());
+				primaryArrow.setDeltaMovement(3.0, 0.0, 0.0);
+				primaryArrow.tick();
+				helper.assertTrue(target.isDeadOrDying(), "天堂箭 20 点基础伤害没有击杀普通目标");
+				helper.succeed();
+			});
+		});
 	}
 
 	@GameTest
