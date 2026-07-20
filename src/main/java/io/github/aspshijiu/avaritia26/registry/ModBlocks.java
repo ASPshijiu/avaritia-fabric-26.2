@@ -2,6 +2,7 @@ package io.github.aspshijiu.avaritia26.registry;
 
 import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.block.ExtremeCraftingTableBlock;
+import io.github.aspshijiu.avaritia26.block.NeutronCompressorBlock;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
@@ -15,6 +16,26 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 
 public final class ModBlocks {
+	public static final ResourceKey<Block> NEUTRON_COMPRESSOR_KEY = blockKey("neutron_compressor");
+	public static final Block NEUTRON_COMPRESSOR = Registry.register(
+			BuiltInRegistries.BLOCK,
+			NEUTRON_COMPRESSOR_KEY,
+			new NeutronCompressorBlock(BlockBehaviour.Properties.of()
+					.setId(NEUTRON_COMPRESSOR_KEY)
+					.mapColor(MapColor.METAL)
+					.sound(SoundType.METAL)
+					.strength(50.0F, 2000.0F)
+					.requiresCorrectToolForDrops())
+	);
+	public static final ResourceKey<Item> NEUTRON_COMPRESSOR_ITEM_KEY = itemKey("neutron_compressor");
+	public static final BlockItem NEUTRON_COMPRESSOR_ITEM = Registry.register(
+			BuiltInRegistries.ITEM,
+			NEUTRON_COMPRESSOR_ITEM_KEY,
+			new BlockItem(
+					NEUTRON_COMPRESSOR,
+					new Item.Properties().setId(NEUTRON_COMPRESSOR_ITEM_KEY).rarity(Rarity.EPIC).fireResistant()
+			)
+	);
 	public static final ResourceKey<Block> CRYSTAL_MATRIX_KEY = blockKey("crystal_matrix");
 	public static final Block CRYSTAL_MATRIX = Registry.register(
 			BuiltInRegistries.BLOCK,

@@ -33,6 +33,7 @@ public final class ModCreativeTabs {
 				output.accept(ModItems.FULL_MATTER_CLUSTER);
 				output.accept(ModItems.ULTIMATE_STEW);
 				output.accept(ModItems.COSMIC_MEATBALLS);
+				output.accept(ModBlocks.NEUTRON_COMPRESSOR_ITEM);
 				output.accept(ModBlocks.CRYSTAL_MATRIX_ITEM);
 				output.accept(ModBlocks.NEUTRON_ITEM);
 				output.accept(ModBlocks.COMPRESSED_CRAFTING_TABLE_ITEM);

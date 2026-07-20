@@ -9,6 +9,21 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 
 public final class ModRecipes {
+	public static final RecipeType<CompressorRecipe> COMPRESSOR = Registry.register(
+			BuiltInRegistries.RECIPE_TYPE,
+			Avaritia26.id("compressor"),
+			new RecipeType<>() {
+				@Override
+				public String toString() {
+					return Avaritia26.id("compressor").toString();
+				}
+			}
+	);
+	public static final RecipeSerializer<CompressorRecipe> COMPRESSOR_SERIALIZER = Registry.register(
+			BuiltInRegistries.RECIPE_SERIALIZER,
+			Avaritia26.id("compressor"),
+			new RecipeSerializer<>(CompressorRecipe.CODEC, CompressorRecipe.STREAM_CODEC)
+	);
 	public static final RecipeType<Recipe<CraftingInput>> EXTREME_CRAFTING = Registry.register(
 			BuiltInRegistries.RECIPE_TYPE,
 			Avaritia26.id("extreme_crafting"),

@@ -7,10 +7,12 @@ import java.util.Map;
 import com.mojang.serialization.JsonOps;
 import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.block.entity.ExtremeCraftingTableBlockEntity;
+import io.github.aspshijiu.avaritia26.block.entity.NeutronCompressorBlockEntity;
 import io.github.aspshijiu.avaritia26.crafting.ModRecipes;
 import io.github.aspshijiu.avaritia26.entity.EndestPearlEntity;
 import io.github.aspshijiu.avaritia26.entity.GapingVoidEntity;
 import io.github.aspshijiu.avaritia26.inventory.ExtremeCraftingMenu;
+import io.github.aspshijiu.avaritia26.inventory.NeutronCompressorMenu;
 import io.github.aspshijiu.avaritia26.item.MatterClusterItem;
 import io.github.aspshijiu.avaritia26.item.SingularityItem;
 import io.github.aspshijiu.avaritia26.registry.ModBlockEntities;
@@ -52,6 +54,7 @@ import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -93,6 +96,153 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.assertTrue(ModItems.SINGULARITY.getDefaultMaxStackSize() == 64, "奇点应当可以堆叠 64 个");
 
 		expected.forEach((path, values) -> assertSingularity(helper, path, values));
+		helper.succeed();
+	}
+
+	@GameTest
+	public void neutronCompressorCraftsAndProcessesAllTargets(GameTestHelper helper) {
+		assertExtremeRecipe(
+				helper,
+				"neutron_compressor",
+				neutronCompressorInput(),
+				ModBlocks.NEUTRON_COMPRESSOR_ITEM
+		);
+		helper.assertTrue(
+				BuiltInRegistries.BLOCK_ENTITY_TYPE.getValue(Avaritia26.id("neutron_compressor"))
+						== ModBlockEntities.NEUTRON_COMPRESSOR,
+				"中子压缩机方块实体未注册"
+		);
+		var matterRecipe = helper.getLevel().getServer().getRecipeManager()
+				.getRecipeFor(
+						ModRecipes.COMPRESSOR,
+						new SingleRecipeInput(new ItemStack(ModItems.NEUTRON_INGOT)),
+						helper.getLevel()
+				)
+				.orElseThrow(() -> helper.assertionException("中子锭未匹配满物质团压缩配方"));
+		helper.assertTrue(matterRecipe.value().inputCount() == 4096, "满物质团压缩数量错误");
+		helper.assertTrue(matterRecipe.value().timeCost() == 240, "满物质团压缩时间错误");
+		helper.assertTrue(
+				matterRecipe.value().assemble(new SingleRecipeInput(new ItemStack(ModItems.NEUTRON_INGOT)))
+						.is(ModItems.FULL_MATTER_CLUSTER),
+				"满物质团压缩输出错误"
+		);
+
+		BlockPos relativePos = new BlockPos(12, 0, 0);
+		helper.setBlock(relativePos, ModBlocks.NEUTRON_COMPRESSOR);
+		NeutronCompressorBlockEntity compressor = helper.getBlockEntity(
+				relativePos,
+				NeutronCompressorBlockEntity.class
+		);
+		helper.assertTrue(compressor.getContainerSize() == 2, "中子压缩机应当有输入和输出两个槽位");
+		helper.assertTrue(compressor.canAccept(new ItemStack(Items.OBSIDIAN)), "中子压缩机不接受奇点材料");
+		helper.assertFalse(compressor.canAccept(new ItemStack(Items.DIRT)), "中子压缩机错误接受无配方材料");
+
+		feedCompressor(helper, relativePos, compressor, Items.OBSIDIAN, 1000);
+		helper.assertTrue(compressor.getMaterialCount() == 1000, "黑曜石没有完整进入压缩缓存");
+		for (int tick = 0; tick < 100; tick++) {
+			NeutronCompressorBlockEntity.serverTick(
+					helper.getLevel(),
+					helper.absolutePos(relativePos),
+					helper.getBlockState(relativePos),
+					compressor
+			);
+		}
+		BlockEntity loaded = BlockEntity.loadStatic(
+				helper.absolutePos(relativePos),
+				helper.getBlockState(relativePos),
+				compressor.saveWithFullMetadata(helper.getLevel().registryAccess()),
+				helper.getLevel().registryAccess()
+		);
+		helper.assertTrue(loaded instanceof NeutronCompressorBlockEntity, "中子压缩机无法从存档恢复");
+		NeutronCompressorBlockEntity restored = (NeutronCompressorBlockEntity) loaded;
+		helper.assertTrue(restored.getMaterialCount() == 1000, "中子压缩机缓存材料存档错误");
+		helper.assertTrue(restored.getProgress() == compressor.getProgress(), "中子压缩机进度存档错误");
+
+		tickUntilOutput(helper, relativePos, compressor, 200);
+		SingularityDefinition obsidian = compressor.getItem(NeutronCompressorBlockEntity.OUTPUT_SLOT)
+				.get(ModDataComponents.SINGULARITY);
+		helper.assertTrue(
+				obsidian != null && obsidian.name().equals(Avaritia26.id("obsidian")),
+				"中子压缩机未产出黑曜石奇点"
+		);
+		compressor.setItem(NeutronCompressorBlockEntity.OUTPUT_SLOT, ItemStack.EMPTY);
+
+		feedCompressor(helper, relativePos, compressor, Items.COAL, 1000);
+		compressor.setItem(NeutronCompressorBlockEntity.OUTPUT_SLOT, new ItemStack(Items.DIRT));
+		int blockedProgress = compressor.getProgress();
+		for (int tick = 0; tick < 300; tick++) {
+			NeutronCompressorBlockEntity.serverTick(
+					helper.getLevel(), helper.absolutePos(relativePos), helper.getBlockState(relativePos), compressor
+			);
+		}
+		helper.assertTrue(compressor.getProgress() == blockedProgress, "输出堵塞时压缩机仍在推进进度");
+		helper.assertTrue(compressor.getMaterialCount() == 1000, "输出堵塞时压缩机丢失了缓存材料");
+		compressor.setItem(NeutronCompressorBlockEntity.OUTPUT_SLOT, ItemStack.EMPTY);
+		tickUntilOutput(helper, relativePos, compressor, 240);
+		SingularityDefinition coal = compressor.getItem(NeutronCompressorBlockEntity.OUTPUT_SLOT)
+				.get(ModDataComponents.SINGULARITY);
+		helper.assertTrue(coal != null && coal.name().equals(Avaritia26.id("coal")), "解除堵塞后未产出煤炭奇点");
+		compressor.setItem(NeutronCompressorBlockEntity.OUTPUT_SLOT, ItemStack.EMPTY);
+
+		feedCompressor(helper, relativePos, compressor, ModItems.NEUTRON_INGOT, 4096);
+		tickUntilOutput(helper, relativePos, compressor, 240);
+		helper.assertTrue(
+				compressor.getItem(NeutronCompressorBlockEntity.OUTPUT_SLOT).is(ModItems.FULL_MATTER_CLUSTER),
+				"中子压缩机未完成满物质团压缩配方"
+		);
+		Player player = helper.makeMockServerPlayer(GameType.SURVIVAL);
+		NeutronCompressorMenu menu = (NeutronCompressorMenu) compressor.createMenu(2, player.getInventory(), player);
+		helper.assertTrue(menu.slots.size() == 38, "中子压缩机菜单槽位数量错误");
+		compressor.setItem(NeutronCompressorBlockEntity.OUTPUT_SLOT, ItemStack.EMPTY);
+		feedCompressor(helper, relativePos, compressor, Items.OBSIDIAN, 128);
+		compressor.ejectBufferedMaterial(player);
+		helper.assertTrue(player.getInventory().countItem(Items.OBSIDIAN) == 128, "潜行弹出没有返还缓存材料");
+		helper.assertTrue(compressor.getMaterialCount() == 0 && compressor.getProgress() == 0, "弹出后缓存未清空");
+
+		feedCompressor(helper, relativePos, compressor, Items.OBSIDIAN, 192);
+		List<ItemStack> machineDrops = Block.getDrops(
+				helper.getBlockState(relativePos),
+				helper.getLevel(),
+				helper.absolutePos(relativePos),
+				compressor
+		);
+		helper.assertTrue(
+				machineDrops.size() == 1 && machineDrops.getFirst().is(ModBlocks.NEUTRON_COMPRESSOR_ITEM),
+				"中子压缩机 loot 未掉落自身"
+		);
+		helper.destroyBlock(relativePos);
+		int droppedObsidian = helper.getLevel().getEntitiesOfClass(
+				ItemEntity.class,
+				new AABB(helper.absolutePos(relativePos)).inflate(2.0),
+				entity -> entity.getItem().is(Items.OBSIDIAN)
+		).stream().mapToInt(entity -> entity.getItem().getCount()).sum();
+		helper.assertTrue(droppedObsidian == 192, "破坏压缩机没有完整返还缓存材料");
+		helper.succeed();
+	}
+
+	@GameTest
+	public void everyBuiltInSingularityCompresses(GameTestHelper helper) {
+		BlockPos relativePos = new BlockPos(13, 0, 0);
+		helper.setBlock(relativePos, ModBlocks.NEUTRON_COMPRESSOR);
+		NeutronCompressorBlockEntity compressor = helper.getBlockEntity(
+				relativePos,
+				NeutronCompressorBlockEntity.class
+		);
+		for (SingularityDefinition definition : SingularityManager.values()) {
+			Item ingredient = definition.ingredient().items()
+					.findFirst()
+					.orElseThrow(() -> helper.assertionException(definition.name() + " 没有可压缩输入"))
+					.value();
+			feedCompressor(helper, relativePos, compressor, ingredient, definition.count());
+			tickUntilOutput(helper, relativePos, compressor, definition.timeCost());
+			SingularityDefinition output = compressor.getItem(NeutronCompressorBlockEntity.OUTPUT_SLOT)
+					.get(ModDataComponents.SINGULARITY);
+			helper.assertTrue(
+					output != null && output.name().equals(definition.name()),
+					definition.name() + " 压缩产出了错误奇点"
+			);
+			compressor.setItem(NeutronCompressorBlockEntity.OUTPUT_SLOT, ItemStack.EMPTY);
+		}
 		helper.succeed();
 	}
 
@@ -1074,6 +1224,61 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	private record ExpectedSingularity(Item ingredient, int overlayColor, int underlayColor) {
 	}
 
+	private static void assertExtremeRecipe(
+			GameTestHelper helper,
+			String path,
+			CraftingInput input,
+			Item expectedItem
+	) {
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(Registries.RECIPE, Avaritia26.id(path));
+		RecipeHolder<Recipe<CraftingInput>> recipe = helper.getLevel().getServer().getRecipeManager()
+				.getRecipeFor(ModRecipes.EXTREME_CRAFTING, input, helper.getLevel())
+				.orElseThrow(() -> helper.assertionException("未匹配终极配方 " + path));
+		helper.assertTrue(recipe.id().equals(recipeKey), path + " 匹配到了错误配方");
+		helper.assertTrue(recipe.value().assemble(input).is(expectedItem), path + " 输出了错误物品");
+	}
+
+	private static void feedCompressor(
+			GameTestHelper helper,
+			BlockPos relativePos,
+			NeutronCompressorBlockEntity compressor,
+			Item item,
+			int count
+	) {
+		int remaining = count;
+		while (remaining > 0) {
+			int batch = Math.min(item.getDefaultMaxStackSize(), remaining);
+			compressor.setItem(NeutronCompressorBlockEntity.INPUT_SLOT, new ItemStack(item, batch));
+			NeutronCompressorBlockEntity.serverTick(
+					helper.getLevel(),
+					helper.absolutePos(relativePos),
+					helper.getBlockState(relativePos),
+					compressor
+			);
+			remaining -= batch;
+		}
+	}
+
+	private static void tickUntilOutput(
+			GameTestHelper helper,
+			BlockPos relativePos,
+			NeutronCompressorBlockEntity compressor,
+			int maximumTicks
+	) {
+		for (int tick = 0; tick < maximumTicks && compressor.getItem(NeutronCompressorBlockEntity.OUTPUT_SLOT).isEmpty(); tick++) {
+			NeutronCompressorBlockEntity.serverTick(
+					helper.getLevel(),
+					helper.absolutePos(relativePos),
+					helper.getBlockState(relativePos),
+					compressor
+			);
+		}
+		helper.assertFalse(
+				compressor.getItem(NeutronCompressorBlockEntity.OUTPUT_SLOT).isEmpty(),
+				"中子压缩机没有在预期时间内产出物品"
+		);
+	}
+
 	private static CraftingInput filledCraftingInput(Item item) {
 		return CraftingInput.of(3, 3, List.of(
 				new ItemStack(item), new ItemStack(item), new ItemStack(item),
@@ -1135,6 +1340,35 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 					case 'S' -> new ItemStack(Items.NETHER_STAR);
 					case ' ' -> ItemStack.EMPTY;
 					default -> throw new IllegalArgumentException("未知终望珍珠配方符号: " + symbol);
+				});
+			}
+		}
+		return CraftingInput.of(9, 9, stacks);
+	}
+
+	private static CraftingInput neutronCompressorInput() {
+		List<ItemStack> stacks = new java.util.ArrayList<>(81);
+		for (String row : List.of(
+				"IIIHHHIII",
+				"C N   N C",
+				"I N   N I",
+				"C N   N C",
+				"RNN O NNR",
+				"C N   N C",
+				"I N   N I",
+				"C N   N C",
+				"IIICICIII"
+		)) {
+			for (char symbol : row.toCharArray()) {
+				stacks.add(switch (symbol) {
+					case 'C' -> new ItemStack(ModItems.CRYSTAL_MATRIX_INGOT);
+					case 'H' -> new ItemStack(Items.HOPPER);
+					case 'I' -> new ItemStack(Items.IRON_BLOCK);
+					case 'N' -> new ItemStack(ModItems.NEUTRON_INGOT);
+					case 'O' -> new ItemStack(ModBlocks.NEUTRON_ITEM);
+					case 'R' -> new ItemStack(Items.REDSTONE_BLOCK);
+					case ' ' -> ItemStack.EMPTY;
+					default -> throw new IllegalArgumentException("未知中子压缩机配方符号: " + symbol);
 				});
 			}
 		}

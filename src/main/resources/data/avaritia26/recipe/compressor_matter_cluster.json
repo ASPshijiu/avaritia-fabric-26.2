@@ -1,0 +1,10 @@
+{
+  "type": "avaritia26:compressor",
+  "ingredient": ["avaritia26:neutron_ingot"],
+  "inputCount": 4096,
+  "result": {
+    "count": 1,
+    "id": "avaritia26:full_matter_cluster"
+  },
+  "timeCost": 240
+}

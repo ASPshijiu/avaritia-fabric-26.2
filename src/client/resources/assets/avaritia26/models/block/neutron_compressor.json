@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "north": "avaritia26:block/neutron_compressor/frame",
+    "east": "avaritia26:block/neutron_compressor/compressor_side_left",
+    "south": "avaritia26:block/neutron_compressor/compressor_front",
+    "west": "avaritia26:block/neutron_compressor/compressor_side_right",
+    "up": "avaritia26:block/neutron_compressor/compressor_top",
+    "down": "avaritia26:block/neutron_compressor/frame",
+    "particle": "avaritia26:block/neutron_compressor/compressor_top"
+  }
+}
