@@ -18,7 +18,10 @@ public final class ModCreativeTabs {
 	private static final CreativeModeTab MAIN = FabricCreativeModeTab.builder()
 			.icon(() -> new ItemStack(ModItems.DIAMOND_LATTICE))
 			.title(Component.translatable("itemGroup.avaritia26.main"))
-			.displayItems((parameters, output) -> output.accept(ModItems.DIAMOND_LATTICE))
+			.displayItems((parameters, output) -> {
+				output.accept(ModItems.DIAMOND_LATTICE);
+				output.accept(ModItems.CRYSTAL_MATRIX_INGOT);
+			})
 			.build();
 
 	private ModCreativeTabs() {

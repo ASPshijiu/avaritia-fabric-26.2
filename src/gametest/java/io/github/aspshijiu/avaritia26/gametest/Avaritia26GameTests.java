@@ -45,6 +45,23 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	}
 
 	@GameTest
+	public void crystalMatrixIngotIsRegistered(GameTestHelper helper) {
+		helper.assertTrue(
+				BuiltInRegistries.ITEM.getValue(ModItems.CRYSTAL_MATRIX_INGOT_KEY) == ModItems.CRYSTAL_MATRIX_INGOT,
+				"晶态矩阵锭没有注册到预期的 ResourceKey"
+		);
+		helper.assertTrue(
+				new ItemStack(ModItems.CRYSTAL_MATRIX_INGOT).is(ModItems.CRYSTAL_MATRIX_INGOT),
+				"晶态矩阵锭 ItemStack 未指向注册物品"
+		);
+		helper.assertTrue(
+				ModItems.CRYSTAL_MATRIX_INGOT.getDefaultMaxStackSize() == 64,
+				"晶态矩阵锭应当可以堆叠 64 个"
+		);
+		helper.succeed();
+	}
+
+	@GameTest
 	public void diamondLatticeNormalRecipeWorks(GameTestHelper helper) {
 		CraftingInput input = CraftingInput.of(3, 3, List.of(
 				new ItemStack(Items.DIAMOND), new ItemStack(Items.DIAMOND), new ItemStack(Items.DIAMOND),

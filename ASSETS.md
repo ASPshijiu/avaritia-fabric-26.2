@@ -5,6 +5,7 @@
 | 本项目文件 | 来源 | 固定版本 | 作者/项目 | 许可证 | 修改 |
 |---|---|---|---|---|---|
 | `src/client/resources/assets/avaritia26/textures/item/diamond_lattice.png` | `src/main/resources/assets/avaritia/textures/item/resource/crystal/diamond_lattice.png` | Re:Avaritia `c331b7f4838667e6200b24c99dc45459e0b9dafb` | Nova Committee / Re:Avaritia artists | CC BY-NC-SA 4.0 | 仅调整资源路径，像素未修改 |
+| `src/client/resources/assets/avaritia26/textures/item/crystal_matrix_ingot.png` | `src/main/resources/assets/avaritia/textures/item/resource/crystal/crystal_matrix_ingot.png` | Re:Avaritia `c331b7f4838667e6200b24c99dc45459e0b9dafb` | Nova Committee / Re:Avaritia artists | CC BY-NC-SA 4.0 | 仅调整资源路径，像素未修改 |
 
 ## CC BY-NC-SA 4.0
 

@@ -11,6 +11,12 @@ import net.minecraft.world.item.Item;
 public final class ModItems {
 	public static final ResourceKey<Item> DIAMOND_LATTICE_KEY = key("diamond_lattice");
 	public static final Item DIAMOND_LATTICE = register(DIAMOND_LATTICE_KEY, Item::new, new Item.Properties());
+	public static final ResourceKey<Item> CRYSTAL_MATRIX_INGOT_KEY = key("crystal_matrix_ingot");
+	public static final Item CRYSTAL_MATRIX_INGOT = register(
+			CRYSTAL_MATRIX_INGOT_KEY,
+			Item::new,
+			new Item.Properties()
+	);
 
 	private ModItems() {
 	}
