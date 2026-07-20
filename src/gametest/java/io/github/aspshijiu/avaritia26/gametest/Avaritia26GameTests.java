@@ -12,6 +12,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
@@ -68,6 +69,14 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 				stack.has(DataComponents.DAMAGE_RESISTANT),
 				"晶态矩阵锭应当具有防火伤害抗性组件"
 		);
+		helper.succeed();
+	}
+
+	@GameTest
+	public void neutronMaterialsAreRegistered(GameTestHelper helper) {
+		assertRegisteredMaterial(helper, ModItems.NEUTRON_PILE_KEY, ModItems.NEUTRON_PILE, Rarity.UNCOMMON, "中子堆");
+		assertRegisteredMaterial(helper, ModItems.NEUTRON_NUGGET_KEY, ModItems.NEUTRON_NUGGET, Rarity.RARE, "中子粒");
+		assertRegisteredMaterial(helper, ModItems.NEUTRON_INGOT_KEY, ModItems.NEUTRON_INGOT, Rarity.EPIC, "中子锭");
 		helper.succeed();
 	}
 
@@ -147,5 +156,19 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	public void invokeTestMethod(GameTestHelper helper, Method method) throws ReflectiveOperationException {
 		helper.setBlock(0, 0, 0, Blocks.AIR);
 		method.invoke(this, helper);
+	}
+
+	private static void assertRegisteredMaterial(
+			GameTestHelper helper,
+			ResourceKey<Item> key,
+			Item item,
+			Rarity rarity,
+			String name
+	) {
+		ItemStack stack = new ItemStack(item);
+		helper.assertTrue(BuiltInRegistries.ITEM.getValue(key) == item, name + "没有注册到预期的 ResourceKey");
+		helper.assertTrue(stack.is(item), name + " ItemStack 未指向注册物品");
+		helper.assertTrue(item.getDefaultMaxStackSize() == 64, name + "应当可以堆叠 64 个");
+		helper.assertTrue(stack.getRarity() == rarity, name + "稀有度错误");
 	}
 }

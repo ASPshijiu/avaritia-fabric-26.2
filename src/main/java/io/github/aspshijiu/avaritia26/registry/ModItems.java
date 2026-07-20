@@ -22,6 +22,24 @@ public final class ModItems {
 			Item::new,
 			new Item.Properties().rarity(Rarity.RARE).fireResistant()
 	);
+	public static final ResourceKey<Item> NEUTRON_PILE_KEY = key("neutron_pile");
+	public static final Item NEUTRON_PILE = register(
+			NEUTRON_PILE_KEY,
+			Item::new,
+			new Item.Properties().rarity(Rarity.UNCOMMON)
+	);
+	public static final ResourceKey<Item> NEUTRON_NUGGET_KEY = key("neutron_nugget");
+	public static final Item NEUTRON_NUGGET = register(
+			NEUTRON_NUGGET_KEY,
+			Item::new,
+			new Item.Properties().rarity(Rarity.RARE)
+	);
+	public static final ResourceKey<Item> NEUTRON_INGOT_KEY = key("neutron_ingot");
+	public static final Item NEUTRON_INGOT = register(
+			NEUTRON_INGOT_KEY,
+			Item::new,
+			new Item.Properties().rarity(Rarity.EPIC)
+	);
 
 	private ModItems() {
 	}

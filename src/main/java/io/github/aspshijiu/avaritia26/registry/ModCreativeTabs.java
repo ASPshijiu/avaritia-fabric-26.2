@@ -21,6 +21,9 @@ public final class ModCreativeTabs {
 			.displayItems((parameters, output) -> {
 				output.accept(ModItems.DIAMOND_LATTICE);
 				output.accept(ModItems.CRYSTAL_MATRIX_INGOT);
+				output.accept(ModItems.NEUTRON_PILE);
+				output.accept(ModItems.NEUTRON_NUGGET);
+				output.accept(ModItems.NEUTRON_INGOT);
 			})
 			.build();
 
