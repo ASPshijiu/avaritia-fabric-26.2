@@ -16,6 +16,26 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 
 public final class ModBlocks {
+	public static final ResourceKey<Block> INFINITY_KEY = blockKey("infinity");
+	public static final Block INFINITY = Registry.register(
+			BuiltInRegistries.BLOCK,
+			INFINITY_KEY,
+			new Block(BlockBehaviour.Properties.of()
+					.setId(INFINITY_KEY)
+					.mapColor(MapColor.METAL)
+					.sound(SoundType.METAL)
+					.strength(9999.0F, 9999.0F)
+					.lightLevel(state -> 15))
+	);
+	public static final ResourceKey<Item> INFINITY_ITEM_KEY = itemKey("infinity");
+	public static final BlockItem INFINITY_ITEM = Registry.register(
+			BuiltInRegistries.ITEM,
+			INFINITY_ITEM_KEY,
+			new BlockItem(
+					INFINITY,
+					new Item.Properties().setId(INFINITY_ITEM_KEY).rarity(Rarity.EPIC).fireResistant()
+			)
+	);
 	public static final ResourceKey<Block> NEUTRON_COMPRESSOR_KEY = blockKey("neutron_compressor");
 	public static final Block NEUTRON_COMPRESSOR = Registry.register(
 			BuiltInRegistries.BLOCK,

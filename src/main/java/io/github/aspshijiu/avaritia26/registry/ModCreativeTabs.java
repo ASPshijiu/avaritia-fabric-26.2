@@ -23,6 +23,8 @@ public final class ModCreativeTabs {
 			.displayItems((parameters, output) -> {
 				SingularityManager.values().forEach(definition -> output.accept(SingularityItem.createStack(definition)));
 				output.accept(ModItems.INFINITY_CATALYST);
+				output.accept(ModItems.INFINITY_INGOT);
+				output.accept(ModBlocks.INFINITY_ITEM);
 				output.accept(ModItems.DIAMOND_LATTICE);
 				output.accept(ModItems.CRYSTAL_MATRIX_INGOT);
 				output.accept(ModItems.NEUTRON_PILE);

@@ -19,6 +19,12 @@ public final class ModItems {
 			Item::new,
 			new Item.Properties().rarity(Rarity.EPIC).fireResistant()
 	);
+	public static final ResourceKey<Item> INFINITY_INGOT_KEY = key("infinity_ingot");
+	public static final Item INFINITY_INGOT = register(
+			INFINITY_INGOT_KEY,
+			Item::new,
+			new Item.Properties().rarity(Rarity.EPIC).fireResistant()
+	);
 	public static final ResourceKey<Item> SINGULARITY_KEY = key("singularity");
 	public static final Item SINGULARITY = register(
 			SINGULARITY_KEY,

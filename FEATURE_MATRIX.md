@@ -14,7 +14,7 @@
 | `neutron_nugget` | 中子粒 | 实现中 | 实现中 | 不适用 | 实现中 | — | — |
 | `neutron_ingot` | 中子锭 | 实现中 | 实现中 | 不适用 | 实现中 | — | — |
 | `infinity_catalyst` | 无尽催化剂 | 实现中 | 实现中 | 不适用 | 实现中 | — | — |
-| `infinity_ingot` | 无尽锭 | 未开始 | — | — | — | — | — |
+| `infinity_ingot` | 无尽锭 | 实现中 | 实现中 | 不适用 | 实现中 | — | — |
 | `singularity` | 奇点（数据驱动） | 实现中 | 实现中 | 不适用 | 实现中 | — | — |
 | `eternal_singularity` | 无尽奇点 | 未开始 | — | — | — | — | — |
 | `record_fragment` | 唱片碎片 | 实现中 | 实现中 | 不适用 | 实现中 | — | — |
@@ -43,7 +43,7 @@
 | `extreme_crafting_table` | 终极工作台 | 实现中 | 实现中 | 实现中 | 实现中 | — | — |
 | `crystal_matrix` | 晶态矩阵块 | 实现中 | 实现中 | 实现中 | 实现中 | — | — |
 | `neutron` | 中子块 | 实现中 | 实现中 | 实现中 | 实现中 | — | — |
-| `infinity` | 无尽块 | 未开始 | — | — | — | — | — |
+| `infinity` | 无尽块 | 实现中 | 实现中 | 实现中 | 实现中 | — | — |
 | `neutron_collector` | 中子收集器 | 未开始 | — | — | — | — | — |
 | `neutron_compressor` | 中子压缩机 | 实现中 | 实现中 | 实现中 | 实现中 | — | — |
 | `infinity_chest` | 无尽箱子 | 未开始 | — | — | — | — | — |

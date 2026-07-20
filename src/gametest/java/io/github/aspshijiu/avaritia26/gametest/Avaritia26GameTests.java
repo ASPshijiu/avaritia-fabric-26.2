@@ -33,6 +33,7 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -171,6 +172,88 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		List<ItemStack> extraIngredient = copyStacks(ingredients);
 		extraIngredient.add(new ItemStack(Items.DIRT));
 		assertInfinityCatalystRejected(helper, recipeKey, extraIngredient, "额外材料");
+		helper.succeed();
+	}
+
+	@GameTest
+	public void infinityIngotAndBlockResourceChainWorks(GameTestHelper helper) {
+		ItemStack ingot = new ItemStack(ModItems.INFINITY_INGOT);
+		helper.assertTrue(
+				BuiltInRegistries.ITEM.getValue(ModItems.INFINITY_INGOT_KEY) == ModItems.INFINITY_INGOT,
+				"无尽锭没有注册到预期的 ResourceKey"
+		);
+		helper.assertTrue(ModItems.INFINITY_INGOT.getDefaultMaxStackSize() == 64, "无尽锭应当堆叠 64 个");
+		helper.assertTrue(ingot.getRarity() == Rarity.EPIC, "无尽锭应当是 EPIC 稀有度");
+		helper.assertTrue(ingot.has(DataComponents.DAMAGE_RESISTANT), "无尽锭应当具有防火伤害抗性组件");
+
+		CraftingInput ingotInput = infinityIngotInput();
+		assertExtremeRecipe(helper, "infinity_ingot", ingotInput, ModItems.INFINITY_INGOT);
+		List<ItemStack> wrongIngotInput = copyStacks(ingotInput.items());
+		wrongIngotInput.set(2, new ItemStack(Items.DIRT));
+		ResourceKey<Recipe<?>> ingotRecipeKey = ResourceKey.create(
+				Registries.RECIPE,
+				Avaritia26.id("infinity_ingot")
+		);
+		helper.assertFalse(
+				helper.getLevel().getServer().getRecipeManager()
+						.getRecipeFor(
+								ModRecipes.EXTREME_CRAFTING,
+								CraftingInput.of(9, 5, wrongIngotInput),
+								helper.getLevel()
+						)
+						.filter(candidate -> candidate.id().equals(ingotRecipeKey))
+						.isPresent(),
+				"无尽锭配方不应接受错误边框材料"
+		);
+
+		helper.assertTrue(
+				BuiltInRegistries.BLOCK.getValue(ModBlocks.INFINITY_KEY) == ModBlocks.INFINITY,
+				"无尽块没有注册到预期的 ResourceKey"
+		);
+		helper.assertTrue(
+				BuiltInRegistries.ITEM.getValue(ModBlocks.INFINITY_ITEM_KEY) == ModBlocks.INFINITY_ITEM,
+				"无尽块物品没有注册到预期的 ResourceKey"
+		);
+		helper.assertTrue(Block.byItem(ModBlocks.INFINITY_ITEM) == ModBlocks.INFINITY, "无尽块物品没有关联到方块");
+		ItemStack blockStack = new ItemStack(ModBlocks.INFINITY_ITEM);
+		helper.assertTrue(blockStack.getRarity() == Rarity.EPIC, "无尽块物品应当是 EPIC 稀有度");
+		helper.assertTrue(blockStack.has(DataComponents.DAMAGE_RESISTANT), "无尽块物品应当具有防火伤害抗性组件");
+
+		BlockPos relativePos = new BlockPos(15, 0, 0);
+		helper.setBlock(relativePos, ModBlocks.INFINITY);
+		helper.assertBlockPresent(ModBlocks.INFINITY, relativePos);
+		helper.assertTrue(helper.getBlockState(relativePos).getLightEmission() == 15, "无尽块光照等级应当是 15");
+		helper.assertTrue(ModBlocks.INFINITY.getExplosionResistance() == 9999.0F, "无尽块爆炸抗性应当是 9999");
+		helper.assertTrue(
+				helper.getBlockState(relativePos).getDestroySpeed(helper.getLevel(), helper.absolutePos(relativePos))
+						== 9999.0F,
+				"无尽块硬度应当是 9999"
+		);
+		helper.assertTrue(helper.getBlockState(relativePos).is(BlockTags.MINEABLE_WITH_PICKAXE), "无尽块应当可用镐挖掘");
+		helper.assertTrue(helper.getBlockState(relativePos).is(BlockTags.BEACON_BASE_BLOCKS), "无尽块应当可作为信标基座");
+		helper.assertTrue(helper.getBlockState(relativePos).is(BlockTags.PORTALS), "无尽块应当保留上游传送门方块标签");
+		List<ItemStack> drops = Block.getDrops(
+				helper.getBlockState(relativePos),
+				helper.getLevel(),
+				helper.absolutePos(relativePos),
+				null
+		);
+		helper.assertTrue(drops.size() == 1 && drops.getFirst().is(ModBlocks.INFINITY_ITEM), "无尽块应当掉落自身");
+
+		assertCraftingRecipe(
+				helper,
+				"infinity",
+				filledCraftingInput(ModItems.INFINITY_INGOT),
+				ModBlocks.INFINITY_ITEM,
+				1
+		);
+		assertCraftingRecipe(
+				helper,
+				"infinity_ingot_from_block",
+				CraftingInput.of(1, 1, List.of(new ItemStack(ModBlocks.INFINITY_ITEM))),
+				ModItems.INFINITY_INGOT,
+				9
+		);
 		helper.succeed();
 	}
 
@@ -1475,6 +1558,27 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 			}
 		}
 		return CraftingInput.of(9, 9, stacks);
+	}
+
+	private static CraftingInput infinityIngotInput() {
+		List<ItemStack> stacks = new java.util.ArrayList<>(45);
+		for (String row : List.of(
+				"NNNNNNNNN",
+				"NCXXCXXCN",
+				"NXCCXCCXN",
+				"NCXXCXXCN",
+				"NNNNNNNNN"
+		)) {
+			for (char symbol : row.toCharArray()) {
+				stacks.add(new ItemStack(switch (symbol) {
+					case 'C' -> ModItems.CRYSTAL_MATRIX_INGOT;
+					case 'N' -> ModItems.NEUTRON_INGOT;
+					case 'X' -> ModItems.INFINITY_CATALYST;
+					default -> throw new IllegalArgumentException("未知无尽锭配方符号: " + symbol);
+				}));
+			}
+		}
+		return CraftingInput.of(9, 5, stacks);
 	}
 
 	private static CraftingInput ultimateStewInput() {

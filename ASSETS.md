@@ -29,6 +29,8 @@
 | `src/client/resources/assets/avaritia26/textures/block/neutron_compressor/` 下 6 个素材文件 | Re:Avaritia `src/main/resources/assets/avaritia/textures/block/machine/compressor/` 下 `frame`、`compressor_front`、`compressor_side_left`、`compressor_side_right`、`compressor_top` 同名素材 | Re:Avaritia `c331b7f4838667e6200b24c99dc45459e0b9dafb` | Nova Committee / Re:Avaritia artists | CC BY-NC-SA 4.0 | 仅调整资源路径，内容未修改 |
 | `src/client/resources/assets/avaritia26/textures/gui/neutron_compressor.png` | `src/main/resources/assets/avaritia/textures/gui/machine/neutron_compressor.png` | Re:Avaritia `c331b7f4838667e6200b24c99dc45459e0b9dafb` | Nova Committee / Re:Avaritia artists | CC BY-NC-SA 4.0 | 仅调整资源路径，像素未修改 |
 | `src/client/resources/assets/avaritia26/textures/item/infinity_catalyst.png` 与 `.png.mcmeta` | Re:Avaritia `src/main/resources/assets/avaritia/textures/item/resource/infinity/infinity_catalyst.png` 与 `.png.mcmeta` | Re:Avaritia `c331b7f4838667e6200b24c99dc45459e0b9dafb` | Nova Committee / Re:Avaritia artists | CC BY-NC-SA 4.0 | 仅调整资源路径，内容未修改 |
+| `src/client/resources/assets/avaritia26/textures/item/infinity_ingot.png` 与 `.png.mcmeta` | Re:Avaritia `src/main/resources/assets/avaritia/textures/item/resource/infinity/infinity_ingot.png` 与 `.png.mcmeta` | Re:Avaritia `c331b7f4838667e6200b24c99dc45459e0b9dafb` | Nova Committee / Re:Avaritia artists | CC BY-NC-SA 4.0 | 仅调整资源路径；元数据删除一处尾随空白，动画语义未修改 |
+| `src/client/resources/assets/avaritia26/textures/block/infinity.png` 与 `.png.mcmeta` | Re:Avaritia `src/main/resources/assets/avaritia/textures/block/resource/infinity.png` 与 `.png.mcmeta` | Re:Avaritia `c331b7f4838667e6200b24c99dc45459e0b9dafb` | Nova Committee / Re:Avaritia artists | CC BY-NC-SA 4.0 | 仅调整资源路径，内容未修改 |
 
 ## CC BY-NC-SA 4.0
 
