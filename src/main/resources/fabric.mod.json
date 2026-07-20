@@ -1,0 +1,31 @@
+{
+	"schemaVersion": 1,
+	"id": "avaritia26",
+	"version": "${version}",
+	"name": "Avaritia 26 (Unofficial)",
+	"description": "An unofficial Avaritia adaptation for Minecraft 26.2 on Fabric.",
+	"authors": [
+		"ASPshijiu"
+	],
+	"contact": {
+		"homepage": "https://github.com/ASPshijiu/avaritia-fabric-26.2",
+		"sources": "https://github.com/ASPshijiu/avaritia-fabric-26.2",
+		"issues": "https://github.com/ASPshijiu/avaritia-fabric-26.2/issues"
+	},
+	"license": "MIT",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"io.github.aspshijiu.avaritia26.Avaritia26"
+		],
+		"client": [
+			"io.github.aspshijiu.avaritia26.client.Avaritia26Client"
+		]
+	},
+	"depends": {
+		"fabricloader": ">=0.19.3",
+		"minecraft": "~26.2",
+		"java": ">=25",
+		"fabric-api": ">=0.155.2+26.2"
+	}
+}
