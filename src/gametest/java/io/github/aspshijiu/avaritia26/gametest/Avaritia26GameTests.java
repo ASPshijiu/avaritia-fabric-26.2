@@ -14,6 +14,10 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.CraftingMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -23,8 +27,10 @@ import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CraftingTableBlock;
 
 public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	@GameTest
@@ -196,6 +202,31 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	}
 
 	@GameTest
+	public void compressedCraftingTablesWork(GameTestHelper helper) {
+		assertCraftingTableBlock(
+				helper,
+				new BlockPos(3, 0, 0),
+				ModBlocks.COMPRESSED_CRAFTING_TABLE_KEY,
+				ModBlocks.COMPRESSED_CRAFTING_TABLE,
+				ModBlocks.COMPRESSED_CRAFTING_TABLE_ITEM_KEY,
+				ModBlocks.COMPRESSED_CRAFTING_TABLE_ITEM,
+				100.0F,
+				"压缩工作台"
+		);
+		assertCraftingTableBlock(
+				helper,
+				new BlockPos(4, 0, 0),
+				ModBlocks.DOUBLE_COMPRESSED_CRAFTING_TABLE_KEY,
+				ModBlocks.DOUBLE_COMPRESSED_CRAFTING_TABLE,
+				ModBlocks.DOUBLE_COMPRESSED_CRAFTING_TABLE_ITEM_KEY,
+				ModBlocks.DOUBLE_COMPRESSED_CRAFTING_TABLE_ITEM,
+				500.0F,
+				"二重压缩工作台"
+		);
+		helper.succeed();
+	}
+
+	@GameTest
 	public void diamondLatticeNormalRecipeWorks(GameTestHelper helper) {
 		CraftingInput input = CraftingInput.of(3, 3, List.of(
 				new ItemStack(Items.DIAMOND), new ItemStack(Items.DIAMOND), new ItemStack(Items.DIAMOND),
@@ -343,5 +374,42 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		ItemStack result = recipe.value().assemble(input);
 		helper.assertTrue(result.is(expectedItem), path + " 输出了错误物品");
 		helper.assertTrue(result.getCount() == expectedCount, path + " 输出数量错误");
+	}
+
+	private static void assertCraftingTableBlock(
+			GameTestHelper helper,
+			BlockPos relativePos,
+			ResourceKey<Block> blockKey,
+			Block block,
+			ResourceKey<Item> itemKey,
+			Item item,
+			float explosionResistance,
+			String name
+	) {
+		helper.assertTrue(BuiltInRegistries.BLOCK.getValue(blockKey) == block, name + "方块注册错误");
+		helper.assertTrue(BuiltInRegistries.ITEM.getValue(itemKey) == item, name + "物品注册错误");
+		helper.assertTrue(Block.byItem(item) == block, name + "物品没有关联到方块");
+		helper.assertTrue(block instanceof CraftingTableBlock, name + "不是原版 3x3 合成台类型");
+		helper.assertTrue(new ItemStack(item).getRarity() == Rarity.UNCOMMON, name + "稀有度错误");
+		helper.assertTrue(block.getExplosionResistance() == explosionResistance, name + "爆炸抗性错误");
+
+		helper.setBlock(relativePos, block);
+		helper.assertBlockPresent(block, relativePos);
+		List<ItemStack> drops = Block.getDrops(
+				helper.getBlockState(relativePos),
+				helper.getLevel(),
+				helper.absolutePos(relativePos),
+				null
+		);
+		helper.assertTrue(drops.size() == 1 && drops.getFirst().is(item), name + "应当掉落自身");
+
+		MenuProvider provider = helper.getBlockState(relativePos).getMenuProvider(
+				helper.getLevel(),
+				helper.absolutePos(relativePos)
+		);
+		helper.assertTrue(provider != null, name + "没有菜单提供器");
+		Player player = helper.makeMockPlayer(GameType.CREATIVE);
+		AbstractContainerMenu menu = provider.createMenu(1, player.getInventory(), player);
+		helper.assertTrue(menu instanceof CraftingMenu, name + "没有创建 3x3 合成界面");
 	}
 }

@@ -38,8 +38,8 @@
 
 | Registry path | 中文名 | 实现 | 合成/产出 | 使用 | 功能 | 客户端 | 专服 |
 |---|---|---|---|---|---|---|---|
-| `compressed_crafting_table` | 压缩工作台 | 未开始 | — | — | — | — | — |
-| `double_compressed_crafting_table` | 二重压缩工作台 | 未开始 | — | — | — | — | — |
+| `compressed_crafting_table` | 压缩工作台 | 实现中 | — | 实现中 | 实现中 | — | — |
+| `double_compressed_crafting_table` | 二重压缩工作台 | 实现中 | — | 实现中 | 实现中 | — | — |
 | `extreme_crafting_table` | 终极工作台 | 未开始 | — | — | — | — | — |
 | `crystal_matrix` | 晶态矩阵块 | 实现中 | 实现中 | 实现中 | 实现中 | — | — |
 | `neutron` | 中子块 | 实现中 | 实现中 | 实现中 | 实现中 | — | — |

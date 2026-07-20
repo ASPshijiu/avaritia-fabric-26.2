@@ -12,6 +12,8 @@
 | `src/client/resources/assets/avaritia26/textures/block/crystal_matrix.png` | `src/main/resources/assets/avaritia/textures/block/resource/crystal_matrix.png` | Re:Avaritia `c331b7f4838667e6200b24c99dc45459e0b9dafb` | Nova Committee / Re:Avaritia artists | CC BY-NC-SA 4.0 | 仅调整资源路径，像素未修改 |
 | `src/client/resources/assets/avaritia26/textures/block/crystal_matrix.png.mcmeta` | `src/main/resources/assets/avaritia/textures/block/resource/crystal_matrix.png.mcmeta` | Re:Avaritia `c331b7f4838667e6200b24c99dc45459e0b9dafb` | Nova Committee / Re:Avaritia artists | CC BY-NC-SA 4.0 | 仅调整资源路径，内容未修改 |
 | `src/client/resources/assets/avaritia26/textures/block/neutron.png` | `src/main/resources/assets/avaritia/textures/block/resource/neutron.png` | Re:Avaritia `c331b7f4838667e6200b24c99dc45459e0b9dafb` | Nova Committee / Re:Avaritia artists | CC BY-NC-SA 4.0 | 仅调整资源路径，像素未修改 |
+| `src/client/resources/assets/avaritia26/textures/block/compressed_crafting_table.png` | `src/main/resources/assets/avaritia/textures/block/machine/craft/compressed.png` | Re:Avaritia `c331b7f4838667e6200b24c99dc45459e0b9dafb` | Nova Committee / Re:Avaritia artists | CC BY-NC-SA 4.0 | 仅调整资源路径，像素未修改 |
+| `src/client/resources/assets/avaritia26/textures/block/double_compressed_crafting_table.png` | `src/main/resources/assets/avaritia/textures/block/machine/craft/double_compressed.png` | Re:Avaritia `c331b7f4838667e6200b24c99dc45459e0b9dafb` | Nova Committee / Re:Avaritia artists | CC BY-NC-SA 4.0 | 仅调整资源路径，像素未修改 |
 
 ## CC BY-NC-SA 4.0
 

@@ -8,6 +8,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.CraftingTableBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
@@ -51,6 +52,51 @@ public final class ModBlocks {
 			new BlockItem(
 					NEUTRON,
 					new Item.Properties().setId(NEUTRON_ITEM_KEY).rarity(Rarity.EPIC).fireResistant()
+			)
+	);
+	public static final ResourceKey<Block> COMPRESSED_CRAFTING_TABLE_KEY = blockKey("compressed_crafting_table");
+	public static final Block COMPRESSED_CRAFTING_TABLE = Registry.register(
+			BuiltInRegistries.BLOCK,
+			COMPRESSED_CRAFTING_TABLE_KEY,
+			new CraftingTableBlock(BlockBehaviour.Properties.of()
+					.setId(COMPRESSED_CRAFTING_TABLE_KEY)
+					.mapColor(MapColor.WOOD)
+					.sound(SoundType.WOOD)
+					.strength(5.0F, 100.0F)
+					.requiresCorrectToolForDrops())
+	);
+	public static final ResourceKey<Item> COMPRESSED_CRAFTING_TABLE_ITEM_KEY = itemKey("compressed_crafting_table");
+	public static final BlockItem COMPRESSED_CRAFTING_TABLE_ITEM = Registry.register(
+			BuiltInRegistries.ITEM,
+			COMPRESSED_CRAFTING_TABLE_ITEM_KEY,
+			new BlockItem(
+					COMPRESSED_CRAFTING_TABLE,
+					new Item.Properties().setId(COMPRESSED_CRAFTING_TABLE_ITEM_KEY).rarity(Rarity.UNCOMMON)
+			)
+	);
+	public static final ResourceKey<Block> DOUBLE_COMPRESSED_CRAFTING_TABLE_KEY = blockKey(
+			"double_compressed_crafting_table"
+	);
+	public static final Block DOUBLE_COMPRESSED_CRAFTING_TABLE = Registry.register(
+			BuiltInRegistries.BLOCK,
+			DOUBLE_COMPRESSED_CRAFTING_TABLE_KEY,
+			new CraftingTableBlock(BlockBehaviour.Properties.of()
+					.setId(DOUBLE_COMPRESSED_CRAFTING_TABLE_KEY)
+					.mapColor(MapColor.WOOD)
+					.sound(SoundType.WOOD)
+					.strength(20.0F, 500.0F)
+					.requiresCorrectToolForDrops())
+	);
+	public static final ResourceKey<Item> DOUBLE_COMPRESSED_CRAFTING_TABLE_ITEM_KEY = itemKey(
+			"double_compressed_crafting_table"
+	);
+	public static final BlockItem DOUBLE_COMPRESSED_CRAFTING_TABLE_ITEM = Registry.register(
+			BuiltInRegistries.ITEM,
+			DOUBLE_COMPRESSED_CRAFTING_TABLE_ITEM_KEY,
+			new BlockItem(
+					DOUBLE_COMPRESSED_CRAFTING_TABLE,
+					new Item.Properties().setId(DOUBLE_COMPRESSED_CRAFTING_TABLE_ITEM_KEY)
+							.rarity(Rarity.UNCOMMON)
 			)
 	);
 
