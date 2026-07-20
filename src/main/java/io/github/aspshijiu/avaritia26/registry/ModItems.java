@@ -13,6 +13,7 @@ import io.github.aspshijiu.avaritia26.item.InfinityHoeItem;
 import io.github.aspshijiu.avaritia26.item.InfinityPickaxeItem;
 import io.github.aspshijiu.avaritia26.item.InfinityShovelItem;
 import io.github.aspshijiu.avaritia26.item.InfinitySwordItem;
+import io.github.aspshijiu.avaritia26.item.InfinityTotemItem;
 import io.github.aspshijiu.avaritia26.item.InfinityUpgradeItem;
 import io.github.aspshijiu.avaritia26.item.MatterClusterItem;
 import io.github.aspshijiu.avaritia26.item.NeutronRingItem;
@@ -49,6 +50,12 @@ public final class ModItems {
 					.stacksTo(1)
 					.fireResistant()
 					.component(ModDataComponents.NEUTRON_RING_INVENTORY, ItemContainerContents.EMPTY)
+	);
+	public static final ResourceKey<Item> INFINITY_TOTEM_KEY = key("infinity_totem");
+	public static final Item INFINITY_TOTEM = register(
+			INFINITY_TOTEM_KEY,
+			InfinityTotemItem::new,
+			new Item.Properties().rarity(Rarity.EPIC).durability(999).fireResistant()
 	);
 	public static final ResourceKey<Item> INFINITY_HELMET_KEY = key("infinity_helmet");
 	public static final Item INFINITY_HELMET = register(

@@ -34,6 +34,7 @@ import io.github.aspshijiu.avaritia26.entity.GapingVoidEntity;
 import io.github.aspshijiu.avaritia26.entity.HeavenArrowEntity;
 import io.github.aspshijiu.avaritia26.entity.HeavenSubArrowEntity;
 import io.github.aspshijiu.avaritia26.event.ModArmorEvents;
+import io.github.aspshijiu.avaritia26.event.ModCombatEvents;
 import io.github.aspshijiu.avaritia26.inventory.CompressedChestMenu;
 import io.github.aspshijiu.avaritia26.inventory.EndCraftingMenu;
 import io.github.aspshijiu.avaritia26.inventory.ExtremeCraftingMenu;
@@ -2865,6 +2866,81 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.assertTrue(extracted.is(Items.DIAMOND) && extracted.getCount() == 32, "中子指环快速取出错误");
 		helper.assertTrue(ring.getOrDefault(ModDataComponents.NEUTRON_RING_INVENTORY, ItemContainerContents.EMPTY)
 				.nonEmptyItemCopyStream().findAny().isEmpty(), "中子指环取出后组件内容未清空");
+		helper.succeed();
+	}
+
+	@GameTest
+	public void infinityTotemSmithsPreventsDeathAndWearsDown(GameTestHelper helper) {
+		helper.assertTrue(BuiltInRegistries.ITEM.getValue(ModItems.INFINITY_TOTEM_KEY) == ModItems.INFINITY_TOTEM,
+				"无尽图腾物品未注册");
+		ItemStack totem = new ItemStack(ModItems.INFINITY_TOTEM);
+		helper.assertTrue(totem.getMaxStackSize() == 1 && totem.getMaxDamage() == 999,
+				"无尽图腾堆叠数或耐久错误");
+		helper.assertTrue(totem.getRarity() == Rarity.EPIC && totem.has(DataComponents.DAMAGE_RESISTANT),
+				"无尽图腾稀有度或防火属性错误");
+
+		ExtremeSmithingInput smithingInput = new ExtremeSmithingInput(
+				new ItemStack(ModItems.UPGRADE_SMITHING_TEMPLATE),
+				new ItemStack(Items.TOTEM_OF_UNDYING),
+				new ItemStack(Items.EXPERIENCE_BOTTLE),
+				new ItemStack(ModItems.ENHANCEMENT_CORE),
+				new ItemStack(Items.BEACON)
+		);
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(Registries.RECIPE, Avaritia26.id("infinity_totem"));
+		RecipeHolder<ExtremeSmithingRecipe> recipe = helper.getLevel().getServer().getRecipeManager()
+				.getRecipeFor(ModRecipes.EXTREME_SMITHING, smithingInput, helper.getLevel())
+				.filter(candidate -> candidate.id().equals(recipeKey))
+				.orElseThrow(() -> helper.assertionException("正确材料未匹配无尽图腾锻造配方"));
+		helper.assertTrue(recipe.value().assemble(smithingInput).is(ModItems.INFINITY_TOTEM),
+				"无尽图腾锻造配方输出错误");
+		ExtremeSmithingInput duplicateAdditions = new ExtremeSmithingInput(
+				smithingInput.template(),
+				smithingInput.base(),
+				new ItemStack(Items.BEACON),
+				new ItemStack(Items.BEACON),
+				new ItemStack(Items.BEACON)
+		);
+		helper.assertFalse(recipe.value().matches(duplicateAdditions, helper.getLevel()),
+				"无尽图腾配方不应接受重复追加材料");
+
+		ServerPlayer player = (ServerPlayer) helper.makeMockServerPlayer(GameType.SURVIVAL);
+		player.setPos(Vec3.atCenterOf(helper.absolutePos(new BlockPos(5, 1, 5))));
+		player.getInventory().setItem(9, totem);
+		player.getActiveEffectsMap().put(MobEffects.POISON, new MobEffectInstance(MobEffects.POISON, 200));
+		player.setHealth(1.0F);
+		var zombie = helper.spawnWithNoFreeWill(EntityTypes.ZOMBIE, new BlockPos(6, 1, 5));
+		helper.assertTrue(ModCombatEvents.findInfinityTotem(player) == totem,
+				"死亡保护没有找到背包中的无尽图腾");
+		boolean allowDeath = ServerLivingEntityEvents.ALLOW_DEATH.invoker().allowDeath(
+				player,
+				helper.getLevel().damageSources().generic(),
+				20.0F
+		);
+		helper.assertFalse(allowDeath, "无尽图腾没有阻止玩家死亡");
+		helper.assertTrue(player.getHealth() == player.getMaxHealth(), "无尽图腾没有回满生命");
+		helper.assertFalse(player.hasEffect(MobEffects.POISON), "无尽图腾没有清除原有状态效果");
+		helper.assertTrue(player.getEffect(MobEffects.REGENERATION).getDuration() == 2600
+				&& player.getEffect(MobEffects.REGENERATION).getAmplifier() == 4,
+				"无尽图腾生命恢复效果错误");
+		helper.assertTrue(player.getEffect(MobEffects.RESISTANCE).getDuration() == 400
+				&& player.getEffect(MobEffects.RESISTANCE).getAmplifier() == 1,
+				"无尽图腾抗性提升效果错误");
+		helper.assertTrue(player.getEffect(MobEffects.ABSORPTION).getDuration() == 700
+				&& player.getEffect(MobEffects.FIRE_RESISTANCE).getDuration() == 1100,
+				"无尽图腾吸收或防火效果错误");
+		helper.assertTrue(player.hasEffect(MobEffects.JUMP_BOOST) && player.hasEffect(MobEffects.SPEED),
+				"无尽图腾第十次强化效果未触发");
+		helper.assertFalse(zombie.isAlive(), "无尽图腾强化触发没有消灭附近敌对生物");
+		helper.assertTrue(totem.getDamageValue() == 1, "无尽图腾触发后没有损失一点耐久");
+
+		totem.setDamageValue(998);
+		player.setHealth(1.0F);
+		helper.assertFalse(ServerLivingEntityEvents.ALLOW_DEATH.invoker().allowDeath(
+				player,
+				helper.getLevel().damageSources().generic(),
+				20.0F
+		), "最后一点耐久的无尽图腾没有阻止死亡");
+		helper.assertTrue(totem.isEmpty(), "无尽图腾耗尽 999 点耐久后没有损坏");
 		helper.succeed();
 	}
 
