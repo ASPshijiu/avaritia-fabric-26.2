@@ -1,13 +1,23 @@
 package io.github.aspshijiu.avaritia26.gametest;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
+import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.registry.ModItems;
 import net.fabricmc.fabric.api.gametest.v1.CustomTestMethodInvoker;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Blocks;
 
 public final class Avaritia26GameTests implements CustomTestMethodInvoker {
@@ -31,6 +41,39 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 				ModItems.DIAMOND_LATTICE.getDefaultMaxStackSize() == 64,
 				"钻石晶格应当可以堆叠 64 个"
 		);
+		helper.succeed();
+	}
+
+	@GameTest
+	public void diamondLatticeNormalRecipeWorks(GameTestHelper helper) {
+		CraftingInput input = CraftingInput.of(3, 3, List.of(
+				new ItemStack(Items.DIAMOND), new ItemStack(Items.DIAMOND), new ItemStack(Items.DIAMOND),
+				new ItemStack(Items.DIAMOND), new ItemStack(Items.NETHERITE_SCRAP), new ItemStack(Items.DIAMOND),
+				new ItemStack(Items.DIAMOND), new ItemStack(Items.DIAMOND), new ItemStack(Items.DIAMOND)
+		));
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(
+				Registries.RECIPE,
+				Avaritia26.id("diamond_lattice_normal")
+		);
+		RecipeHolder<CraftingRecipe> recipe = helper.getLevel().getServer().getRecipeManager()
+				.getRecipeFor(RecipeType.CRAFTING, input, helper.getLevel())
+				.orElseThrow(() -> helper.assertionException("正确材料未匹配钻石晶格配方"));
+
+		helper.assertTrue(recipe.id().equals(recipeKey), "正确材料匹配到了错误配方");
+		ItemStack result = recipe.value().assemble(input);
+		helper.assertTrue(result.is(ModItems.DIAMOND_LATTICE), "钻石晶格配方输出了错误物品");
+		helper.assertTrue(result.getCount() == 1, "钻石晶格配方应当只输出 1 个");
+
+		CraftingInput wrongInput = CraftingInput.of(3, 3, List.of(
+				new ItemStack(Items.NETHERITE_SCRAP), new ItemStack(Items.DIAMOND), new ItemStack(Items.DIAMOND),
+				new ItemStack(Items.DIAMOND), new ItemStack(Items.DIAMOND), new ItemStack(Items.DIAMOND),
+				new ItemStack(Items.DIAMOND), new ItemStack(Items.DIAMOND), new ItemStack(Items.DIAMOND)
+		));
+		boolean wrongInputMatches = helper.getLevel().getServer().getRecipeManager()
+				.getRecipeFor(RecipeType.CRAFTING, wrongInput, helper.getLevel())
+				.filter(candidate -> candidate.id().equals(recipeKey))
+				.isPresent();
+		helper.assertFalse(wrongInputMatches, "下界合金碎片位置错误时不应匹配钻石晶格配方");
 		helper.succeed();
 	}
 

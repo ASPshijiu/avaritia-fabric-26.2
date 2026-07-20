@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "d": "minecraft:diamond",
+    "n": "minecraft:netherite_scrap"
+  },
+  "pattern": [
+    "ddd",
+    "dnd",
+    "ddd"
+  ],
+  "result": {
+    "count": 1,
+    "id": "avaritia26:diamond_lattice"
+  }
+}
