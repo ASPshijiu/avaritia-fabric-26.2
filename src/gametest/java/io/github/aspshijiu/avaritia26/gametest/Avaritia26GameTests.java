@@ -18,6 +18,7 @@ import io.github.aspshijiu.avaritia26.block.entity.NeutronCompressorBlockEntity;
 import io.github.aspshijiu.avaritia26.crafting.ModRecipes;
 import io.github.aspshijiu.avaritia26.crafting.ExtremeSmithingInput;
 import io.github.aspshijiu.avaritia26.crafting.ExtremeSmithingRecipe;
+import io.github.aspshijiu.avaritia26.crafting.FullMatterClusterRecipe;
 import io.github.aspshijiu.avaritia26.component.InfinityChestContents;
 import io.github.aspshijiu.avaritia26.crafting.NoConsumeCatalystShapedRecipe;
 import io.github.aspshijiu.avaritia26.entity.EndestPearlEntity;
@@ -2280,6 +2281,11 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		);
 		helper.assertTrue(ModItems.FULL_MATTER_CLUSTER.getDefaultMaxStackSize() == 1, "满物质团应当不可堆叠");
 		helper.assertTrue(fullMatterCluster.getRarity() == Rarity.RARE, "满物质团应当是 RARE 稀有度");
+		helper.assertTrue(
+				BuiltInRegistries.RECIPE_SERIALIZER.getValue(Avaritia26.id("full_matter_cluster"))
+						== ModRecipes.FULL_MATTER_CLUSTER_SERIALIZER,
+				"满物质团配方序列化器没有注册"
+		);
 
 		ItemStack fullInput = MatterClusterItem.createClusters(
 				List.of(new ItemStack(Items.COBBLESTONE, MatterClusterItem.CAPACITY))
@@ -2295,6 +2301,22 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.assertTrue(recipe.id().equals(recipeKey), "满物质团输入匹配到了错误配方");
 		ItemStack result = recipe.value().assemble(input);
 		helper.assertTrue(result.is(ModItems.FULL_MATTER_CLUSTER) && result.getCount() == 1, "满物质团配方输出错误");
+		helper.assertTrue(recipe.value() instanceof FullMatterClusterRecipe, "满物质团配方没有使用专用配方类型");
+		RegistryFriendlyByteBuf recipeBuffer = new RegistryFriendlyByteBuf(
+				Unpooled.buffer(),
+				helper.getLevel().registryAccess()
+		);
+		try {
+			FullMatterClusterRecipe.STREAM_CODEC.encode(recipeBuffer, (FullMatterClusterRecipe) recipe.value());
+			FullMatterClusterRecipe decoded = FullMatterClusterRecipe.STREAM_CODEC.decode(recipeBuffer);
+			helper.assertTrue(decoded.matches(input, helper.getLevel()), "满物质团配方网络同步往返后不再匹配");
+			helper.assertTrue(
+					decoded.assemble(input).is(ModItems.FULL_MATTER_CLUSTER),
+					"满物质团配方网络同步丢失输出"
+			);
+		} finally {
+			recipeBuffer.release();
+		}
 
 		ItemStack underfilled = MatterClusterItem.createClusters(
 				List.of(new ItemStack(Items.COBBLESTONE, MatterClusterItem.CAPACITY - 1))
@@ -2309,6 +2331,10 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 						.filter(candidate -> candidate.id().equals(recipeKey))
 						.isPresent(),
 				"少于 4096 个物品的物质团不应匹配满物质团配方"
+		);
+		helper.assertFalse(
+				recipe.value().matches(CraftingInput.of(1, 1, List.of(new ItemStack(Items.COBBLESTONE))), helper.getLevel()),
+				"普通物品不应匹配满物质团配方"
 		);
 		helper.succeed();
 	}
