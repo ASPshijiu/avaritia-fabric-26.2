@@ -2409,6 +2409,28 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	}
 
 	@GameTest
+	public void forgeEnergyRemainsInternalPlaceholder(GameTestHelper helper) {
+		ItemStack energy = new ItemStack(ModItems.FORGE_ENERGY, 64);
+		helper.assertTrue(BuiltInRegistries.ITEM.getValue(ModItems.FORGE_ENERGY_KEY) == ModItems.FORGE_ENERGY,
+				"锻造能量占位物品未注册");
+		helper.assertTrue(ModItems.FORGE_ENERGY.getClass() == Item.class, "锻造能量不应附带自定义行为");
+		helper.assertTrue(energy.getMaxStackSize() == 64 && energy.getRarity() == Rarity.COMMON,
+				"锻造能量默认物品属性错误");
+		helper.assertFalse(energy.has(DataComponents.DAMAGE_RESISTANT), "锻造能量不应额外防火");
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(Registries.RECIPE, Avaritia26.id("forge_energy"));
+		helper.assertTrue(helper.getLevel().getServer().getRecipeManager().byKey(recipeKey).isEmpty(),
+				"锻造能量不应拥有玩家配方");
+
+		Player player = helper.makeMockServerPlayer(GameType.SURVIVAL);
+		player.setItemInHand(InteractionHand.MAIN_HAND, energy);
+		InteractionResult result = ModItems.FORGE_ENERGY.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+		helper.assertFalse(result.consumesAction(), "锻造能量占位物品不应响应使用");
+		helper.assertTrue(player.getMainHandItem().is(ModItems.FORGE_ENERGY)
+				&& player.getMainHandItem().getCount() == 64, "使用锻造能量错误消耗了物品");
+		helper.succeed();
+	}
+
+	@GameTest
 	public void everyBuiltInSingularityCompresses(GameTestHelper helper) {
 		BlockPos relativePos = new BlockPos(13, 0, 0);
 		helper.setBlock(relativePos, ModBlocks.NEUTRON_COMPRESSOR);

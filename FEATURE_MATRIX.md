@@ -107,7 +107,7 @@
 | `enhancement_core` | 强化核心 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
 | `upgrade_smithing_template` | 强化锻造模板 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
 | `infinity_upgrade` | 无尽升级件 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `forge_energy` | 能量占位物品 | 未开始 | — | — | — | — | — |
+| `forge_energy` | 能量占位物品 | 实现中 | 不适用 | 不适用 | 通过 | 通过 | 通过 |
 
 ## P1：Re:Avaritia 扩展方块物品
 

@@ -286,6 +286,12 @@ public final class ModItems {
 					.rarity(Rarity.EPIC)
 					.food(ModFoods.COSMIC_MEATBALLS, ModFoods.COSMIC_MEATBALLS_CONSUMABLE)
 	);
+	public static final ResourceKey<Item> FORGE_ENERGY_KEY = key("forge_energy");
+	public static final Item FORGE_ENERGY = register(
+			FORGE_ENERGY_KEY,
+			Item::new,
+			new Item.Properties()
+	);
 
 	private ModItems() {
 	}
