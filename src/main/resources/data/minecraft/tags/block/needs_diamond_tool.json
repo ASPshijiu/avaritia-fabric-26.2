@@ -1,4 +1,4 @@
 {
   "replace": false,
-  "values": ["avaritia26:neutron_collector", "avaritia26:neutron_compressor"]
+  "values": ["avaritia26:neutron_collector", "avaritia26:dense_neutron_collector", "avaritia26:denser_neutron_collector", "avaritia26:densest_neutron_collector", "avaritia26:neutron_compressor"]
 }

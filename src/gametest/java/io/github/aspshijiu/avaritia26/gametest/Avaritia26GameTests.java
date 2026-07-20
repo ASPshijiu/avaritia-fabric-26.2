@@ -14,6 +14,7 @@ import io.github.aspshijiu.avaritia26.block.entity.CompressedChestBlockEntity;
 import io.github.aspshijiu.avaritia26.block.entity.ExtremeCraftingTableBlockEntity;
 import io.github.aspshijiu.avaritia26.block.entity.InfinityChestBlockEntity;
 import io.github.aspshijiu.avaritia26.block.entity.NeutronCollectorBlockEntity;
+import io.github.aspshijiu.avaritia26.block.entity.NeutronCollectorTier;
 import io.github.aspshijiu.avaritia26.block.entity.NeutronCompressorBlockEntity;
 import io.github.aspshijiu.avaritia26.crafting.EternalSingularityRecipe;
 import io.github.aspshijiu.avaritia26.crafting.ExtremeSmithingInput;
@@ -2032,6 +2033,71 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	}
 
 	@GameTest
+	public void tieredNeutronCollectorsCraftAndProduceTheirExactMaterials(GameTestHelper helper) {
+		SingularityDefinition gold = SingularityManager.get(Avaritia26.id("gold"));
+		SingularityDefinition redstone = SingularityManager.get(Avaritia26.id("redstone"));
+		SingularityDefinition copper = SingularityManager.get(Avaritia26.id("copper"));
+		helper.assertTrue(gold != null && redstone != null && copper != null, "高阶收集器配方所需奇点未加载");
+
+		CraftingInput denseInput = extremeInput(List.of(
+				"AAC   CAA", "AB     BA", "C DEEED C", "  EGGGE  ", "  EGFGE  ",
+				"  EGGGE  ", "C DEEED C", "AB     BA", "AAC   CAA"
+		), Map.of(
+				'A', new ItemStack(Items.ENDER_PEARL),
+				'B', new ItemStack(Items.NETHER_STAR),
+				'C', new ItemStack(ModItems.DIAMOND_LATTICE),
+				'D', new ItemStack(ModItems.NEUTRON_INGOT),
+				'E', new ItemStack(Items.EMERALD_BLOCK),
+				'F', new ItemStack(ModItems.ENDEST_PEARL),
+				'G', new ItemStack(ModBlocks.NEUTRON_COLLECTOR_ITEM)
+		));
+		assertExtremeRecipe(helper, "dense_neutron_collector", denseInput, ModBlocks.DENSE_NEUTRON_COLLECTOR_ITEM);
+
+		CraftingInput denserInput = extremeInput(List.of(
+				"ABB F BBA", "BCC   CCB", "BCDEEEDCB", "  EGGGE  ", "F EGEGE F",
+				"  EGGGE  ", "BCDEEEDCB", "BCC   CCB", "ABB F BBA"
+		), Map.of(
+				'A', new ItemStack(ModItems.NEUTRON_GEAR),
+				'B', new ItemStack(ModItems.NEUTRON_PILE),
+				'C', new ItemStack(ModItems.BLAZE_CUBE),
+				'D', SingularityItem.createStack(gold),
+				'E', new ItemStack(ModBlocks.BLAZE_CUBE_BLOCK_ITEM),
+				'F', new ItemStack(Items.GOLD_BLOCK),
+				'G', new ItemStack(ModBlocks.DENSE_NEUTRON_COLLECTOR_ITEM)
+		));
+		assertExtremeRecipe(helper, "denser_neutron_collector", denserInput, ModBlocks.DENSER_NEUTRON_COLLECTOR_ITEM);
+		List<ItemStack> wrongGold = copyStacks(denserInput.items());
+		wrongGold.set(20, SingularityItem.createStack(copper));
+		assertExtremeRecipeDoesNotMatch(helper, "denser_neutron_collector", CraftingInput.of(9, 9, wrongGold));
+
+		CraftingInput densestInput = extremeInput(List.of(
+				"CC     CC", "C  BBB  C", "  AAAAA  ", " BAXXXAB ", " BAXYXAB ",
+				" BAXXXAB ", "  AAAAA  ", "C  BBB  C", "CC     CC"
+		), Map.of(
+				'A', new ItemStack(Items.REDSTONE_BLOCK),
+				'B', new ItemStack(ModItems.NEUTRON_INGOT),
+				'C', new ItemStack(ModItems.NEUTRON_GEAR),
+				'X', new ItemStack(ModBlocks.DENSER_NEUTRON_COLLECTOR_ITEM),
+				'Y', SingularityItem.createStack(redstone)
+		));
+		assertExtremeRecipe(helper, "densest_neutron_collector", densestInput, ModBlocks.DENSEST_NEUTRON_COLLECTOR_ITEM);
+		List<ItemStack> wrongRedstone = copyStacks(densestInput.items());
+		wrongRedstone.set(40, SingularityItem.createStack(gold));
+		assertExtremeRecipeDoesNotMatch(helper, "densest_neutron_collector", CraftingInput.of(9, 9, wrongRedstone));
+
+		assertCollectorTier(helper, new BlockPos(2, 0, 0), ModBlocks.DENSE_NEUTRON_COLLECTOR,
+				ModBlocks.DENSE_NEUTRON_COLLECTOR_ITEM, NeutronCollectorTier.DENSE,
+				ModItems.NEUTRON_NUGGET, 3600, "致密中子收集器");
+		assertCollectorTier(helper, new BlockPos(4, 0, 0), ModBlocks.DENSER_NEUTRON_COLLECTOR,
+				ModBlocks.DENSER_NEUTRON_COLLECTOR_ITEM, NeutronCollectorTier.DENSER,
+				ModItems.NEUTRON_INGOT, 3600, "更致密中子收集器");
+		assertCollectorTier(helper, new BlockPos(6, 0, 0), ModBlocks.DENSEST_NEUTRON_COLLECTOR,
+				ModBlocks.DENSEST_NEUTRON_COLLECTOR_ITEM, NeutronCollectorTier.DENSEST,
+				ModBlocks.NEUTRON_ITEM, 200, "最致密中子收集器");
+		helper.succeed();
+	}
+
+	@GameTest
 	public void neutronCompressorCraftsAndProcessesAllTargets(GameTestHelper helper) {
 		assertExtremeRecipe(
 				helper,
@@ -3222,6 +3288,68 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 				.orElseThrow(() -> helper.assertionException("未匹配终极配方 " + path));
 		helper.assertTrue(recipe.id().equals(recipeKey), path + " 匹配到了错误配方");
 		helper.assertTrue(recipe.value().assemble(input).is(expectedItem), path + " 输出了错误物品");
+	}
+
+	private static void assertExtremeRecipeDoesNotMatch(GameTestHelper helper, String path, CraftingInput input) {
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(Registries.RECIPE, Avaritia26.id(path));
+		helper.assertFalse(
+				helper.getLevel().getServer().getRecipeManager()
+						.getRecipeFor(ModRecipes.EXTREME_CRAFTING, input, helper.getLevel())
+						.filter(recipe -> recipe.id().equals(recipeKey))
+						.isPresent(),
+				path + " 错误奇点不应匹配配方"
+		);
+	}
+
+	private static CraftingInput extremeInput(List<String> pattern, Map<Character, ItemStack> key) {
+		List<ItemStack> stacks = new java.util.ArrayList<>(pattern.size() * pattern.getFirst().length());
+		for (String row : pattern) {
+			for (char symbol : row.toCharArray()) {
+				stacks.add(symbol == ' ' ? ItemStack.EMPTY : key.get(symbol).copy());
+			}
+		}
+		return CraftingInput.of(pattern.getFirst().length(), pattern.size(), stacks);
+	}
+
+	private static void assertCollectorTier(
+			GameTestHelper helper,
+			BlockPos relativePos,
+			Block block,
+			Item blockItem,
+			NeutronCollectorTier expectedTier,
+			Item output,
+			int productionTicks,
+			String name
+	) {
+		ItemStack machineStack = new ItemStack(blockItem);
+		helper.assertTrue(machineStack.getRarity() == Rarity.EPIC, name + "稀有度错误");
+		helper.assertTrue(machineStack.has(DataComponents.DAMAGE_RESISTANT), name + "应当防火");
+		helper.setBlock(relativePos, block);
+		helper.assertTrue(helper.getBlockState(relativePos).is(BlockTags.MINEABLE_WITH_PICKAXE), name + "应当可用镐挖掘");
+		helper.assertTrue(helper.getBlockState(relativePos).is(BlockTags.NEEDS_DIAMOND_TOOL), name + "应当需要钻石级工具");
+		NeutronCollectorBlockEntity collector = helper.getBlockEntity(relativePos, NeutronCollectorBlockEntity.class);
+		helper.assertTrue(collector.getTier() == expectedTier, name + "层级识别错误");
+		helper.assertTrue(collector.productionTicks() == productionTicks, name + "生产耗时错误");
+		Player menuPlayer = helper.makeMockServerPlayer(GameType.SURVIVAL);
+		menuPlayer.setPos(Vec3.atCenterOf(helper.absolutePos(relativePos)));
+		NeutronCollectorMenu menu = (NeutronCollectorMenu) collector.createMenu(
+				4,
+				menuPlayer.getInventory(),
+				menuPlayer
+		);
+		helper.assertTrue(menu.timeRequired() == productionTicks, name + "菜单生产耗时同步错误");
+		helper.assertTrue(menu.stillValid(menuPlayer), name + "菜单错误判定为不可用");
+		for (int tick = 0; tick < productionTicks; tick++) {
+			NeutronCollectorBlockEntity.serverTick(
+					helper.getLevel(), helper.absolutePos(relativePos), helper.getBlockState(relativePos), collector
+			);
+		}
+		helper.assertTrue(collector.getItem(0).is(output) && collector.getItem(0).getCount() == 1, name + "产物错误");
+		helper.assertTrue(collector.canTakeItemThroughFace(0, collector.getItem(0), Direction.DOWN), name + "产物无法自动抽取");
+		List<ItemStack> drops = Block.getDrops(
+				helper.getBlockState(relativePos), helper.getLevel(), helper.absolutePos(relativePos), collector
+		);
+		helper.assertTrue(drops.size() == 1 && drops.getFirst().is(blockItem), name + "没有掉落自身");
 	}
 
 	private static void assertInfinityArmorPiece(

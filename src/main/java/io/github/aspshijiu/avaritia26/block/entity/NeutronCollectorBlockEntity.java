@@ -2,7 +2,6 @@ package io.github.aspshijiu.avaritia26.block.entity;
 
 import io.github.aspshijiu.avaritia26.inventory.NeutronCollectorMenu;
 import io.github.aspshijiu.avaritia26.registry.ModBlockEntities;
-import io.github.aspshijiu.avaritia26.registry.ModItems;
 import net.fabricmc.fabric.api.menu.v1.ExtendedMenuProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -36,7 +35,7 @@ public final class NeutronCollectorBlockEntity extends BlockEntity
 		public int get(int index) {
 			return switch (index) {
 				case 0 -> progress;
-				case 1 -> PRODUCTION_TICKS;
+				case 1 -> productionTicks();
 				default -> 0;
 			};
 		}
@@ -44,7 +43,7 @@ public final class NeutronCollectorBlockEntity extends BlockEntity
 		@Override
 		public void set(int index, int value) {
 			if (index == 0) {
-				progress = Math.clamp(value, 0, PRODUCTION_TICKS - 1);
+				progress = Math.clamp(value, 0, productionTicks() - 1);
 			}
 		}
 
@@ -61,14 +60,15 @@ public final class NeutronCollectorBlockEntity extends BlockEntity
 	}
 
 	public static void serverTick(Level level, BlockPos pos, BlockState state, NeutronCollectorBlockEntity collector) {
+		NeutronCollectorTier tier = NeutronCollectorTier.from(state);
 		ItemStack output = collector.getItem(OUTPUT_SLOT);
-		if (!output.isEmpty() && (!output.is(ModItems.NEUTRON_PILE) || output.getCount() >= output.getMaxStackSize())) {
+		if (!output.isEmpty() && (!output.is(tier.output()) || output.getCount() >= output.getMaxStackSize())) {
 			return;
 		}
 		collector.progress++;
-		if (collector.progress >= PRODUCTION_TICKS) {
+		if (collector.progress >= tier.productionTicks()) {
 			if (output.isEmpty()) {
-				collector.setItem(OUTPUT_SLOT, new ItemStack(ModItems.NEUTRON_PILE));
+				collector.setItem(OUTPUT_SLOT, new ItemStack(tier.output()));
 			} else {
 				output.grow(1);
 			}
@@ -81,12 +81,20 @@ public final class NeutronCollectorBlockEntity extends BlockEntity
 		return progress;
 	}
 
+	public NeutronCollectorTier getTier() {
+		return NeutronCollectorTier.from(getBlockState());
+	}
+
+	public int productionTicks() {
+		return getTier().productionTicks();
+	}
+
 	@Override
 	protected void loadAdditional(ValueInput input) {
 		super.loadAdditional(input);
 		items.clear();
 		ContainerHelper.loadAllItems(input, items);
-		progress = Math.clamp(input.getIntOr("progress", 0), 0, PRODUCTION_TICKS - 1);
+		progress = Math.clamp(input.getIntOr("progress", 0), 0, productionTicks() - 1);
 	}
 
 	@Override
@@ -168,12 +176,12 @@ public final class NeutronCollectorBlockEntity extends BlockEntity
 
 	@Override
 	public boolean canTakeItemThroughFace(int slot, ItemStack stack, Direction side) {
-		return slot == OUTPUT_SLOT && stack.is(ModItems.NEUTRON_PILE);
+		return slot == OUTPUT_SLOT && stack.is(getTier().output());
 	}
 
 	@Override
 	public Component getDisplayName() {
-		return Component.translatable("container.avaritia26.neutron_collector");
+		return getBlockState().getBlock().getName();
 	}
 
 	@Override

@@ -1,0 +1,14 @@
+{
+  "type": "avaritia26:extreme_shaped",
+  "key": {
+    "A": "minecraft:ender_pearl",
+    "B": "minecraft:nether_star",
+    "C": "avaritia26:diamond_lattice",
+    "D": "avaritia26:neutron_ingot",
+    "E": "minecraft:emerald_block",
+    "F": "avaritia26:endest_pearl",
+    "G": "avaritia26:neutron_collector"
+  },
+  "pattern": ["AAC   CAA", "AB     BA", "C DEEED C", "  EGGGE  ", "  EGFGE  ", "  EGGGE  ", "C DEEED C", "AB     BA", "AAC   CAA"],
+  "result": { "count": 1, "id": "avaritia26:dense_neutron_collector" }
+}

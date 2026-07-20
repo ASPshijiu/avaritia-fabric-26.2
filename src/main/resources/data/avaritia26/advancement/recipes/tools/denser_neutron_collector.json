@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_machine": { "trigger": "minecraft:inventory_changed", "conditions": { "items": [{ "items": "avaritia26:dense_neutron_collector" }] } },
+    "has_the_recipe": { "trigger": "minecraft:recipe_unlocked", "conditions": { "recipe": "avaritia26:denser_neutron_collector" } }
+  },
+  "requirements": [["has_machine", "has_the_recipe"]],
+  "rewards": { "recipes": ["avaritia26:denser_neutron_collector"] }
+}

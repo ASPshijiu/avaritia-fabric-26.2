@@ -60,6 +60,9 @@ public final class ModCreativeTabs {
 				output.accept(ModItems.ULTIMATE_STEW);
 				output.accept(ModItems.COSMIC_MEATBALLS);
 				output.accept(ModBlocks.NEUTRON_COLLECTOR_ITEM);
+				output.accept(ModBlocks.DENSE_NEUTRON_COLLECTOR_ITEM);
+				output.accept(ModBlocks.DENSER_NEUTRON_COLLECTOR_ITEM);
+				output.accept(ModBlocks.DENSEST_NEUTRON_COLLECTOR_ITEM);
 				output.accept(ModBlocks.NEUTRON_COMPRESSOR_ITEM);
 				output.accept(ModBlocks.CRYSTAL_MATRIX_ITEM);
 				output.accept(ModBlocks.NEUTRON_ITEM);

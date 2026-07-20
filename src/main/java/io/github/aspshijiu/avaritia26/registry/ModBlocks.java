@@ -129,6 +129,60 @@ public final class ModBlocks {
 					new Item.Properties().setId(NEUTRON_COLLECTOR_ITEM_KEY).rarity(Rarity.RARE).fireResistant()
 			)
 	);
+	public static final ResourceKey<Block> DENSE_NEUTRON_COLLECTOR_KEY = blockKey("dense_neutron_collector");
+	public static final Block DENSE_NEUTRON_COLLECTOR = Registry.register(
+			BuiltInRegistries.BLOCK,
+			DENSE_NEUTRON_COLLECTOR_KEY,
+			new NeutronCollectorBlock(BlockBehaviour.Properties.of()
+					.setId(DENSE_NEUTRON_COLLECTOR_KEY)
+					.mapColor(MapColor.METAL)
+					.sound(SoundType.METAL)
+					.strength(50.0F, 2000.0F)
+					.requiresCorrectToolForDrops())
+	);
+	public static final ResourceKey<Item> DENSE_NEUTRON_COLLECTOR_ITEM_KEY = itemKey("dense_neutron_collector");
+	public static final BlockItem DENSE_NEUTRON_COLLECTOR_ITEM = Registry.register(
+			BuiltInRegistries.ITEM,
+			DENSE_NEUTRON_COLLECTOR_ITEM_KEY,
+			new BlockItem(DENSE_NEUTRON_COLLECTOR,
+					new Item.Properties().setId(DENSE_NEUTRON_COLLECTOR_ITEM_KEY).rarity(Rarity.EPIC).fireResistant())
+	);
+	public static final ResourceKey<Block> DENSER_NEUTRON_COLLECTOR_KEY = blockKey("denser_neutron_collector");
+	public static final Block DENSER_NEUTRON_COLLECTOR = Registry.register(
+			BuiltInRegistries.BLOCK,
+			DENSER_NEUTRON_COLLECTOR_KEY,
+			new NeutronCollectorBlock(BlockBehaviour.Properties.of()
+					.setId(DENSER_NEUTRON_COLLECTOR_KEY)
+					.mapColor(MapColor.METAL)
+					.sound(SoundType.METAL)
+					.strength(50.0F, 2000.0F)
+					.requiresCorrectToolForDrops())
+	);
+	public static final ResourceKey<Item> DENSER_NEUTRON_COLLECTOR_ITEM_KEY = itemKey("denser_neutron_collector");
+	public static final BlockItem DENSER_NEUTRON_COLLECTOR_ITEM = Registry.register(
+			BuiltInRegistries.ITEM,
+			DENSER_NEUTRON_COLLECTOR_ITEM_KEY,
+			new BlockItem(DENSER_NEUTRON_COLLECTOR,
+					new Item.Properties().setId(DENSER_NEUTRON_COLLECTOR_ITEM_KEY).rarity(Rarity.EPIC).fireResistant())
+	);
+	public static final ResourceKey<Block> DENSEST_NEUTRON_COLLECTOR_KEY = blockKey("densest_neutron_collector");
+	public static final Block DENSEST_NEUTRON_COLLECTOR = Registry.register(
+			BuiltInRegistries.BLOCK,
+			DENSEST_NEUTRON_COLLECTOR_KEY,
+			new NeutronCollectorBlock(BlockBehaviour.Properties.of()
+					.setId(DENSEST_NEUTRON_COLLECTOR_KEY)
+					.mapColor(MapColor.METAL)
+					.sound(SoundType.METAL)
+					.strength(50.0F, 2000.0F)
+					.requiresCorrectToolForDrops())
+	);
+	public static final ResourceKey<Item> DENSEST_NEUTRON_COLLECTOR_ITEM_KEY = itemKey("densest_neutron_collector");
+	public static final BlockItem DENSEST_NEUTRON_COLLECTOR_ITEM = Registry.register(
+			BuiltInRegistries.ITEM,
+			DENSEST_NEUTRON_COLLECTOR_ITEM_KEY,
+			new BlockItem(DENSEST_NEUTRON_COLLECTOR,
+					new Item.Properties().setId(DENSEST_NEUTRON_COLLECTOR_ITEM_KEY).rarity(Rarity.EPIC).fireResistant())
+	);
 	public static final ResourceKey<Block> INFINITY_KEY = blockKey("infinity");
 	public static final Block INFINITY = Registry.register(
 			BuiltInRegistries.BLOCK,

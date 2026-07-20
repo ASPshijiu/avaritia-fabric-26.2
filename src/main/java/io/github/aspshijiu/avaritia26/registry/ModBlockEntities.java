@@ -21,7 +21,12 @@ public final class ModBlockEntities {
 	public static final BlockEntityType<NeutronCollectorBlockEntity> NEUTRON_COLLECTOR = Registry.register(
 			BuiltInRegistries.BLOCK_ENTITY_TYPE,
 			Avaritia26.id("neutron_collector"),
-			new BlockEntityType<>(NeutronCollectorBlockEntity::new, Set.of(ModBlocks.NEUTRON_COLLECTOR))
+			new BlockEntityType<>(NeutronCollectorBlockEntity::new, Set.of(
+					ModBlocks.NEUTRON_COLLECTOR,
+					ModBlocks.DENSE_NEUTRON_COLLECTOR,
+					ModBlocks.DENSER_NEUTRON_COLLECTOR,
+					ModBlocks.DENSEST_NEUTRON_COLLECTOR
+			))
 	);
 	public static final BlockEntityType<NeutronCompressorBlockEntity> NEUTRON_COMPRESSOR = Registry.register(
 			BuiltInRegistries.BLOCK_ENTITY_TYPE,
