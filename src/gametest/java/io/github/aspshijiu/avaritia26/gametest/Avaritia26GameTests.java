@@ -94,6 +94,45 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.succeed();
 	}
 
+	@GameTest
+	public void crystalMatrixIngotNormalRecipeWorks(GameTestHelper helper) {
+		CraftingInput input = CraftingInput.of(3, 3, List.of(
+				new ItemStack(ModItems.DIAMOND_LATTICE), new ItemStack(Items.NETHER_STAR),
+				new ItemStack(ModItems.DIAMOND_LATTICE),
+				new ItemStack(ModItems.DIAMOND_LATTICE), new ItemStack(Items.NETHER_STAR),
+				new ItemStack(ModItems.DIAMOND_LATTICE),
+				new ItemStack(ModItems.DIAMOND_LATTICE), new ItemStack(Items.NETHER_STAR),
+				new ItemStack(ModItems.DIAMOND_LATTICE)
+		));
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(
+				Registries.RECIPE,
+				Avaritia26.id("crystal_matrix_ingot_normal")
+		);
+		RecipeHolder<CraftingRecipe> recipe = helper.getLevel().getServer().getRecipeManager()
+				.getRecipeFor(RecipeType.CRAFTING, input, helper.getLevel())
+				.orElseThrow(() -> helper.assertionException("正确材料未匹配晶态矩阵锭配方"));
+
+		helper.assertTrue(recipe.id().equals(recipeKey), "正确材料匹配到了错误配方");
+		ItemStack result = recipe.value().assemble(input);
+		helper.assertTrue(result.is(ModItems.CRYSTAL_MATRIX_INGOT), "晶态矩阵锭配方输出了错误物品");
+		helper.assertTrue(result.getCount() == 1, "晶态矩阵锭配方应当只输出 1 个");
+
+		CraftingInput wrongInput = CraftingInput.of(3, 3, List.of(
+				new ItemStack(Items.NETHER_STAR), new ItemStack(ModItems.DIAMOND_LATTICE),
+				new ItemStack(ModItems.DIAMOND_LATTICE),
+				new ItemStack(ModItems.DIAMOND_LATTICE), new ItemStack(Items.NETHER_STAR),
+				new ItemStack(ModItems.DIAMOND_LATTICE),
+				new ItemStack(ModItems.DIAMOND_LATTICE), new ItemStack(Items.NETHER_STAR),
+				new ItemStack(ModItems.DIAMOND_LATTICE)
+		));
+		boolean wrongInputMatches = helper.getLevel().getServer().getRecipeManager()
+				.getRecipeFor(RecipeType.CRAFTING, wrongInput, helper.getLevel())
+				.filter(candidate -> candidate.id().equals(recipeKey))
+				.isPresent();
+		helper.assertFalse(wrongInputMatches, "材料错位时不应匹配晶态矩阵锭配方");
+		helper.succeed();
+	}
+
 	@Override
 	public void invokeTestMethod(GameTestHelper helper, Method method) throws ReflectiveOperationException {
 		helper.setBlock(0, 0, 0, Blocks.AIR);

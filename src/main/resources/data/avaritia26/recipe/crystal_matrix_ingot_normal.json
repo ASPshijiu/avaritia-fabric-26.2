@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "l": "avaritia26:diamond_lattice",
+    "s": "minecraft:nether_star"
+  },
+  "pattern": [
+    "lsl",
+    "lsl",
+    "lsl"
+  ],
+  "result": {
+    "count": 1,
+    "id": "avaritia26:crystal_matrix_ingot"
+  }
+}
