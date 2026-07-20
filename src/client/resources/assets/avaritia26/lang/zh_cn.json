@@ -12,6 +12,7 @@
 	"block.avaritia26.neutron": "中子块",
 	"block.avaritia26.neutron_collector": "中子收集器",
 	"block.avaritia26.neutron_compressor": "中子压缩机",
+	"block.avaritia26.star_fuel_block": "星辰燃料块",
 	"container.avaritia26.extreme_crafting_table": "终极工作台",
 	"container.avaritia26.extreme_smithing_table": "终焉锻造台",
 	"container.avaritia26.infinity_chest.amount": "数量：%s / %s",
@@ -46,6 +47,7 @@
 	"item.avaritia26.record_fragment": "唱片碎片",
 	"item.avaritia26.singularity": "奇点",
 	"item.avaritia26.singularity.empty": "未定义奇点",
+	"item.avaritia26.star_fuel": "星辰燃料",
 	"item.avaritia26.skull_fire_sword": "炽焰之啄颅剑",
 	"item.avaritia26.ultimate_stew": "终极炖菜",
 	"item.avaritia26.upgrade_smithing_template": "羽化模板",
@@ -69,5 +71,6 @@
 	"tooltip.avaritia26.matter_cluster.more": "……以及另外 %s 组物品",
 	"tooltip.avaritia26.infinity_nugget": "圣灵的眼泪……",
 	"tooltip.avaritia26.enhancement_core": "补全之路！",
-	"tooltip.avaritia26.skull_fire_sword": "斩骷髅首级，后烧至焦黑。"
+	"tooltip.avaritia26.skull_fire_sword": "斩骷髅首级，后烧至焦黑。",
+	"tooltip.avaritia26.star_fuel": "致密恒星的遗骸……"
 }

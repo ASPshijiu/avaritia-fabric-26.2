@@ -229,6 +229,12 @@ public final class ModItems {
 			Item::new,
 			new Item.Properties().rarity(Rarity.RARE)
 	);
+	public static final ResourceKey<Item> STAR_FUEL_KEY = key("star_fuel");
+	public static final Item STAR_FUEL = register(
+			STAR_FUEL_KEY,
+			properties -> new TooltipItem(properties, "tooltip.avaritia26.star_fuel"),
+			new Item.Properties().rarity(Rarity.RARE).stacksTo(16)
+	);
 	public static final ResourceKey<Item> ENDEST_PEARL_KEY = key("endest_pearl");
 	public static final Item ENDEST_PEARL = register(
 			ENDEST_PEARL_KEY,

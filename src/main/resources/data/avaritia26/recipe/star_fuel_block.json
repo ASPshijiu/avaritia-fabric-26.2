@@ -1,0 +1,16 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"category": "building",
+	"key": {
+		"f": "avaritia26:star_fuel"
+	},
+	"pattern": [
+		"fff",
+		"fff",
+		"fff"
+	],
+	"result": {
+		"count": 1,
+		"id": "avaritia26:star_fuel_block"
+	}
+}

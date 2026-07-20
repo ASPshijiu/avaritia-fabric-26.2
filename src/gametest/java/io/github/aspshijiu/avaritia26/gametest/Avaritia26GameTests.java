@@ -952,6 +952,117 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	}
 
 	@GameTest
+	public void starFuelResourceChainBurnsIndefinitely(GameTestHelper helper) {
+		ItemStack fuel = new ItemStack(ModItems.STAR_FUEL);
+		helper.assertTrue(
+				BuiltInRegistries.ITEM.getValue(ModItems.STAR_FUEL_KEY) == ModItems.STAR_FUEL,
+				"星辰燃料没有注册到预期的 ResourceKey"
+		);
+		helper.assertTrue(fuel.getMaxStackSize() == 16, "星辰燃料应当堆叠 16 个");
+		helper.assertTrue(fuel.getRarity() == Rarity.RARE, "星辰燃料应当是 RARE 稀有度");
+		helper.assertTrue(
+				helper.getLevel().fuelValues().burnDuration(fuel) == Integer.MAX_VALUE,
+				"星辰燃料燃烧时间应当是 int 最大值"
+		);
+		List<Component> tooltip = new java.util.ArrayList<>();
+		ModItems.STAR_FUEL.appendHoverText(
+				fuel,
+				Item.TooltipContext.of(helper.getLevel()),
+				TooltipDisplay.DEFAULT,
+				tooltip::add,
+				TooltipFlag.NORMAL
+		);
+		helper.assertTrue(tooltip.size() == 1 && tooltip.getFirst().getStyle().isItalic(), "星辰燃料缺少经典斜体说明");
+
+		CraftingInput fuelInput = starFuelInput();
+		ResourceKey<Recipe<?>> fuelRecipeKey = ResourceKey.create(Registries.RECIPE, Avaritia26.id("star_fuel"));
+		RecipeHolder<Recipe<CraftingInput>> fuelRecipe = helper.getLevel().getServer().getRecipeManager()
+				.getRecipeFor(ModRecipes.EXTREME_CRAFTING, fuelInput, helper.getLevel())
+				.orElseThrow(() -> helper.assertionException("正确材料未匹配星辰燃料配方"));
+		helper.assertTrue(fuelRecipe.id().equals(fuelRecipeKey), "星辰燃料材料匹配到了错误配方");
+		helper.assertTrue(fuelRecipe.value().assemble(fuelInput).is(ModItems.STAR_FUEL), "星辰燃料配方输出错误");
+		NonNullList<ItemStack> remainders = CraftingRecipe.defaultCraftingReminder(fuelInput);
+		long bucketCount = remainders.stream().filter(stack -> stack.is(Items.BUCKET)).count();
+		helper.assertTrue(
+				bucketCount == 4,
+				"星辰燃料配方应当返还四个空桶，实际为 " + bucketCount + "，余留物：" + remainders
+		);
+		assertWrongExtremeRecipe(helper, "star_fuel", fuelInput, "星辰燃料配方不应接受错误材料");
+
+		BlockPos tablePos = new BlockPos(22, 0, 0);
+		helper.setBlock(tablePos, ModBlocks.EXTREME_CRAFTING_TABLE);
+		Player player = helper.makeMockServerPlayer(GameType.SURVIVAL);
+		ExtremeCraftingMenu menu = new ExtremeCraftingMenu(4, player.getInventory(), helper.absolutePos(tablePos));
+		for (int row = 0; row < fuelInput.height(); row++) {
+			for (int column = 0; column < fuelInput.width(); column++) {
+				menu.getSlot(ExtremeCraftingMenu.INPUT_SLOT_START + column + row * 9)
+						.set(fuelInput.getItem(column, row).copy());
+			}
+		}
+		menu.slotsChanged(menu.getSlot(ExtremeCraftingMenu.INPUT_SLOT_START).container);
+		ItemStack menuResult = menu.getSlot(ExtremeCraftingMenu.RESULT_SLOT).getItem();
+		helper.assertTrue(menuResult.is(ModItems.STAR_FUEL), "终极工作台没有显示星辰燃料结果");
+		ItemStack taken = menu.getSlot(ExtremeCraftingMenu.RESULT_SLOT).remove(1);
+		menu.getSlot(ExtremeCraftingMenu.RESULT_SLOT).onTake(player, taken);
+		int menuBuckets = 0;
+		for (int slot = ExtremeCraftingMenu.INPUT_SLOT_START; slot < ExtremeCraftingMenu.INPUT_SLOT_END; slot++) {
+			ItemStack remaining = menu.getSlot(slot).getItem();
+			if (remaining.is(Items.BUCKET)) {
+				menuBuckets += remaining.getCount();
+			} else {
+				helper.assertTrue(remaining.isEmpty(), "星辰燃料合成后残留了非空桶材料");
+			}
+		}
+		helper.assertTrue(menuBuckets == 4, "终极工作台实际合成后没有保留四个空桶");
+		menu.removed(player);
+
+		helper.assertTrue(
+				BuiltInRegistries.BLOCK.getValue(ModBlocks.STAR_FUEL_BLOCK_KEY) == ModBlocks.STAR_FUEL_BLOCK,
+				"星辰燃料块没有注册到预期的 ResourceKey"
+		);
+		helper.assertTrue(
+				BuiltInRegistries.ITEM.getValue(ModBlocks.STAR_FUEL_BLOCK_ITEM_KEY) == ModBlocks.STAR_FUEL_BLOCK_ITEM,
+				"星辰燃料块物品没有注册到预期的 ResourceKey"
+		);
+		helper.assertTrue(Block.byItem(ModBlocks.STAR_FUEL_BLOCK_ITEM) == ModBlocks.STAR_FUEL_BLOCK, "星辰燃料块物品未关联方块");
+		ItemStack blockStack = new ItemStack(ModBlocks.STAR_FUEL_BLOCK_ITEM);
+		helper.assertTrue(blockStack.getRarity() == Rarity.RARE, "星辰燃料块应当是 RARE 稀有度");
+		helper.assertTrue(
+				helper.getLevel().fuelValues().burnDuration(blockStack) == Integer.MAX_VALUE,
+				"星辰燃料块燃烧时间应当是 int 最大值"
+		);
+		helper.assertTrue(ModBlocks.STAR_FUEL_BLOCK.getExplosionResistance() == 200.0F, "星辰燃料块爆炸抗性应当是 200");
+
+		BlockPos relativePos = new BlockPos(21, 0, 0);
+		helper.setBlock(relativePos, ModBlocks.STAR_FUEL_BLOCK);
+		helper.assertBlockPresent(ModBlocks.STAR_FUEL_BLOCK, relativePos);
+		helper.assertTrue(
+				helper.getBlockState(relativePos).getDestroySpeed(helper.getLevel(), helper.absolutePos(relativePos))
+						== 100.0F,
+				"星辰燃料块硬度应当是 100"
+		);
+		List<ItemStack> drops = Block.getDrops(
+				helper.getBlockState(relativePos), helper.getLevel(), helper.absolutePos(relativePos), null
+		);
+		helper.assertTrue(drops.size() == 1 && drops.getFirst().is(ModBlocks.STAR_FUEL_BLOCK_ITEM), "星辰燃料块应当掉落自身");
+		assertCraftingRecipe(
+				helper,
+				"star_fuel_block",
+				filledCraftingInput(ModItems.STAR_FUEL),
+				ModBlocks.STAR_FUEL_BLOCK_ITEM,
+				1
+		);
+		assertCraftingRecipe(
+				helper,
+				"star_fuel_from_block",
+				CraftingInput.of(1, 1, List.of(blockStack)),
+				ModItems.STAR_FUEL,
+				9
+		);
+		helper.succeed();
+	}
+
+	@GameTest
 	public void skullFireSwordCraftsAndBeheadsSkeletons(GameTestHelper helper) {
 		ItemStack sword = new ItemStack(ModItems.SKULL_FIRE_SWORD);
 		helper.assertTrue(
@@ -3180,6 +3291,34 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 				new ItemStack(item), new ItemStack(item), new ItemStack(item),
 				new ItemStack(item), new ItemStack(item), new ItemStack(item)
 		));
+	}
+
+	private static CraftingInput starFuelInput() {
+		List<ItemStack> stacks = new java.util.ArrayList<>(81);
+		for (String row : List.of(
+				"         ",
+				"  aaaaa  ",
+				" abbcbba ",
+				" abaaaba ",
+				" acadaca ",
+				" abaaaba ",
+				" abbcbba ",
+				"  aaaaa  ",
+				"         "
+		)) {
+			for (char symbol : row.toCharArray()) {
+				ItemStack stack = switch (symbol) {
+					case 'a' -> new ItemStack(Items.COAL_BLOCK);
+					case 'b' -> new ItemStack(Items.MAGMA_BLOCK);
+					case 'c' -> new ItemStack(Items.LAVA_BUCKET);
+					case 'd' -> new ItemStack(ModItems.ETERNAL_SINGULARITY);
+					case ' ' -> ItemStack.EMPTY;
+					default -> throw new IllegalArgumentException("未知星辰燃料配方符号: " + symbol);
+				};
+				stacks.add(stack);
+			}
+		}
+		return CraftingInput.of(9, 9, stacks);
 	}
 
 	private static CraftingInput enhancementCoreInput() {

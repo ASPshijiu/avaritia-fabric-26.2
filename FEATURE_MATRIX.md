@@ -101,7 +101,7 @@
 | `blaze_cube` | 炽骨立方 | 实现中 | 通过 | 不适用 | 通过 | 通过 | 通过 |
 | `neutron_gear` | 中子齿轮 | 实现中 | 通过 | 不适用 | 通过 | 通过 | 通过 |
 | `infinity_nugget` | 无尽粒 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `star_fuel` | 星辰燃料 | 未开始 | — | — | — | — | — |
+| `star_fuel` | 星辰燃料 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
 | `refined_coal` | 精炼煤炭 | 未开始 | — | — | — | — | — |
 | `full_matter_cluster` | 满物质团 | 实现中 | 通过 | 不适用 | 通过 | 通过 | 通过 |
 | `enhancement_core` | 强化核心 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
@@ -117,7 +117,7 @@
 | `compressed_chest` | 压缩箱子 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
 | `soul_farmland` | 灵魂耕地 | 未开始 | — | — | — | — | — |
 | `diamond_lattice_block` | 钻石晶格块 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `star_fuel_block` | 星辰燃料块 | 未开始 | — | — | — | — | — |
+| `star_fuel_block` | 星辰燃料块 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
 | `refined_coal_block` | 精炼煤炭块 | 未开始 | — | — | — | — | — |
 | `sculk_crafting_table` | 幽匿工作台 | 未开始 | — | — | — | — | — |
 | `nether_crafting_table` | 下界工作台 | 未开始 | — | — | — | — | — |

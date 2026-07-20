@@ -7,6 +7,7 @@ import io.github.aspshijiu.avaritia26.block.ExtremeSmithingTableBlock;
 import io.github.aspshijiu.avaritia26.block.InfinityChestBlock;
 import io.github.aspshijiu.avaritia26.block.NeutronCollectorBlock;
 import io.github.aspshijiu.avaritia26.block.NeutronCompressorBlock;
+import net.fabricmc.fabric.api.registry.FuelValueEvents;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
@@ -70,6 +71,24 @@ public final class ModBlocks {
 			new BlockItem(
 					DIAMOND_LATTICE_BLOCK,
 					new Item.Properties().setId(DIAMOND_LATTICE_BLOCK_ITEM_KEY).rarity(Rarity.UNCOMMON)
+			)
+	);
+	public static final ResourceKey<Block> STAR_FUEL_BLOCK_KEY = blockKey("star_fuel_block");
+	public static final Block STAR_FUEL_BLOCK = Registry.register(
+			BuiltInRegistries.BLOCK,
+			STAR_FUEL_BLOCK_KEY,
+			new Block(BlockBehaviour.Properties.of()
+					.setId(STAR_FUEL_BLOCK_KEY)
+					.sound(SoundType.STONE)
+					.strength(100.0F, 200.0F))
+	);
+	public static final ResourceKey<Item> STAR_FUEL_BLOCK_ITEM_KEY = itemKey("star_fuel_block");
+	public static final BlockItem STAR_FUEL_BLOCK_ITEM = Registry.register(
+			BuiltInRegistries.ITEM,
+			STAR_FUEL_BLOCK_ITEM_KEY,
+			new BlockItem(
+					STAR_FUEL_BLOCK,
+					new Item.Properties().setId(STAR_FUEL_BLOCK_ITEM_KEY).rarity(Rarity.RARE)
 			)
 	);
 	public static final ResourceKey<Block> NEUTRON_COLLECTOR_KEY = blockKey("neutron_collector");
@@ -285,6 +304,10 @@ public final class ModBlocks {
 	}
 
 	public static void initialize() {
+		FuelValueEvents.BUILD.register((builder, context) -> {
+			builder.add(ModItems.STAR_FUEL, Integer.MAX_VALUE);
+			builder.add(STAR_FUEL_BLOCK_ITEM, Integer.MAX_VALUE);
+		});
 	}
 
 	private static ResourceKey<Block> blockKey(String path) {

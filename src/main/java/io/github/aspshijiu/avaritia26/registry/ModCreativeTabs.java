@@ -50,6 +50,8 @@ public final class ModCreativeTabs {
 				output.accept(ModItems.NEUTRON_INGOT);
 				output.accept(ModItems.NEUTRON_GEAR);
 				output.accept(ModItems.RECORD_FRAGMENT);
+				output.accept(ModItems.STAR_FUEL);
+				output.accept(ModBlocks.STAR_FUEL_BLOCK_ITEM);
 				output.accept(ModItems.ENDEST_PEARL);
 				output.accept(ModItems.MATTER_CLUSTER);
 				output.accept(ModItems.FULL_MATTER_CLUSTER);
