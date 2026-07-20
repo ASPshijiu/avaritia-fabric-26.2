@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.aspshijiu.avaritia26.block.entity.ExtremeCraftingTableBlockEntity;
-import io.github.aspshijiu.avaritia26.crafting.ExtremeShapedRecipe;
 import io.github.aspshijiu.avaritia26.crafting.ModRecipes;
 import io.github.aspshijiu.avaritia26.registry.ModBlocks;
 import io.github.aspshijiu.avaritia26.registry.ModMenus;
@@ -24,6 +23,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
@@ -38,7 +38,7 @@ public final class ExtremeCraftingMenu extends AbstractContainerMenu {
 	private final ContainerLevelAccess access;
 	private final CraftingContainer craftSlots;
 	private final ResultContainer resultSlots = new ResultContainer();
-	private RecipeHolder<ExtremeShapedRecipe> currentRecipe;
+	private RecipeHolder<Recipe<CraftingInput>> currentRecipe;
 	private CraftingInput.Positioned currentInput;
 	private boolean consuming;
 

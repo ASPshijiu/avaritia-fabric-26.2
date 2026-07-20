@@ -5,7 +5,6 @@ import java.util.List;
 
 import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.block.entity.ExtremeCraftingTableBlockEntity;
-import io.github.aspshijiu.avaritia26.crafting.ExtremeShapedRecipe;
 import io.github.aspshijiu.avaritia26.crafting.ModRecipes;
 import io.github.aspshijiu.avaritia26.inventory.ExtremeCraftingMenu;
 import io.github.aspshijiu.avaritia26.registry.ModBlockEntities;
@@ -112,7 +111,7 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 				ItemStack.EMPTY, new ItemStack(ModItems.NEUTRON_PILE), ItemStack.EMPTY
 		));
 		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(Registries.RECIPE, Avaritia26.id("record_fragment"));
-		RecipeHolder<ExtremeShapedRecipe> recipe = helper.getLevel().getServer().getRecipeManager()
+		RecipeHolder<Recipe<CraftingInput>> recipe = helper.getLevel().getServer().getRecipeManager()
 				.getRecipeFor(ModRecipes.EXTREME_CRAFTING, input, helper.getLevel())
 				.orElseThrow(() -> helper.assertionException("正确唱片材料未匹配唱片碎片配方"));
 		helper.assertTrue(recipe.id().equals(recipeKey), "唱片碎片材料匹配到了错误配方");
@@ -318,7 +317,7 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 				Registries.RECIPE,
 				Identifier.fromNamespaceAndPath("avaritia26-gametest", "extreme_shaped_test")
 		);
-		RecipeHolder<ExtremeShapedRecipe> recipe = helper.getLevel().getServer().getRecipeManager()
+		RecipeHolder<Recipe<CraftingInput>> recipe = helper.getLevel().getServer().getRecipeManager()
 				.getRecipeFor(ModRecipes.EXTREME_CRAFTING, input, helper.getLevel())
 				.orElseThrow(() -> helper.assertionException("9x9 有序测试配方未匹配"));
 		helper.assertTrue(recipe.id().equals(recipeKey), "9x9 输入匹配到了错误配方");
@@ -335,13 +334,46 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	}
 
 	@GameTest
+	public void extremeShapelessRecipeSupportsMoreThanNineIngredients(GameTestHelper helper) {
+		CraftingInput input = CraftingInput.of(5, 2, List.of(
+				new ItemStack(Items.COCOA_BEANS), new ItemStack(Items.KELP), new ItemStack(Items.SUGAR_CANE),
+				new ItemStack(Items.BAMBOO), new ItemStack(Items.CACTUS),
+				new ItemStack(Items.WHEAT), new ItemStack(Items.BEETROOT), new ItemStack(Items.POTATO),
+				new ItemStack(Items.CARROT), new ItemStack(Items.APPLE)
+		));
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(
+				Registries.RECIPE,
+				Identifier.fromNamespaceAndPath("avaritia26-gametest", "extreme_shapeless_test")
+		);
+		RecipeHolder<Recipe<CraftingInput>> recipe = helper.getLevel().getServer().getRecipeManager()
+				.getRecipeFor(ModRecipes.EXTREME_CRAFTING, input, helper.getLevel())
+				.orElseThrow(() -> helper.assertionException("10 种材料未匹配终极无序配方"));
+		helper.assertTrue(recipe.id().equals(recipeKey), "终极无序材料匹配到了错误配方");
+		ItemStack result = recipe.value().assemble(input);
+		helper.assertTrue(result.is(ModItems.DIAMOND_LATTICE), "终极无序配方输出错误");
+
+		List<ItemStack> extraStacks = new java.util.ArrayList<>(input.items());
+		extraStacks.add(new ItemStack(Items.DIRT));
+		extraStacks.add(ItemStack.EMPTY);
+		CraftingInput extraInput = CraftingInput.of(4, 3, extraStacks);
+		helper.assertFalse(
+				helper.getLevel().getServer().getRecipeManager()
+						.getRecipeFor(ModRecipes.EXTREME_CRAFTING, extraInput, helper.getLevel())
+						.filter(candidate -> candidate.id().equals(recipeKey))
+						.isPresent(),
+				"终极无序配方不应接受额外材料"
+		);
+		helper.succeed();
+	}
+
+	@GameTest
 	public void extremeCraftingTableRecipeWorks(GameTestHelper helper) {
 		CraftingInput input = extremeCraftingTableInput();
 		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(
 				Registries.RECIPE,
 				Avaritia26.id("extreme_crafting_table")
 		);
-		RecipeHolder<ExtremeShapedRecipe> recipe = helper.getLevel().getServer().getRecipeManager()
+		RecipeHolder<Recipe<CraftingInput>> recipe = helper.getLevel().getServer().getRecipeManager()
 				.getRecipeFor(ModRecipes.EXTREME_CRAFTING, input, helper.getLevel())
 				.orElseThrow(() -> helper.assertionException("正确材料未匹配终极工作台配方"));
 		helper.assertTrue(recipe.id().equals(recipeKey), "终极工作台材料匹配到了错误配方");
