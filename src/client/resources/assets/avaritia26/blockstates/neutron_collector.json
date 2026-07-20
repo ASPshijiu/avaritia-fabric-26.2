@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "avaritia26:block/neutron_collector", "y": 180 },
+    "facing=south": { "model": "avaritia26:block/neutron_collector" },
+    "facing=west": { "model": "avaritia26:block/neutron_collector", "y": 90 },
+    "facing=east": { "model": "avaritia26:block/neutron_collector", "y": 270 }
+  }
+}

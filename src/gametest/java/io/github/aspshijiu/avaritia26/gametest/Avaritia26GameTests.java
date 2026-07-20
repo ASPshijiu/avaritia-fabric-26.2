@@ -6,12 +6,15 @@ import java.util.Map;
 
 import com.mojang.serialization.JsonOps;
 import io.github.aspshijiu.avaritia26.Avaritia26;
+import io.github.aspshijiu.avaritia26.block.NeutronCollectorBlock;
 import io.github.aspshijiu.avaritia26.block.entity.ExtremeCraftingTableBlockEntity;
+import io.github.aspshijiu.avaritia26.block.entity.NeutronCollectorBlockEntity;
 import io.github.aspshijiu.avaritia26.block.entity.NeutronCompressorBlockEntity;
 import io.github.aspshijiu.avaritia26.crafting.ModRecipes;
 import io.github.aspshijiu.avaritia26.entity.EndestPearlEntity;
 import io.github.aspshijiu.avaritia26.entity.GapingVoidEntity;
 import io.github.aspshijiu.avaritia26.inventory.ExtremeCraftingMenu;
+import io.github.aspshijiu.avaritia26.inventory.NeutronCollectorMenu;
 import io.github.aspshijiu.avaritia26.inventory.NeutronCompressorMenu;
 import io.github.aspshijiu.avaritia26.item.MatterClusterItem;
 import io.github.aspshijiu.avaritia26.item.SingularityItem;
@@ -26,6 +29,7 @@ import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.gametest.v1.CustomTestMethodInvoker;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -333,6 +337,150 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 				recipe.value().matches(CraftingInput.of(5, 3, extra), helper.getLevel()),
 				"额外材料不应匹配永恒奇点配方"
 		);
+		helper.succeed();
+	}
+
+	@GameTest
+	public void neutronCollectorCraftsPersistsAndProduces(GameTestHelper helper) {
+		CraftingInput collectorInput = neutronCollectorInput();
+		assertExtremeRecipe(
+				helper,
+				"neutron_collector",
+				collectorInput,
+				ModBlocks.NEUTRON_COLLECTOR_ITEM
+		);
+		List<ItemStack> wrongRecipeInput = copyStacks(collectorInput.items());
+		wrongRecipeInput.set(40, new ItemStack(Items.DIRT));
+		ResourceKey<Recipe<?>> collectorRecipeKey = ResourceKey.create(
+				Registries.RECIPE,
+				Avaritia26.id("neutron_collector")
+		);
+		helper.assertFalse(
+				helper.getLevel().getServer().getRecipeManager()
+						.getRecipeFor(
+								ModRecipes.EXTREME_CRAFTING,
+								CraftingInput.of(9, 9, wrongRecipeInput),
+								helper.getLevel()
+						)
+						.filter(candidate -> candidate.id().equals(collectorRecipeKey))
+						.isPresent(),
+				"中子收集器中心材料错误时不应匹配配方"
+		);
+		helper.assertTrue(
+				BuiltInRegistries.BLOCK.getValue(ModBlocks.NEUTRON_COLLECTOR_KEY) == ModBlocks.NEUTRON_COLLECTOR,
+				"中子收集器方块未注册"
+		);
+		helper.assertTrue(
+				BuiltInRegistries.ITEM.getValue(ModBlocks.NEUTRON_COLLECTOR_ITEM_KEY)
+						== ModBlocks.NEUTRON_COLLECTOR_ITEM,
+				"中子收集器方块物品未注册"
+		);
+		helper.assertTrue(
+				BuiltInRegistries.BLOCK_ENTITY_TYPE.getValue(Avaritia26.id("neutron_collector"))
+						== ModBlockEntities.NEUTRON_COLLECTOR,
+				"中子收集器方块实体未注册"
+		);
+		ItemStack collectorItem = new ItemStack(ModBlocks.NEUTRON_COLLECTOR_ITEM);
+		helper.assertTrue(collectorItem.getRarity() == Rarity.RARE, "中子收集器应当是 RARE 稀有度");
+		helper.assertTrue(collectorItem.has(DataComponents.DAMAGE_RESISTANT), "中子收集器物品应当防火");
+
+		BlockPos relativePos = new BlockPos(16, 0, 0);
+		helper.setBlock(relativePos, ModBlocks.NEUTRON_COLLECTOR);
+		helper.assertBlockPresent(ModBlocks.NEUTRON_COLLECTOR, relativePos);
+		helper.assertTrue(
+				helper.getBlockState(relativePos).getValue(NeutronCollectorBlock.FACING) == Direction.NORTH,
+				"中子收集器默认朝向错误"
+		);
+		helper.assertTrue(helper.getBlockState(relativePos).is(BlockTags.MINEABLE_WITH_PICKAXE), "中子收集器应当可用镐挖掘");
+		helper.assertTrue(helper.getBlockState(relativePos).is(BlockTags.NEEDS_DIAMOND_TOOL), "中子收集器应当需要钻石级工具");
+		NeutronCollectorBlockEntity collector = helper.getBlockEntity(
+				relativePos,
+				NeutronCollectorBlockEntity.class
+		);
+		helper.assertTrue(collector.getContainerSize() == 1, "中子收集器应当只有一个输出槽位");
+		helper.assertFalse(collector.canPlaceItem(0, new ItemStack(Items.DIRT)), "中子收集器不应接受外部输入");
+
+		for (int tick = 0; tick < 100; tick++) {
+			NeutronCollectorBlockEntity.serverTick(
+					helper.getLevel(),
+					helper.absolutePos(relativePos),
+					helper.getBlockState(relativePos),
+					collector
+			);
+		}
+		BlockEntity loaded = BlockEntity.loadStatic(
+				helper.absolutePos(relativePos),
+				helper.getBlockState(relativePos),
+				collector.saveWithFullMetadata(helper.getLevel().registryAccess()),
+				helper.getLevel().registryAccess()
+		);
+		helper.assertTrue(loaded instanceof NeutronCollectorBlockEntity, "中子收集器无法从存档恢复");
+		helper.assertTrue(
+				((NeutronCollectorBlockEntity) loaded).getProgress() == 100,
+				"中子收集器生产进度存档错误"
+		);
+
+		for (int tick = 100; tick < NeutronCollectorBlockEntity.PRODUCTION_TICKS - 1; tick++) {
+			NeutronCollectorBlockEntity.serverTick(
+					helper.getLevel(),
+					helper.absolutePos(relativePos),
+					helper.getBlockState(relativePos),
+					collector
+			);
+		}
+		helper.assertTrue(collector.getItem(0).isEmpty(), "中子收集器提前产出了中子堆");
+		NeutronCollectorBlockEntity.serverTick(
+				helper.getLevel(),
+				helper.absolutePos(relativePos),
+				helper.getBlockState(relativePos),
+				collector
+		);
+		helper.assertTrue(
+				collector.getItem(0).is(ModItems.NEUTRON_PILE) && collector.getItem(0).getCount() == 1,
+				"中子收集器未在 3600 tick 产出一个中子堆"
+		);
+		helper.assertTrue(collector.getProgress() == 0, "中子收集器产出后没有重置进度");
+		helper.assertTrue(collector.getSlotsForFace(Direction.UP).length == 1, "中子收集器未暴露自动化输出槽");
+		helper.assertTrue(
+				collector.canTakeItemThroughFace(0, collector.getItem(0), Direction.UP),
+				"漏斗无法从中子收集器抽取产物"
+		);
+
+		collector.setItem(0, new ItemStack(ModItems.NEUTRON_PILE, 64));
+		for (int tick = 0; tick < 100; tick++) {
+			NeutronCollectorBlockEntity.serverTick(
+					helper.getLevel(),
+					helper.absolutePos(relativePos),
+					helper.getBlockState(relativePos),
+					collector
+			);
+		}
+		helper.assertTrue(collector.getItem(0).getCount() == 64, "输出满时中子收集器溢出了物品");
+		helper.assertTrue(collector.getProgress() == 0, "输出满时中子收集器仍在推进进度");
+
+		Player player = helper.makeMockServerPlayer(GameType.SURVIVAL);
+		NeutronCollectorMenu menu = (NeutronCollectorMenu) collector.createMenu(3, player.getInventory(), player);
+		helper.assertTrue(menu.slots.size() == 37, "中子收集器菜单槽位数量错误");
+		helper.assertFalse(menu.slots.getFirst().mayPlace(new ItemStack(Items.DIRT)), "中子收集器输出槽错误接受物品");
+
+		List<ItemStack> machineDrops = Block.getDrops(
+				helper.getBlockState(relativePos),
+				helper.getLevel(),
+				helper.absolutePos(relativePos),
+				collector
+		);
+		helper.assertTrue(
+				machineDrops.size() == 1 && machineDrops.getFirst().is(ModBlocks.NEUTRON_COLLECTOR_ITEM),
+				"中子收集器 loot 未掉落自身"
+		);
+		collector.setItem(0, new ItemStack(ModItems.NEUTRON_PILE, 3));
+		helper.destroyBlock(relativePos);
+		int droppedPiles = helper.getLevel().getEntitiesOfClass(
+				ItemEntity.class,
+				new AABB(helper.absolutePos(relativePos)).inflate(2.0),
+				entity -> entity.getItem().is(ModItems.NEUTRON_PILE)
+		).stream().mapToInt(entity -> entity.getItem().getCount()).sum();
+		helper.assertTrue(droppedPiles == 3, "破坏中子收集器没有完整返还输出物品");
 		helper.succeed();
 	}
 
@@ -1633,6 +1781,33 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 					case 'R' -> new ItemStack(Items.REDSTONE_BLOCK);
 					case ' ' -> ItemStack.EMPTY;
 					default -> throw new IllegalArgumentException("未知中子压缩机配方符号: " + symbol);
+				});
+			}
+		}
+		return CraftingInput.of(9, 9, stacks);
+	}
+
+	private static CraftingInput neutronCollectorInput() {
+		List<ItemStack> stacks = new java.util.ArrayList<>(81);
+		for (String row : List.of(
+				"IIQQQQQII",
+				"I QQQQQ I",
+				"I  RRR  I",
+				"C RRRRR C",
+				"I RRCRR I",
+				"C RRRRR C",
+				"I  RRR  I",
+				"I       I",
+				"IIICICIII"
+		)) {
+			for (char symbol : row.toCharArray()) {
+				stacks.add(switch (symbol) {
+					case 'C' -> new ItemStack(ModItems.CRYSTAL_MATRIX_INGOT);
+					case 'I' -> new ItemStack(Items.IRON_BLOCK);
+					case 'Q' -> new ItemStack(Items.QUARTZ_BLOCK);
+					case 'R' -> new ItemStack(Items.REDSTONE_BLOCK);
+					case ' ' -> ItemStack.EMPTY;
+					default -> throw new IllegalArgumentException("未知中子收集器配方符号: " + symbol);
 				});
 			}
 		}

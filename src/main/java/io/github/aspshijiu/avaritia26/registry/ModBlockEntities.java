@@ -4,12 +4,18 @@ import java.util.Set;
 
 import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.block.entity.ExtremeCraftingTableBlockEntity;
+import io.github.aspshijiu.avaritia26.block.entity.NeutronCollectorBlockEntity;
 import io.github.aspshijiu.avaritia26.block.entity.NeutronCompressorBlockEntity;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
 public final class ModBlockEntities {
+	public static final BlockEntityType<NeutronCollectorBlockEntity> NEUTRON_COLLECTOR = Registry.register(
+			BuiltInRegistries.BLOCK_ENTITY_TYPE,
+			Avaritia26.id("neutron_collector"),
+			new BlockEntityType<>(NeutronCollectorBlockEntity::new, Set.of(ModBlocks.NEUTRON_COLLECTOR))
+	);
 	public static final BlockEntityType<NeutronCompressorBlockEntity> NEUTRON_COMPRESSOR = Registry.register(
 			BuiltInRegistries.BLOCK_ENTITY_TYPE,
 			Avaritia26.id("neutron_compressor"),

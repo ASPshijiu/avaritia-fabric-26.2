@@ -1,0 +1,24 @@
+{
+  "type": "avaritia26:extreme_shaped",
+  "key": {
+    "C": "avaritia26:crystal_matrix_ingot",
+    "I": "minecraft:iron_block",
+    "Q": "minecraft:quartz_block",
+    "R": "minecraft:redstone_block"
+  },
+  "pattern": [
+    "IIQQQQQII",
+    "I QQQQQ I",
+    "I  RRR  I",
+    "C RRRRR C",
+    "I RRCRR I",
+    "C RRRRR C",
+    "I  RRR  I",
+    "I       I",
+    "IIICICIII"
+  ],
+  "result": {
+    "count": 1,
+    "id": "avaritia26:neutron_collector"
+  }
+}

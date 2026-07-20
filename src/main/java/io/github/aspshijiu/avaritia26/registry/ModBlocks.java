@@ -2,6 +2,7 @@ package io.github.aspshijiu.avaritia26.registry;
 
 import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.block.ExtremeCraftingTableBlock;
+import io.github.aspshijiu.avaritia26.block.NeutronCollectorBlock;
 import io.github.aspshijiu.avaritia26.block.NeutronCompressorBlock;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -16,6 +17,26 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 
 public final class ModBlocks {
+	public static final ResourceKey<Block> NEUTRON_COLLECTOR_KEY = blockKey("neutron_collector");
+	public static final Block NEUTRON_COLLECTOR = Registry.register(
+			BuiltInRegistries.BLOCK,
+			NEUTRON_COLLECTOR_KEY,
+			new NeutronCollectorBlock(BlockBehaviour.Properties.of()
+					.setId(NEUTRON_COLLECTOR_KEY)
+					.mapColor(MapColor.METAL)
+					.sound(SoundType.METAL)
+					.strength(50.0F, 2000.0F)
+					.requiresCorrectToolForDrops())
+	);
+	public static final ResourceKey<Item> NEUTRON_COLLECTOR_ITEM_KEY = itemKey("neutron_collector");
+	public static final BlockItem NEUTRON_COLLECTOR_ITEM = Registry.register(
+			BuiltInRegistries.ITEM,
+			NEUTRON_COLLECTOR_ITEM_KEY,
+			new BlockItem(
+					NEUTRON_COLLECTOR,
+					new Item.Properties().setId(NEUTRON_COLLECTOR_ITEM_KEY).rarity(Rarity.RARE).fireResistant()
+			)
+	);
 	public static final ResourceKey<Block> INFINITY_KEY = blockKey("infinity");
 	public static final Block INFINITY = Registry.register(
 			BuiltInRegistries.BLOCK,
