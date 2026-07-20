@@ -7,6 +7,7 @@ import io.github.aspshijiu.avaritia26.block.ExtremeSmithingTableBlock;
 import io.github.aspshijiu.avaritia26.block.InfinityChestBlock;
 import io.github.aspshijiu.avaritia26.block.NeutronCollectorBlock;
 import io.github.aspshijiu.avaritia26.block.NeutronCompressorBlock;
+import io.github.aspshijiu.avaritia26.block.SculkCraftingTableBlock;
 import io.github.aspshijiu.avaritia26.block.SoulFarmlandBlock;
 import net.fabricmc.fabric.api.registry.FuelValueEvents;
 import net.minecraft.core.Registry;
@@ -381,6 +382,27 @@ public final class ModBlocks {
 					DOUBLE_COMPRESSED_CRAFTING_TABLE,
 					new Item.Properties().setId(DOUBLE_COMPRESSED_CRAFTING_TABLE_ITEM_KEY)
 							.rarity(Rarity.UNCOMMON)
+			)
+	);
+	public static final ResourceKey<Block> SCULK_CRAFTING_TABLE_KEY = blockKey("sculk_crafting_table");
+	public static final Block SCULK_CRAFTING_TABLE = Registry.register(
+			BuiltInRegistries.BLOCK,
+			SCULK_CRAFTING_TABLE_KEY,
+			new SculkCraftingTableBlock(BlockBehaviour.Properties.of()
+					.setId(SCULK_CRAFTING_TABLE_KEY)
+					.mapColor(MapColor.METAL)
+					.sound(SoundType.SCULK_CATALYST)
+					.strength(25.0F, 500.0F)
+					.lightLevel(state -> 15)
+					.requiresCorrectToolForDrops())
+	);
+	public static final ResourceKey<Item> SCULK_CRAFTING_TABLE_ITEM_KEY = itemKey("sculk_crafting_table");
+	public static final BlockItem SCULK_CRAFTING_TABLE_ITEM = Registry.register(
+			BuiltInRegistries.ITEM,
+			SCULK_CRAFTING_TABLE_ITEM_KEY,
+			new BlockItem(
+					SCULK_CRAFTING_TABLE,
+					new Item.Properties().setId(SCULK_CRAFTING_TABLE_ITEM_KEY)
 			)
 	);
 	public static final ResourceKey<Block> EXTREME_CRAFTING_TABLE_KEY = blockKey("extreme_crafting_table");

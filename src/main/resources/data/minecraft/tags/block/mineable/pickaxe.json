@@ -1,4 +1,18 @@
 {
-  "replace": false,
-  "values": ["avaritia26:blaze_cube_block", "avaritia26:neutron_collector", "avaritia26:dense_neutron_collector", "avaritia26:denser_neutron_collector", "avaritia26:densest_neutron_collector", "avaritia26:neutron_compressor", "avaritia26:dense_neutron_compressor", "avaritia26:denser_neutron_compressor", "avaritia26:densest_neutron_compressor", "avaritia26:infinity", "avaritia26:extreme_smithing_table", "avaritia26:infinity_chest"]
+	"replace": false,
+	"values": [
+		"avaritia26:blaze_cube_block",
+		"avaritia26:neutron_collector",
+		"avaritia26:dense_neutron_collector",
+		"avaritia26:denser_neutron_collector",
+		"avaritia26:densest_neutron_collector",
+		"avaritia26:neutron_compressor",
+		"avaritia26:dense_neutron_compressor",
+		"avaritia26:denser_neutron_compressor",
+		"avaritia26:densest_neutron_compressor",
+		"avaritia26:infinity",
+		"avaritia26:extreme_smithing_table",
+		"avaritia26:infinity_chest",
+		"avaritia26:sculk_crafting_table"
+	]
 }

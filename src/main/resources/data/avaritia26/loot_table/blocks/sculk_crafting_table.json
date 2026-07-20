@@ -1,0 +1,15 @@
+{
+	"type": "minecraft:block",
+	"pools": [
+		{
+			"conditions": [
+				{ "condition": "minecraft:survives_explosion" }
+			],
+			"entries": [
+				{ "type": "minecraft:item", "name": "avaritia26:sculk_crafting_table" }
+			],
+			"rolls": 1.0
+		}
+	],
+	"random_sequence": "avaritia26:blocks/sculk_crafting_table"
+}

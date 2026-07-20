@@ -7,6 +7,7 @@ import io.github.aspshijiu.avaritia26.inventory.ExtremeSmithingMenu;
 import io.github.aspshijiu.avaritia26.inventory.InfinityChestMenu;
 import io.github.aspshijiu.avaritia26.inventory.NeutronCollectorMenu;
 import io.github.aspshijiu.avaritia26.inventory.NeutronCompressorMenu;
+import io.github.aspshijiu.avaritia26.inventory.SculkCraftingMenu;
 import net.fabricmc.fabric.api.menu.v1.ExtendedMenuType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
@@ -32,6 +33,11 @@ public final class ModMenus {
 			BuiltInRegistries.MENU,
 			Avaritia26.id("extreme_crafting"),
 			new ExtendedMenuType<>(ExtremeCraftingMenu::new, BlockPos.STREAM_CODEC)
+	);
+	public static final ExtendedMenuType<SculkCraftingMenu, BlockPos> SCULK_CRAFTING = Registry.register(
+			BuiltInRegistries.MENU,
+			Avaritia26.id("sculk_crafting"),
+			new ExtendedMenuType<>(SculkCraftingMenu::new, BlockPos.STREAM_CODEC)
 	);
 	public static final ExtendedMenuType<ExtremeSmithingMenu, BlockPos> EXTREME_SMITHING = Registry.register(
 			BuiltInRegistries.MENU,

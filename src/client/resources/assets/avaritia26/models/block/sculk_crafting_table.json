@@ -1,0 +1,12 @@
+{
+	"parent": "minecraft:block/cube",
+	"textures": {
+		"down": "avaritia26:block/sculk_crafting_table_bottom",
+		"east": "avaritia26:block/sculk_crafting_table_side",
+		"north": "avaritia26:block/sculk_crafting_table_side",
+		"particle": "avaritia26:block/sculk_crafting_table_side",
+		"south": "avaritia26:block/sculk_crafting_table_side",
+		"up": "avaritia26:block/sculk_crafting_table_top",
+		"west": "avaritia26:block/sculk_crafting_table_side"
+	}
+}

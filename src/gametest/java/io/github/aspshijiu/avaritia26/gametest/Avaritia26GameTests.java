@@ -18,6 +18,7 @@ import io.github.aspshijiu.avaritia26.block.entity.NeutronCollectorBlockEntity;
 import io.github.aspshijiu.avaritia26.block.entity.NeutronCollectorTier;
 import io.github.aspshijiu.avaritia26.block.entity.NeutronCompressorTier;
 import io.github.aspshijiu.avaritia26.block.entity.NeutronCompressorBlockEntity;
+import io.github.aspshijiu.avaritia26.block.entity.SculkCraftingTableBlockEntity;
 import io.github.aspshijiu.avaritia26.crafting.EternalSingularityRecipe;
 import io.github.aspshijiu.avaritia26.crafting.ExtremeSmithingInput;
 import io.github.aspshijiu.avaritia26.crafting.ExtremeSmithingRecipe;
@@ -37,6 +38,7 @@ import io.github.aspshijiu.avaritia26.inventory.ExtremeSmithingMenu;
 import io.github.aspshijiu.avaritia26.inventory.InfinityChestMenu;
 import io.github.aspshijiu.avaritia26.inventory.NeutronCollectorMenu;
 import io.github.aspshijiu.avaritia26.inventory.NeutronCompressorMenu;
+import io.github.aspshijiu.avaritia26.inventory.SculkCraftingMenu;
 import io.github.aspshijiu.avaritia26.item.MatterClusterItem;
 import io.github.aspshijiu.avaritia26.item.InfinityArmorItem;
 import io.github.aspshijiu.avaritia26.item.SingularityItem;
@@ -45,6 +47,7 @@ import io.github.aspshijiu.avaritia26.registry.ModBlocks;
 import io.github.aspshijiu.avaritia26.registry.ModDataComponents;
 import io.github.aspshijiu.avaritia26.registry.ModEntityTypes;
 import io.github.aspshijiu.avaritia26.registry.ModItems;
+import io.github.aspshijiu.avaritia26.registry.ModMenus;
 import io.github.aspshijiu.avaritia26.registry.ModArmorMaterials;
 import io.github.aspshijiu.avaritia26.singularity.SingularityDefinition;
 import io.github.aspshijiu.avaritia26.singularity.SingularityManager;
@@ -2531,6 +2534,88 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		}
 		helper.assertBlockPresent(ModBlocks.SOUL_FARMLAND, farmlandPos);
 		helper.succeed();
+	}
+
+	@GameTest
+	public void sculkCraftingTableCraftsPersistsAndUsesTierRecipes(GameTestHelper helper) {
+		helper.assertTrue(BuiltInRegistries.BLOCK.getValue(ModBlocks.SCULK_CRAFTING_TABLE_KEY)
+				== ModBlocks.SCULK_CRAFTING_TABLE, "幽匿工作台方块未注册");
+		helper.assertTrue(BuiltInRegistries.ITEM.getValue(ModBlocks.SCULK_CRAFTING_TABLE_ITEM_KEY)
+				== ModBlocks.SCULK_CRAFTING_TABLE_ITEM, "幽匿工作台物品未注册");
+		helper.assertTrue(BuiltInRegistries.BLOCK_ENTITY_TYPE.getValue(Avaritia26.id("sculk_crafting_table"))
+				== ModBlockEntities.SCULK_CRAFTING_TABLE, "幽匿工作台方块实体未注册");
+		helper.assertTrue(BuiltInRegistries.MENU.getValue(Avaritia26.id("sculk_crafting"))
+				== ModMenus.SCULK_CRAFTING, "幽匿工作台菜单未注册");
+
+		CraftingInput recipeInput = CraftingInput.of(3, 3, List.of(
+				new ItemStack(Items.ECHO_SHARD), new ItemStack(Blocks.SCULK_SHRIEKER), new ItemStack(Items.ECHO_SHARD),
+				new ItemStack(Blocks.SCULK), new ItemStack(ModBlocks.DOUBLE_COMPRESSED_CRAFTING_TABLE_ITEM), new ItemStack(Blocks.SCULK),
+				new ItemStack(Items.ECHO_SHARD), new ItemStack(Blocks.SCULK_CATALYST), new ItemStack(Items.ECHO_SHARD)
+		));
+		assertCraftingRecipe(helper, "sculk_crafting_table", recipeInput, ModBlocks.SCULK_CRAFTING_TABLE_ITEM, 1);
+		List<ItemStack> wrongRecipe = copyStacks(recipeInput.items());
+		wrongRecipe.set(4, new ItemStack(Blocks.CRAFTING_TABLE));
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(Registries.RECIPE, Avaritia26.id("sculk_crafting_table"));
+		helper.assertFalse(helper.getLevel().getServer().getRecipeManager()
+				.getRecipeFor(RecipeType.CRAFTING, CraftingInput.of(3, 3, wrongRecipe), helper.getLevel())
+				.filter(recipe -> recipe.id().equals(recipeKey)).isPresent(), "幽匿工作台配方错误接受普通工作台");
+
+		BlockPos tablePos = new BlockPos(5, 0, 5);
+		helper.setBlock(tablePos, ModBlocks.SCULK_CRAFTING_TABLE);
+		SculkCraftingTableBlockEntity table = helper.getBlockEntity(tablePos, SculkCraftingTableBlockEntity.class);
+		helper.assertTrue(table.getContainerSize() == 9, "幽匿工作台应持久保存 3×3 输入");
+		BlockState tableState = helper.getBlockState(tablePos);
+		helper.assertTrue(tableState.getLightEmission() == 15, "幽匿工作台亮度错误");
+		helper.assertTrue(tableState.is(BlockTags.MINEABLE_WITH_PICKAXE), "幽匿工作台缺少镐类挖掘标签");
+
+		for (int slot = 0; slot < 9; slot++) {
+			table.setItem(slot, new ItemStack(slot == 4 ? Items.NETHERITE_SCRAP : Items.DIAMOND));
+		}
+		Player player = helper.makeMockServerPlayer(GameType.SURVIVAL);
+		BlockPos absoluteTablePos = helper.absolutePos(tablePos);
+		player.setPos(Vec3.atCenterOf(absoluteTablePos));
+		SculkCraftingMenu menu = new SculkCraftingMenu(
+				1,
+				player.getInventory(),
+				table,
+				net.minecraft.world.inventory.ContainerLevelAccess.create(helper.getLevel(), absoluteTablePos)
+		);
+		helper.assertTrue(menu.slots.size() == 46, "幽匿工作台菜单槽位数量错误");
+		helper.assertTrue(menu.slots.getFirst().getItem().is(ModItems.DIAMOND_LATTICE),
+				"幽匿工作台没有匹配 3×3 分级配方");
+		ItemStack crafted = menu.quickMoveStack(player, SculkCraftingMenu.RESULT_SLOT);
+		helper.assertTrue(crafted.is(ModItems.DIAMOND_LATTICE), "幽匿工作台快速合成输出错误");
+		helper.assertTrue(table.isEmpty(), "幽匿工作台合成后没有正确消耗九格输入");
+		helper.assertTrue(player.getInventory().getNonEquipmentItems().stream()
+				.anyMatch(stack -> stack.is(ModItems.DIAMOND_LATTICE)), "幽匿工作台快速合成没有把产物移入背包");
+
+		table.setItem(0, new ItemStack(Items.ECHO_SHARD, 2));
+		table.setItem(8, new ItemStack(Blocks.SCULK_CATALYST));
+		BlockEntity loaded = BlockEntity.loadStatic(
+				absoluteTablePos,
+				tableState,
+				table.saveWithFullMetadata(helper.getLevel().registryAccess()),
+				helper.getLevel().registryAccess()
+		);
+		helper.assertTrue(loaded instanceof SculkCraftingTableBlockEntity, "幽匿工作台无法从存档恢复");
+		SculkCraftingTableBlockEntity loadedTable = (SculkCraftingTableBlockEntity) loaded;
+		helper.assertTrue(loadedTable.getItem(0).getCount() == 2
+				&& loadedTable.getItem(8).is(Blocks.SCULK_CATALYST.asItem()),
+				"幽匿工作台首尾槽位存档错误");
+
+		helper.destroyBlock(tablePos);
+		helper.assertBlockPresent(Blocks.AIR, tablePos);
+		helper.runAfterDelay(1, () -> {
+			List<ItemEntity> drops = helper.getLevel().getEntitiesOfClass(
+					ItemEntity.class,
+					new AABB(absoluteTablePos).inflate(2.0),
+					entity -> entity.getItem().is(Items.ECHO_SHARD)
+							|| entity.getItem().is(Blocks.SCULK_CATALYST.asItem())
+			);
+			helper.assertTrue(drops.stream().mapToInt(entity -> entity.getItem().getCount()).sum() == 3,
+					"破坏幽匿工作台时没有返还持久输入");
+			helper.succeed();
+		});
 	}
 
 	@GameTest
