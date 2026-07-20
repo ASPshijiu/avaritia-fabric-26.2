@@ -1,0 +1,22 @@
+{
+  "type": "avaritia26:extreme_shapeless",
+  "ingredients": [
+    "minecraft:porkchop",
+    "minecraft:beef",
+    "minecraft:mutton",
+    "minecraft:cod",
+    "minecraft:salmon",
+    "minecraft:tropical_fish",
+    "minecraft:pufferfish",
+    "minecraft:rabbit",
+    "minecraft:chicken",
+    "minecraft:rotten_flesh",
+    "minecraft:spider_eye",
+    "#c:eggs",
+    "avaritia26:neutron_nugget"
+  ],
+  "result": {
+    "count": 1,
+    "id": "avaritia26:cosmic_meatballs"
+  }
+}

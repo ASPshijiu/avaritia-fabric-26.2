@@ -24,6 +24,21 @@ public final class ModFoods {
 					new MobEffectInstance(MobEffects.JUMP_BOOST, 3 * 60 * 20, 2)
 			)))
 			.build();
+	public static final FoodProperties COSMIC_MEATBALLS = new FoodProperties.Builder()
+			.nutrition(20)
+			.saturationModifier(20.0F)
+			.alwaysEdible()
+			.build();
+	public static final Consumable COSMIC_MEATBALLS_CONSUMABLE = Consumables.defaultFood()
+			.onConsume(new ApplyStatusEffectsConsumeEffect(List.of(
+					new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 5 * 60 * 20, 0),
+					new MobEffectInstance(MobEffects.RESISTANCE, 1 * 60 * 20, 1),
+					new MobEffectInstance(MobEffects.ABSORPTION, 3 * 60 * 20, 2),
+					new MobEffectInstance(MobEffects.NIGHT_VISION, 3 * 60 * 20, 0),
+					new MobEffectInstance(MobEffects.WATER_BREATHING, 2 * 60 * 20, 2),
+					new MobEffectInstance(MobEffects.REGENERATION, 5 * 60 * 20, 4)
+			)))
+			.build();
 
 	private ModFoods() {
 	}

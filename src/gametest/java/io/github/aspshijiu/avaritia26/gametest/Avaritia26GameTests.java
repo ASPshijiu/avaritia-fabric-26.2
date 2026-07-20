@@ -189,6 +189,61 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	}
 
 	@GameTest
+	public void cosmicMeatballsRecipeAndEffectsWork(GameTestHelper helper) {
+		assertRegisteredMaterial(
+				helper,
+				ModItems.COSMIC_MEATBALLS_KEY,
+				ModItems.COSMIC_MEATBALLS,
+				Rarity.EPIC,
+				"寰宇肉丸"
+		);
+		ItemStack stack = new ItemStack(ModItems.COSMIC_MEATBALLS);
+		FoodProperties food = stack.get(DataComponents.FOOD);
+		Consumable consumable = stack.get(DataComponents.CONSUMABLE);
+		helper.assertTrue(food != null, "寰宇肉丸缺少食物组件");
+		helper.assertTrue(consumable != null, "寰宇肉丸缺少可食用组件");
+		helper.assertTrue(food.nutrition() == 20, "寰宇肉丸应当恢复 20 点饥饿值");
+		helper.assertTrue(food.saturation() == 800.0F, "寰宇肉丸饱和度应当保持上游的 20 倍修正值");
+		helper.assertTrue(food.canAlwaysEat(), "寰宇肉丸应当允许满饥饿值食用");
+		helper.assertTrue(consumable.consumeSeconds() == 1.6F, "寰宇肉丸应当使用默认的 1.6 秒食用时间");
+		helper.assertTrue(consumable.onConsumeEffects().size() == 1, "寰宇肉丸应当配置一组状态效果");
+
+		CraftingInput input = cosmicMeatballsInput();
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(
+				Registries.RECIPE,
+				Avaritia26.id("cosmic_meatballs")
+		);
+		RecipeHolder<Recipe<CraftingInput>> recipe = helper.getLevel().getServer().getRecipeManager()
+				.getRecipeFor(ModRecipes.EXTREME_CRAFTING, input, helper.getLevel())
+				.orElseThrow(() -> helper.assertionException("13 种正确材料未匹配寰宇肉丸配方"));
+		helper.assertTrue(recipe.id().equals(recipeKey), "寰宇肉丸材料匹配到了错误配方");
+		ItemStack result = recipe.value().assemble(input);
+		helper.assertTrue(result.is(ModItems.COSMIC_MEATBALLS) && result.getCount() == 1, "寰宇肉丸配方输出错误");
+
+		List<ItemStack> wrongStacks = new java.util.ArrayList<>(input.items());
+		wrongStacks.set(11, new ItemStack(Items.DIRT));
+		CraftingInput wrongInput = CraftingInput.of(9, 2, wrongStacks);
+		helper.assertFalse(
+				helper.getLevel().getServer().getRecipeManager()
+						.getRecipeFor(ModRecipes.EXTREME_CRAFTING, wrongInput, helper.getLevel())
+						.filter(candidate -> candidate.id().equals(recipeKey))
+						.isPresent(),
+				"寰宇肉丸配方不应接受非蛋物品"
+		);
+
+		Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+		ItemStack consumed = consumable.onConsume(helper.getLevel(), player, stack.copy());
+		helper.assertTrue(consumed.isEmpty(), "食用一份寰宇肉丸后物品应当被消耗");
+		assertEffect(helper, player, MobEffects.FIRE_RESISTANCE, 5 * 60 * 20, 0, "抗火");
+		assertEffect(helper, player, MobEffects.RESISTANCE, 1 * 60 * 20, 1, "抗性提升");
+		assertEffect(helper, player, MobEffects.ABSORPTION, 3 * 60 * 20, 2, "伤害吸收");
+		assertEffect(helper, player, MobEffects.NIGHT_VISION, 3 * 60 * 20, 0, "夜视");
+		assertEffect(helper, player, MobEffects.WATER_BREATHING, 2 * 60 * 20, 2, "水下呼吸");
+		assertEffect(helper, player, MobEffects.REGENERATION, 5 * 60 * 20, 4, "生命恢复");
+		helper.succeed();
+	}
+
+	@GameTest
 	public void crystalMatrixBlockWorks(GameTestHelper helper) {
 		helper.assertTrue(
 				BuiltInRegistries.BLOCK.getValue(ModBlocks.CRYSTAL_MATRIX_KEY) == ModBlocks.CRYSTAL_MATRIX,
@@ -752,6 +807,17 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 				new ItemStack(Items.BROWN_MUSHROOM), new ItemStack(Items.RED_MUSHROOM),
 				new ItemStack(Items.CRIMSON_FUNGUS), new ItemStack(Items.WARPED_FUNGUS), new ItemStack(Items.WHEAT),
 				new ItemStack(Items.PUMPKIN), new ItemStack(ModItems.NEUTRON_NUGGET)
+		));
+	}
+
+	private static CraftingInput cosmicMeatballsInput() {
+		return CraftingInput.of(9, 2, List.of(
+				new ItemStack(Items.PORKCHOP), new ItemStack(Items.BEEF), new ItemStack(Items.MUTTON),
+				new ItemStack(Items.COD), new ItemStack(Items.SALMON), new ItemStack(Items.TROPICAL_FISH),
+				new ItemStack(Items.PUFFERFISH), new ItemStack(Items.RABBIT), new ItemStack(Items.CHICKEN),
+				new ItemStack(Items.ROTTEN_FLESH), new ItemStack(Items.SPIDER_EYE), new ItemStack(Items.EGG),
+				new ItemStack(ModItems.NEUTRON_NUGGET), ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY,
+				ItemStack.EMPTY, ItemStack.EMPTY
 		));
 	}
 

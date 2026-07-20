@@ -20,6 +20,7 @@
 | `src/client/resources/assets/avaritia26/textures/item/record_fragment.png` | `src/main/resources/assets/avaritia/textures/item/resource/record_fragment.png` | Re:Avaritia `c331b7f4838667e6200b24c99dc45459e0b9dafb` | Nova Committee / Re:Avaritia artists | CC BY-NC-SA 4.0 | 仅调整资源路径，像素未修改 |
 | `src/client/resources/assets/avaritia26/textures/item/ultimate_stew.png` 与 `.png.mcmeta` | `src/main/resources/assets/avaritia/textures/item/foods/ultimate_stew/layer_0.png` 与 `.png.mcmeta` | Re:Avaritia `c331b7f4838667e6200b24c99dc45459e0b9dafb` | Nova Committee / Re:Avaritia artists | CC BY-NC-SA 4.0 | 仅调整资源路径，内容未修改 |
 | `src/client/resources/assets/avaritia26/textures/item/ultimate_stew_overlay.png` 与 `.png.mcmeta` | `src/main/resources/assets/avaritia/textures/item/foods/ultimate_stew/stew_overlay.png` 与 `.png.mcmeta` | Re:Avaritia `c331b7f4838667e6200b24c99dc45459e0b9dafb` | Nova Committee / Re:Avaritia artists | CC BY-NC-SA 4.0 | 仅调整资源路径，内容未修改 |
+| `src/client/resources/assets/avaritia26/textures/item/cosmic_meatballs.png` 与 `.png.mcmeta` | `src/main/resources/assets/avaritia/textures/item/foods/cosmic_meatballs/layer_0.png` 与 `.png.mcmeta` | Re:Avaritia `c331b7f4838667e6200b24c99dc45459e0b9dafb` | Nova Committee / Re:Avaritia artists | CC BY-NC-SA 4.0 | 仅调整资源路径，内容未修改 |
 
 ## CC BY-NC-SA 4.0
 

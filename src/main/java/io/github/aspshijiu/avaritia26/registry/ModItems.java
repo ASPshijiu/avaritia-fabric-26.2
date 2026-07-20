@@ -54,6 +54,14 @@ public final class ModItems {
 					.rarity(Rarity.EPIC)
 					.food(ModFoods.ULTIMATE_STEW, ModFoods.ULTIMATE_STEW_CONSUMABLE)
 	);
+	public static final ResourceKey<Item> COSMIC_MEATBALLS_KEY = key("cosmic_meatballs");
+	public static final Item COSMIC_MEATBALLS = register(
+			COSMIC_MEATBALLS_KEY,
+			Item::new,
+			new Item.Properties()
+					.rarity(Rarity.EPIC)
+					.food(ModFoods.COSMIC_MEATBALLS, ModFoods.COSMIC_MEATBALLS_CONSUMABLE)
+	);
 
 	private ModItems() {
 	}

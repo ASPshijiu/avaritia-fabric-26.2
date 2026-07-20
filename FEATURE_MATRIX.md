@@ -21,7 +21,7 @@
 | `endest_pearl` | 终望珍珠 | 未开始 | — | — | — | — | — |
 | `matter_cluster` | 物质团 | 未开始 | — | — | — | — | — |
 | `ultimate_stew` | 终极炖菜 | 实现中 | 实现中 | 实现中 | 实现中 | — | — |
-| `cosmic_meatballs` | 寰宇肉丸 | 未开始 | — | — | — | — | — |
+| `cosmic_meatballs` | 寰宇肉丸 | 实现中 | 实现中 | 实现中 | 实现中 | — | — |
 | `skull_fire_sword` | 炽焰之啄颅剑 | 未开始 | — | — | — | — | — |
 | `infinity_sword` | 寰宇支配之剑 | 未开始 | — | — | — | — | — |
 | `infinity_hoe` | 无尽锄 | 未开始 | — | — | — | — | — |
