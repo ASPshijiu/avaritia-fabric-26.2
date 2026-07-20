@@ -3,6 +3,7 @@ package io.github.aspshijiu.avaritia26.registry;
 import java.util.function.Function;
 
 import io.github.aspshijiu.avaritia26.Avaritia26;
+import io.github.aspshijiu.avaritia26.item.EndestPearlItem;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
@@ -45,6 +46,12 @@ public final class ModItems {
 			RECORD_FRAGMENT_KEY,
 			Item::new,
 			new Item.Properties().rarity(Rarity.RARE)
+	);
+	public static final ResourceKey<Item> ENDEST_PEARL_KEY = key("endest_pearl");
+	public static final Item ENDEST_PEARL = register(
+			ENDEST_PEARL_KEY,
+			EndestPearlItem::new,
+			new Item.Properties().rarity(Rarity.EPIC).stacksTo(16).useCooldown(1.5F)
 	);
 	public static final ResourceKey<Item> ULTIMATE_STEW_KEY = key("ultimate_stew");
 	public static final Item ULTIMATE_STEW = register(

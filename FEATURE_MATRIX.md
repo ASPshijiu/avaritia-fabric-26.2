@@ -18,7 +18,7 @@
 | `singularity` | 奇点（数据驱动） | 未开始 | — | — | — | — | — |
 | `eternal_singularity` | 无尽奇点 | 未开始 | — | — | — | — | — |
 | `record_fragment` | 唱片碎片 | 实现中 | 实现中 | 不适用 | 实现中 | — | — |
-| `endest_pearl` | 终望珍珠 | 未开始 | — | — | — | — | — |
+| `endest_pearl` | 终望珍珠 | 实现中 | 实现中 | 实现中 | 实现中 | — | — |
 | `matter_cluster` | 物质团 | 未开始 | — | — | — | — | — |
 | `ultimate_stew` | 终极炖菜 | 实现中 | 实现中 | 实现中 | 实现中 | — | — |
 | `cosmic_meatballs` | 寰宇肉丸 | 实现中 | 实现中 | 实现中 | 实现中 | — | — |

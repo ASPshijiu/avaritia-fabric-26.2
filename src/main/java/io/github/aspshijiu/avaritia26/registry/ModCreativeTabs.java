@@ -25,6 +25,7 @@ public final class ModCreativeTabs {
 				output.accept(ModItems.NEUTRON_NUGGET);
 				output.accept(ModItems.NEUTRON_INGOT);
 				output.accept(ModItems.RECORD_FRAGMENT);
+				output.accept(ModItems.ENDEST_PEARL);
 				output.accept(ModItems.ULTIMATE_STEW);
 				output.accept(ModItems.COSMIC_MEATBALLS);
 				output.accept(ModBlocks.CRYSTAL_MATRIX_ITEM);

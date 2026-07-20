@@ -1,0 +1,44 @@
+package io.github.aspshijiu.avaritia26.registry;
+
+import io.github.aspshijiu.avaritia26.Avaritia26;
+import io.github.aspshijiu.avaritia26.entity.EndestPearlEntity;
+import io.github.aspshijiu.avaritia26.entity.GapingVoidEntity;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
+
+public final class ModEntityTypes {
+	public static final ResourceKey<EntityType<?>> ENDEST_PEARL_KEY = key("endest_pearl");
+	public static final EntityType<EndestPearlEntity> ENDEST_PEARL = Registry.register(
+			BuiltInRegistries.ENTITY_TYPE,
+			ENDEST_PEARL_KEY,
+			EntityType.Builder.<EndestPearlEntity>of(EndestPearlEntity::new, MobCategory.MISC)
+					.sized(0.25F, 0.25F)
+					.clientTrackingRange(4)
+					.updateInterval(10)
+					.build(ENDEST_PEARL_KEY)
+	);
+	public static final ResourceKey<EntityType<?>> GAPING_VOID_KEY = key("gaping_void");
+	public static final EntityType<GapingVoidEntity> GAPING_VOID = Registry.register(
+			BuiltInRegistries.ENTITY_TYPE,
+			GAPING_VOID_KEY,
+			EntityType.Builder.<GapingVoidEntity>of(GapingVoidEntity::new, MobCategory.MISC)
+					.sized(0.25F, 0.25F)
+					.clientTrackingRange(10)
+					.updateInterval(3)
+					.build(GAPING_VOID_KEY)
+	);
+
+	private ModEntityTypes() {
+	}
+
+	public static void initialize() {
+	}
+
+	private static ResourceKey<EntityType<?>> key(String path) {
+		return ResourceKey.create(Registries.ENTITY_TYPE, Avaritia26.id(path));
+	}
+}

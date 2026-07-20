@@ -6,9 +6,12 @@ import java.util.List;
 import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.block.entity.ExtremeCraftingTableBlockEntity;
 import io.github.aspshijiu.avaritia26.crafting.ModRecipes;
+import io.github.aspshijiu.avaritia26.entity.EndestPearlEntity;
+import io.github.aspshijiu.avaritia26.entity.GapingVoidEntity;
 import io.github.aspshijiu.avaritia26.inventory.ExtremeCraftingMenu;
 import io.github.aspshijiu.avaritia26.registry.ModBlockEntities;
 import io.github.aspshijiu.avaritia26.registry.ModBlocks;
+import io.github.aspshijiu.avaritia26.registry.ModEntityTypes;
 import io.github.aspshijiu.avaritia26.registry.ModItems;
 import net.fabricmc.fabric.api.gametest.v1.CustomTestMethodInvoker;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
@@ -19,9 +22,11 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -31,6 +36,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.component.Consumable;
+import net.minecraft.world.item.component.UseCooldown;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Recipe;
@@ -41,6 +47,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CraftingTableBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.phys.AABB;
 
 public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	@GameTest
@@ -240,6 +247,123 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		assertEffect(helper, player, MobEffects.NIGHT_VISION, 3 * 60 * 20, 0, "夜视");
 		assertEffect(helper, player, MobEffects.WATER_BREATHING, 2 * 60 * 20, 2, "水下呼吸");
 		assertEffect(helper, player, MobEffects.REGENERATION, 5 * 60 * 20, 4, "生命恢复");
+		helper.succeed();
+	}
+
+	@GameTest
+	public void endestPearlRecipeAndThrowWork(GameTestHelper helper) {
+		ItemStack stack = new ItemStack(ModItems.ENDEST_PEARL, 2);
+		helper.assertTrue(
+				BuiltInRegistries.ITEM.getValue(ModItems.ENDEST_PEARL_KEY) == ModItems.ENDEST_PEARL,
+				"终望珍珠没有注册到预期的 ResourceKey"
+		);
+		helper.assertTrue(ModItems.ENDEST_PEARL.getDefaultMaxStackSize() == 16, "终望珍珠应当堆叠 16 个");
+		helper.assertTrue(stack.getRarity() == Rarity.EPIC, "终望珍珠应当是 EPIC 稀有度");
+		UseCooldown cooldown = stack.get(DataComponents.USE_COOLDOWN);
+		helper.assertTrue(cooldown != null && cooldown.ticks() == 30, "终望珍珠冷却时间应当是 30 tick");
+		helper.assertTrue(
+				BuiltInRegistries.ENTITY_TYPE.getValue(ModEntityTypes.ENDEST_PEARL_KEY) == ModEntityTypes.ENDEST_PEARL,
+				"终望珍珠投掷物实体未正确注册"
+		);
+		helper.assertTrue(
+				BuiltInRegistries.ENTITY_TYPE.getValue(ModEntityTypes.GAPING_VOID_KEY) == ModEntityTypes.GAPING_VOID,
+				"虚空漩涡实体未正确注册"
+		);
+
+		CraftingInput input = endestPearlInput();
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(Registries.RECIPE, Avaritia26.id("endest_pearl"));
+		RecipeHolder<Recipe<CraftingInput>> recipe = helper.getLevel().getServer().getRecipeManager()
+				.getRecipeFor(ModRecipes.EXTREME_CRAFTING, input, helper.getLevel())
+				.orElseThrow(() -> helper.assertionException("正确 9x9 材料未匹配终望珍珠配方"));
+		helper.assertTrue(recipe.id().equals(recipeKey), "终望珍珠材料匹配到了错误配方");
+		ItemStack result = recipe.value().assemble(input);
+		helper.assertTrue(result.is(ModItems.ENDEST_PEARL) && result.getCount() == 1, "终望珍珠配方输出错误");
+		List<ItemStack> wrongStacks = new java.util.ArrayList<>(input.items());
+		wrongStacks.set(40, new ItemStack(Items.DIRT));
+		helper.assertFalse(
+				helper.getLevel().getServer().getRecipeManager()
+						.getRecipeFor(ModRecipes.EXTREME_CRAFTING, CraftingInput.of(9, 9, wrongStacks), helper.getLevel())
+						.filter(candidate -> candidate.id().equals(recipeKey))
+						.isPresent(),
+				"终望珍珠中心材料错误时不应匹配配方"
+		);
+
+		Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+		BlockPos throwOrigin = helper.absolutePos(new BlockPos(8, 2, 0));
+		player.setPos(throwOrigin.getX() + 0.5, throwOrigin.getY(), throwOrigin.getZ() + 0.5);
+		player.setItemInHand(InteractionHand.MAIN_HAND, stack);
+		ModItems.ENDEST_PEARL.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+		helper.assertTrue(stack.getCount() == 1, "生存模式投掷终望珍珠应当消耗 1 个");
+		helper.assertTrue(player.getCooldowns().isOnCooldown(stack), "投掷终望珍珠后没有进入冷却");
+		AABB testArea = new AABB(player.blockPosition()).inflate(64.0);
+		List<EndestPearlEntity> projectiles = helper.getLevel().getEntitiesOfClass(
+				EndestPearlEntity.class,
+				testArea
+		);
+		helper.assertTrue(projectiles.size() == 1, "投掷终望珍珠没有生成唯一投掷物");
+		EndestPearlEntity projectile = projectiles.getFirst();
+		helper.assertTrue(projectile.getOwner() == player, "终望珍珠投掷物没有保存发射者");
+		helper.assertTrue(
+				Math.abs(projectile.getDeltaMovement().length() - 1.5) < 0.05,
+				"终望珍珠初速度应当是 1.5"
+		);
+
+		BlockPos collisionPos = new BlockPos(10, 1, 2);
+		helper.setBlock(collisionPos, Blocks.STONE);
+		BlockPos projectileStart = helper.absolutePos(new BlockPos(10, 1, 0));
+		projectile.setPos(projectileStart.getX() + 0.5, projectileStart.getY() + 0.5, projectileStart.getZ() + 0.5);
+		projectile.setDeltaMovement(0.0, 0.0, 1.5);
+		projectile.tick();
+		projectile.tick();
+		List<GapingVoidEntity> voids = helper.getLevel().getEntitiesOfClass(
+				GapingVoidEntity.class,
+				new AABB(helper.absolutePos(collisionPos)).inflate(3.0)
+		);
+		helper.assertTrue(voids.size() == 1, "终望珍珠命中方块后没有生成虚空漩涡");
+		voids.getFirst().discard();
+		helper.succeed();
+	}
+
+	@GameTest
+	public void gapingVoidPullsAndBreaksPermittedBlocks(GameTestHelper helper) {
+		BlockPos center = new BlockPos(14, 2, 0);
+		BlockPos dirtPos = center.offset(1, 0, 0);
+		BlockPos obsidianPos = center.offset(0, 1, 0);
+		helper.setBlock(dirtPos, Blocks.DIRT);
+		helper.setBlock(obsidianPos, Blocks.OBSIDIAN);
+		Player user = helper.makeMockPlayer(GameType.SURVIVAL);
+		BlockPos absoluteCenter = helper.absolutePos(center);
+		user.setPos(absoluteCenter.getX() + 30.0, absoluteCenter.getY(), absoluteCenter.getZ());
+		GapingVoidEntity gapingVoid = new GapingVoidEntity(helper.getLevel(), user);
+		gapingVoid.setPos(
+				absoluteCenter.getX() + 0.5,
+				absoluteCenter.getY() + 0.5,
+				absoluteCenter.getZ() + 0.5
+		);
+		helper.getLevel().addFreshEntity(gapingVoid);
+		ItemEntity pulledItem = new ItemEntity(
+				helper.getLevel(),
+				gapingVoid.getX() + 5.0,
+				gapingVoid.getY(),
+				gapingVoid.getZ(),
+				new ItemStack(Items.COBBLESTONE)
+		);
+		helper.getLevel().addFreshEntity(pulledItem);
+
+		for (int tick = 0; tick < 100; tick++) {
+			gapingVoid.tick();
+		}
+		helper.assertTrue(gapingVoid.getAge() == 100, "虚空漩涡生命周期没有按 tick 推进");
+		helper.assertTrue(pulledItem.getDeltaMovement().x < 0.0, "虚空漩涡没有把物品拉向中心");
+		helper.assertBlockPresent(Blocks.AIR, dirtPos);
+		helper.assertBlockPresent(Blocks.OBSIDIAN, obsidianPos);
+		helper.assertTrue(GapingVoidEntity.getVoidScale(90) > 1.0, "虚空漩涡没有随生命周期扩张");
+
+		for (int tick = 100; tick <= GapingVoidEntity.MAX_LIFETIME; tick++) {
+			gapingVoid.tick();
+		}
+		helper.assertTrue(gapingVoid.isRemoved(), "虚空漩涡没有在 186 tick 后坍缩移除");
+		helper.assertTrue(GapingVoidEntity.getVoidScale(GapingVoidEntity.MAX_LIFETIME) == 0.0, "坍缩末尾缩放应当归零");
 		helper.succeed();
 	}
 
@@ -793,6 +917,33 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 			}
 		}
 		return CraftingInput.of(7, 7, stacks);
+	}
+
+	private static CraftingInput endestPearlInput() {
+		List<ItemStack> stacks = new java.util.ArrayList<>(81);
+		for (String row : List.of(
+				"   EEE   ",
+				" EEPPPEE ",
+				" EPPPPPE ",
+				"EPPPNPPPE",
+				"EPPNSNPPE",
+				"EPPPNPPPE",
+				" EPPPPPE ",
+				" EEPPPEE ",
+				"   EEE   "
+		)) {
+			for (char symbol : row.toCharArray()) {
+				stacks.add(switch (symbol) {
+					case 'E' -> new ItemStack(Items.END_STONE);
+					case 'N' -> new ItemStack(ModItems.NEUTRON_INGOT);
+					case 'P' -> new ItemStack(Items.ENDER_PEARL);
+					case 'S' -> new ItemStack(Items.NETHER_STAR);
+					case ' ' -> ItemStack.EMPTY;
+					default -> throw new IllegalArgumentException("未知终望珍珠配方符号: " + symbol);
+				});
+			}
+		}
+		return CraftingInput.of(9, 9, stacks);
 	}
 
 	private static CraftingInput ultimateStewInput() {
