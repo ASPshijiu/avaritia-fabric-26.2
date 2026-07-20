@@ -1581,14 +1581,19 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.assertBlockPresent(Blocks.AIR, coral);
 		helper.assertBlockPresent(Blocks.AIR, flower);
 		helper.assertBlockPresent(Blocks.STONE, stone);
-		List<ItemEntity> clusters = helper.getLevel().getEntitiesOfClass(
-				ItemEntity.class,
-				new AABB(absoluteAreaOrigin).inflate(2.0),
-				entity -> entity.getItem().is(ModItems.MATTER_CLUSTER)
-		);
-		helper.assertTrue(clusters.size() == 1 && MatterClusterItem.getSize(clusters.getFirst().getItem()) >= 2, "自然荒芜之斧没有把范围掉落压入物质团");
 		helper.assertTrue(axe.getDamageValue() == 0, "自然荒芜之斧使用后不应产生耐久损耗");
-		helper.succeed();
+		helper.runAfterDelay(1, () -> {
+			List<ItemEntity> clusters = helper.getLevel().getEntitiesOfClass(
+					ItemEntity.class,
+					new AABB(absoluteAreaOrigin).inflate(2.0),
+					entity -> entity.getItem().is(ModItems.MATTER_CLUSTER)
+			);
+			helper.assertTrue(
+					clusters.size() == 1 && MatterClusterItem.getSize(clusters.getFirst().getItem()) >= 2,
+					"自然荒芜之斧没有把范围掉落压入物质团"
+			);
+			helper.succeed();
+		});
 	}
 
 	@GameTest
