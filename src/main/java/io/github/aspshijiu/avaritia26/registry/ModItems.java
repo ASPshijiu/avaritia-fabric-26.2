@@ -46,6 +46,14 @@ public final class ModItems {
 			Item::new,
 			new Item.Properties().rarity(Rarity.RARE)
 	);
+	public static final ResourceKey<Item> ULTIMATE_STEW_KEY = key("ultimate_stew");
+	public static final Item ULTIMATE_STEW = register(
+			ULTIMATE_STEW_KEY,
+			Item::new,
+			new Item.Properties()
+					.rarity(Rarity.EPIC)
+					.food(ModFoods.ULTIMATE_STEW, ModFoods.ULTIMATE_STEW_CONSUMABLE)
+	);
 
 	private ModItems() {
 	}

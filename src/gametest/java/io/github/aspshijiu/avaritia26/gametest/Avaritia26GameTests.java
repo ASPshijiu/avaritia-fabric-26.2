@@ -20,13 +20,17 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.CraftingMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.component.Consumable;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Recipe;
@@ -131,6 +135,56 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 						.isPresent(),
 				"非唱片物品不应匹配唱片碎片配方"
 		);
+		helper.succeed();
+	}
+
+	@GameTest
+	public void ultimateStewRecipeAndEffectsWork(GameTestHelper helper) {
+		assertRegisteredMaterial(
+				helper,
+				ModItems.ULTIMATE_STEW_KEY,
+				ModItems.ULTIMATE_STEW,
+				Rarity.EPIC,
+				"终极炖菜"
+		);
+		ItemStack stack = new ItemStack(ModItems.ULTIMATE_STEW);
+		FoodProperties food = stack.get(DataComponents.FOOD);
+		Consumable consumable = stack.get(DataComponents.CONSUMABLE);
+		helper.assertTrue(food != null, "终极炖菜缺少食物组件");
+		helper.assertTrue(consumable != null, "终极炖菜缺少可食用组件");
+		helper.assertTrue(food.nutrition() == 20, "终极炖菜应当恢复 20 点饥饿值");
+		helper.assertTrue(food.saturation() == 800.0F, "终极炖菜饱和度应当保持上游的 20 倍修正值");
+		helper.assertTrue(food.canAlwaysEat(), "终极炖菜应当允许满饥饿值食用");
+		helper.assertTrue(consumable.consumeSeconds() == 0.8F, "终极炖菜食用时间应当是 0.8 秒");
+		helper.assertTrue(consumable.onConsumeEffects().size() == 1, "终极炖菜应当配置一组状态效果");
+
+		CraftingInput input = ultimateStewInput();
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(Registries.RECIPE, Avaritia26.id("ultimate_stew"));
+		RecipeHolder<Recipe<CraftingInput>> recipe = helper.getLevel().getServer().getRecipeManager()
+				.getRecipeFor(ModRecipes.EXTREME_CRAFTING, input, helper.getLevel())
+				.orElseThrow(() -> helper.assertionException("27 种正确材料未匹配终极炖菜配方"));
+		helper.assertTrue(recipe.id().equals(recipeKey), "终极炖菜材料匹配到了错误配方");
+		ItemStack result = recipe.value().assemble(input);
+		helper.assertTrue(result.is(ModItems.ULTIMATE_STEW) && result.getCount() == 1, "终极炖菜配方输出错误");
+
+		List<ItemStack> wrongStacks = new java.util.ArrayList<>(input.items());
+		wrongStacks.set(0, new ItemStack(Items.DIRT));
+		CraftingInput wrongInput = CraftingInput.of(9, 3, wrongStacks);
+		helper.assertFalse(
+				helper.getLevel().getServer().getRecipeManager()
+						.getRecipeFor(ModRecipes.EXTREME_CRAFTING, wrongInput, helper.getLevel())
+						.filter(candidate -> candidate.id().equals(recipeKey))
+						.isPresent(),
+				"终极炖菜配方不应接受错误材料"
+		);
+
+		Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+		ItemStack consumed = consumable.onConsume(helper.getLevel(), player, stack.copy());
+		helper.assertTrue(consumed.isEmpty(), "食用一份终极炖菜后物品应当被消耗");
+		assertEffect(helper, player, MobEffects.STRENGTH, 5 * 60 * 20, 4, "力量");
+		assertEffect(helper, player, MobEffects.HASTE, 3 * 60 * 20, 2, "急迫");
+		assertEffect(helper, player, MobEffects.SPEED, 3 * 60 * 20, 2, "速度");
+		assertEffect(helper, player, MobEffects.JUMP_BOOST, 3 * 60 * 20, 2, "跳跃提升");
 		helper.succeed();
 	}
 
@@ -684,6 +738,35 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 			}
 		}
 		return CraftingInput.of(7, 7, stacks);
+	}
+
+	private static CraftingInput ultimateStewInput() {
+		return CraftingInput.of(9, 3, List.of(
+				new ItemStack(Items.APPLE), new ItemStack(Items.GOLDEN_APPLE), new ItemStack(Items.MELON_SLICE),
+				new ItemStack(Items.GLISTERING_MELON_SLICE), new ItemStack(Items.SWEET_BERRIES),
+				new ItemStack(Items.CHORUS_FRUIT), new ItemStack(Items.CARROT), new ItemStack(Items.GOLDEN_CARROT),
+				new ItemStack(Items.POTATO), new ItemStack(Items.POISONOUS_POTATO), new ItemStack(Items.BEETROOT),
+				new ItemStack(Items.KELP), new ItemStack(Items.NETHER_WART), new ItemStack(Items.COCOA_BEANS),
+				new ItemStack(Items.PITCHER_POD), new ItemStack(Items.HONEY_BOTTLE), new ItemStack(Items.CACTUS),
+				new ItemStack(Items.BAMBOO), new ItemStack(Items.SUGAR_CANE), new ItemStack(Items.SEA_PICKLE),
+				new ItemStack(Items.BROWN_MUSHROOM), new ItemStack(Items.RED_MUSHROOM),
+				new ItemStack(Items.CRIMSON_FUNGUS), new ItemStack(Items.WARPED_FUNGUS), new ItemStack(Items.WHEAT),
+				new ItemStack(Items.PUMPKIN), new ItemStack(ModItems.NEUTRON_NUGGET)
+		));
+	}
+
+	private static void assertEffect(
+			GameTestHelper helper,
+			Player player,
+			net.minecraft.core.Holder<net.minecraft.world.effect.MobEffect> effect,
+			int duration,
+			int amplifier,
+			String name
+	) {
+		MobEffectInstance instance = player.getEffect(effect);
+		helper.assertTrue(instance != null, "食用终极炖菜后缺少" + name + "效果");
+		helper.assertTrue(instance.getDuration() == duration, name + "效果持续时间错误");
+		helper.assertTrue(instance.getAmplifier() == amplifier, name + "效果等级错误");
 	}
 
 	private static void assertCraftingRecipe(
