@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.aspshijiu.avaritia26.item.InfinityPickaxeItem;
+import io.github.aspshijiu.avaritia26.item.InfinityShovelItem;
 import io.github.aspshijiu.avaritia26.item.MatterClusterItem;
 import io.github.aspshijiu.avaritia26.registry.ModItems;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
@@ -25,10 +26,10 @@ public final class ModToolEvents {
 	}
 
 	public static void initialize() {
-		AttackBlockCallback.EVENT.register(ModToolEvents::breakWithInfinityPickaxe);
+		AttackBlockCallback.EVENT.register(ModToolEvents::breakWithInfinityTool);
 	}
 
-	private static InteractionResult breakWithInfinityPickaxe(
+	private static InteractionResult breakWithInfinityTool(
 			Player player,
 			net.minecraft.world.level.Level level,
 			net.minecraft.world.InteractionHand hand,
@@ -36,9 +37,9 @@ public final class ModToolEvents {
 			Direction face
 	) {
 		ItemStack tool = player.getItemInHand(hand);
-		if (!(level instanceof ServerLevel serverLevel)
-				|| !tool.is(ModItems.INFINITY_PICKAXE)
-				|| !InfinityPickaxeItem.isHammer(tool)) {
+		boolean activePickaxe = tool.is(ModItems.INFINITY_PICKAXE) && InfinityPickaxeItem.isHammer(tool);
+		boolean activeShovel = tool.is(ModItems.INFINITY_SHOVEL) && InfinityShovelItem.isDestroyer(tool);
+		if (!(level instanceof ServerLevel serverLevel) || (!activePickaxe && !activeShovel)) {
 			return InteractionResult.PASS;
 		}
 		List<ItemStack> drops = new ArrayList<>();

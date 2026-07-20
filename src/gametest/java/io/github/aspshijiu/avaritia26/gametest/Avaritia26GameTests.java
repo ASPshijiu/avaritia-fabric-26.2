@@ -674,6 +674,84 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	}
 
 	@GameTest
+	public void infinityShovelCraftsFlattensAndDestroysClassicVolume(GameTestHelper helper) {
+		ItemStack shovel = new ItemStack(ModItems.INFINITY_SHOVEL);
+		helper.assertTrue(
+				BuiltInRegistries.ITEM.getValue(ModItems.INFINITY_SHOVEL_KEY) == ModItems.INFINITY_SHOVEL,
+				"无尽铲没有注册到预期的 ResourceKey"
+		);
+		helper.assertTrue(shovel.getMaxStackSize() == 1 && !shovel.isDamageableItem(), "无尽铲应当不可堆叠且永不损耗");
+		helper.assertTrue(shovel.getRarity() == Rarity.EPIC && shovel.is(ItemTags.SHOVELS), "无尽铲稀有度或工具标签错误");
+		helper.assertTrue(ModItems.INFINITY_SHOVEL.getDestroySpeed(shovel, Blocks.DIRT.defaultBlockState()) == 9999.0F, "无尽铲普通模式速度错误");
+
+		CraftingInput input = infinityShovelInput();
+		assertExtremeRecipe(helper, "infinity_shovel", input, ModItems.INFINITY_SHOVEL);
+		List<ItemStack> wrongStacks = copyStacks(input.items());
+		wrongStacks.set(16, new ItemStack(Items.DIRT));
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(Registries.RECIPE, Avaritia26.id("infinity_shovel"));
+		helper.assertFalse(
+				helper.getLevel().getServer().getRecipeManager()
+						.getRecipeFor(ModRecipes.EXTREME_CRAFTING, CraftingInput.of(9, 9, wrongStacks), helper.getLevel())
+						.filter(candidate -> candidate.id().equals(recipeKey))
+						.isPresent(),
+				"无尽铲中心材料错误时不应匹配配方"
+		);
+
+		Player player = helper.makeMockServerPlayer(GameType.SURVIVAL);
+		player.setItemInHand(InteractionHand.MAIN_HAND, shovel);
+		BlockPos pathPos = new BlockPos(3, 1, 3);
+		helper.setBlock(pathPos, Blocks.GRASS_BLOCK);
+		helper.setBlock(pathPos.above(), Blocks.AIR);
+		BlockPos absolutePathPos = helper.absolutePos(pathPos);
+		var flattenResult = ModItems.INFINITY_SHOVEL.useOn(new UseOnContext(
+				player,
+				InteractionHand.MAIN_HAND,
+				new BlockHitResult(Vec3.atCenterOf(absolutePathPos), Direction.UP, absolutePathPos, false)
+		));
+		helper.assertTrue(flattenResult.consumesAction(), "无尽铲没有接管压径交互");
+		helper.assertBlockPresent(Blocks.DIRT_PATH, pathPos);
+
+		player.setShiftKeyDown(true);
+		ModItems.INFINITY_SHOVEL.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+		helper.assertTrue(shovel.getOrDefault(ModDataComponents.INFINITY_SHOVEL_DESTROYER, false), "无尽铲没有切换到毁灭者模式");
+		helper.assertTrue(ModItems.INFINITY_SHOVEL.getDestroySpeed(shovel, Blocks.DIRT.defaultBlockState()) == 5.0F, "毁灭者模式速度错误");
+
+		BlockPos origin = new BlockPos(16, 10, 16);
+		BlockPos farDirt = origin.offset(-8, -8, -8);
+		BlockPos glass = origin.east();
+		BlockPos wood = origin.east(2);
+		BlockPos bedrock = origin.east(3);
+		helper.setBlock(origin, Blocks.STONE);
+		helper.setBlock(farDirt, Blocks.DIRT);
+		helper.setBlock(glass, Blocks.GLASS);
+		helper.setBlock(wood, Blocks.OAK_LOG);
+		helper.setBlock(bedrock, Blocks.BEDROCK);
+		BlockPos absoluteOrigin = helper.absolutePos(origin);
+		player.setPos(absoluteOrigin.getX() + 0.5, absoluteOrigin.getY(), absoluteOrigin.getZ() + 0.5);
+		var destroyResult = AttackBlockCallback.EVENT.invoker().interact(
+				player,
+				helper.getLevel(),
+				InteractionHand.MAIN_HAND,
+				absoluteOrigin,
+				Direction.UP
+		);
+		helper.assertTrue(destroyResult.consumesAction(), "无尽铲毁灭者模式没有接管方块攻击");
+		helper.assertBlockPresent(Blocks.AIR, origin);
+		helper.assertBlockPresent(Blocks.AIR, farDirt);
+		helper.assertBlockPresent(Blocks.AIR, glass);
+		helper.assertBlockPresent(Blocks.OAK_LOG, wood);
+		helper.assertBlockPresent(Blocks.BEDROCK, bedrock);
+		List<ItemEntity> clusters = helper.getLevel().getEntitiesOfClass(
+				ItemEntity.class,
+				new AABB(absoluteOrigin).inflate(2.0),
+				entity -> entity.getItem().is(ModItems.MATTER_CLUSTER)
+		);
+		helper.assertTrue(clusters.size() == 1 && MatterClusterItem.getSize(clusters.getFirst().getItem()) == 2, "无尽铲没有把范围掉落压入物质团");
+		helper.assertTrue(shovel.getDamageValue() == 0, "无尽铲范围挖掘后不应产生耐久损耗");
+		helper.succeed();
+	}
+
+	@GameTest
 	public void eternalSingularityDynamicallyCombinesEverySingularity(GameTestHelper helper) {
 		ItemStack eternal = new ItemStack(ModItems.ETERNAL_SINGULARITY);
 		helper.assertTrue(
@@ -2233,6 +2311,33 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 					case 'N' -> new ItemStack(ModItems.NEUTRON_INGOT);
 					case ' ' -> ItemStack.EMPTY;
 					default -> throw new IllegalArgumentException("未知无尽镐配方符号: " + symbol);
+				};
+				stacks.add(stack);
+			}
+		}
+		return CraftingInput.of(9, 9, stacks);
+	}
+
+	private static CraftingInput infinityShovelInput() {
+		List<ItemStack> stacks = new java.util.ArrayList<>(81);
+		for (String row : List.of(
+				"      III",
+				"     IIXI",
+				"      III",
+				"     N I ",
+				"    N    ",
+				"   N     ",
+				"  N      ",
+				" N       ",
+				"N        "
+		)) {
+			for (char symbol : row.toCharArray()) {
+				ItemStack stack = switch (symbol) {
+					case 'I' -> new ItemStack(ModItems.INFINITY_INGOT);
+					case 'N' -> new ItemStack(ModItems.NEUTRON_INGOT);
+					case 'X' -> new ItemStack(ModBlocks.INFINITY_ITEM);
+					case ' ' -> ItemStack.EMPTY;
+					default -> throw new IllegalArgumentException("未知无尽铲配方符号: " + symbol);
 				};
 				stacks.add(stack);
 			}

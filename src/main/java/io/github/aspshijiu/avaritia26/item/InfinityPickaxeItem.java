@@ -50,6 +50,10 @@ public final class InfinityPickaxeItem extends Item {
 
 	@Override
 	public boolean isCorrectToolForDrops(ItemStack stack, BlockState state) {
+		return canMineClassicMaterial(state);
+	}
+
+	public static boolean canMineClassicMaterial(BlockState state) {
 		return state.is(BlockTags.MINEABLE_WITH_PICKAXE)
 				|| state.is(BlockTags.MINEABLE_WITH_SHOVEL)
 				|| state.is(BlockTags.IMPERMEABLE)

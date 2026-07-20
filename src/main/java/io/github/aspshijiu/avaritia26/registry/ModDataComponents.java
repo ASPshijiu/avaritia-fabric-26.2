@@ -18,6 +18,14 @@ public final class ModDataComponents {
 					.networkSynchronized(ByteBufCodecs.BOOL)
 					.build()
 	);
+	public static final DataComponentType<Boolean> INFINITY_SHOVEL_DESTROYER = Registry.register(
+			BuiltInRegistries.DATA_COMPONENT_TYPE,
+			Avaritia26.id("infinity_shovel_destroyer"),
+			DataComponentType.<Boolean>builder()
+					.persistent(Codec.BOOL)
+					.networkSynchronized(ByteBufCodecs.BOOL)
+					.build()
+	);
 	public static final DataComponentType<SingularityDefinition> SINGULARITY = Registry.register(
 			BuiltInRegistries.DATA_COMPONENT_TYPE,
 			Avaritia26.id("singularity"),
