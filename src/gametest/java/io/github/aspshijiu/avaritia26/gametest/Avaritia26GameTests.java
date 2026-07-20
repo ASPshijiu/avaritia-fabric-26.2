@@ -432,6 +432,48 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	}
 
 	@GameTest
+	public void fullMatterClusterRequiresFullCapacity(GameTestHelper helper) {
+		ItemStack fullMatterCluster = new ItemStack(ModItems.FULL_MATTER_CLUSTER);
+		helper.assertTrue(
+				BuiltInRegistries.ITEM.getValue(ModItems.FULL_MATTER_CLUSTER_KEY) == ModItems.FULL_MATTER_CLUSTER,
+				"满物质团没有注册到预期的 ResourceKey"
+		);
+		helper.assertTrue(ModItems.FULL_MATTER_CLUSTER.getDefaultMaxStackSize() == 1, "满物质团应当不可堆叠");
+		helper.assertTrue(fullMatterCluster.getRarity() == Rarity.RARE, "满物质团应当是 RARE 稀有度");
+
+		ItemStack fullInput = MatterClusterItem.createClusters(
+				List.of(new ItemStack(Items.COBBLESTONE, MatterClusterItem.CAPACITY))
+		).getFirst();
+		CraftingInput input = CraftingInput.of(1, 1, List.of(fullInput));
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(
+				Registries.RECIPE,
+				Avaritia26.id("full_matter_cluster")
+		);
+		RecipeHolder<Recipe<CraftingInput>> recipe = helper.getLevel().getServer().getRecipeManager()
+				.getRecipeFor(ModRecipes.EXTREME_CRAFTING, input, helper.getLevel())
+				.orElseThrow(() -> helper.assertionException("装满 4096 个物品的物质团未匹配满物质团配方"));
+		helper.assertTrue(recipe.id().equals(recipeKey), "满物质团输入匹配到了错误配方");
+		ItemStack result = recipe.value().assemble(input);
+		helper.assertTrue(result.is(ModItems.FULL_MATTER_CLUSTER) && result.getCount() == 1, "满物质团配方输出错误");
+
+		ItemStack underfilled = MatterClusterItem.createClusters(
+				List.of(new ItemStack(Items.COBBLESTONE, MatterClusterItem.CAPACITY - 1))
+		).getFirst();
+		helper.assertFalse(
+				helper.getLevel().getServer().getRecipeManager()
+						.getRecipeFor(
+								ModRecipes.EXTREME_CRAFTING,
+								CraftingInput.of(1, 1, List.of(underfilled)),
+								helper.getLevel()
+						)
+						.filter(candidate -> candidate.id().equals(recipeKey))
+						.isPresent(),
+				"少于 4096 个物品的物质团不应匹配满物质团配方"
+		);
+		helper.succeed();
+	}
+
+	@GameTest
 	public void crystalMatrixBlockWorks(GameTestHelper helper) {
 		helper.assertTrue(
 				BuiltInRegistries.BLOCK.getValue(ModBlocks.CRYSTAL_MATRIX_KEY) == ModBlocks.CRYSTAL_MATRIX,

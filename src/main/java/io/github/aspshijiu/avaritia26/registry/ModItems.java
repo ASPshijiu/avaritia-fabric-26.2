@@ -60,6 +60,12 @@ public final class ModItems {
 			MatterClusterItem::new,
 			new Item.Properties().rarity(Rarity.RARE).stacksTo(1)
 	);
+	public static final ResourceKey<Item> FULL_MATTER_CLUSTER_KEY = key("full_matter_cluster");
+	public static final Item FULL_MATTER_CLUSTER = register(
+			FULL_MATTER_CLUSTER_KEY,
+			Item::new,
+			new Item.Properties().rarity(Rarity.RARE).stacksTo(1)
+	);
 	public static final ResourceKey<Item> ULTIMATE_STEW_KEY = key("ultimate_stew");
 	public static final Item ULTIMATE_STEW = register(
 			ULTIMATE_STEW_KEY,

@@ -71,4 +71,5 @@
 - `src/client/resources/assets/avaritia26/textures/item/endest_pearl.png` 与 `.png.mcmeta` ← Re:Avaritia `src/main/resources/assets/avaritia/textures/item/misc/endest_pearl/layer_0.png` 与 `.png.mcmeta`，commit `c331b7f4838667e6200b24c99dc45459e0b9dafb`，CC BY-NC-SA 4.0，内容未修改。
 - `src/client/resources/assets/avaritia26/sounds/gaping_void.ogg` ← Re:Avaritia `src/main/resources/assets/avaritia/sounds/gaping_void.ogg`，commit `c331b7f4838667e6200b24c99dc45459e0b9dafb`，CC BY-NC-SA 4.0，音频未修改。
 - `src/client/resources/assets/avaritia26/textures/item/matter_cluster.png` ← Re:Avaritia `src/main/resources/assets/avaritia/textures/item/misc/matter_cluster/empty.png`，commit `c331b7f4838667e6200b24c99dc45459e0b9dafb`，CC BY-NC-SA 4.0，像素未修改。
+- `src/client/resources/assets/avaritia26/textures/item/full_matter_cluster.png` 与 `.png.mcmeta` ← Re:Avaritia `src/main/resources/assets/avaritia/textures/item/misc/matter_cluster/full_matter_cluster.png` 与 `.png.mcmeta`，commit `c331b7f4838667e6200b24c99dc45459e0b9dafb`，CC BY-NC-SA 4.0，内容未修改。
 - 其余已提交源码、配置和文档均为本项目新写；Gradle Wrapper 来自 Fabric 官方 26.2 CC0 模板。

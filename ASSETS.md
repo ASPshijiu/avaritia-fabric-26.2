@@ -24,6 +24,7 @@
 | `src/client/resources/assets/avaritia26/textures/item/endest_pearl.png` 与 `.png.mcmeta` | `src/main/resources/assets/avaritia/textures/item/misc/endest_pearl/layer_0.png` 与 `.png.mcmeta` | Re:Avaritia `c331b7f4838667e6200b24c99dc45459e0b9dafb` | Nova Committee / Re:Avaritia artists | CC BY-NC-SA 4.0 | 仅调整资源路径，内容未修改 |
 | `src/client/resources/assets/avaritia26/sounds/gaping_void.ogg` | `src/main/resources/assets/avaritia/sounds/gaping_void.ogg` | Re:Avaritia `c331b7f4838667e6200b24c99dc45459e0b9dafb` | Nova Committee / Re:Avaritia artists | CC BY-NC-SA 4.0 | 音频未修改 |
 | `src/client/resources/assets/avaritia26/textures/item/matter_cluster.png` | `src/main/resources/assets/avaritia/textures/item/misc/matter_cluster/empty.png` | Re:Avaritia `c331b7f4838667e6200b24c99dc45459e0b9dafb` | Nova Committee / Re:Avaritia artists | CC BY-NC-SA 4.0 | 仅调整资源路径，像素未修改 |
+| `src/client/resources/assets/avaritia26/textures/item/full_matter_cluster.png` 与 `.png.mcmeta` | `src/main/resources/assets/avaritia/textures/item/misc/matter_cluster/full_matter_cluster.png` 与 `.png.mcmeta` | Re:Avaritia `c331b7f4838667e6200b24c99dc45459e0b9dafb` | Nova Committee / Re:Avaritia artists | CC BY-NC-SA 4.0 | 仅调整资源路径，内容未修改 |
 
 ## CC BY-NC-SA 4.0
 

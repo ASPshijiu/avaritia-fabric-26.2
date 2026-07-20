@@ -27,6 +27,7 @@ public final class ModCreativeTabs {
 				output.accept(ModItems.RECORD_FRAGMENT);
 				output.accept(ModItems.ENDEST_PEARL);
 				output.accept(ModItems.MATTER_CLUSTER);
+				output.accept(ModItems.FULL_MATTER_CLUSTER);
 				output.accept(ModItems.ULTIMATE_STEW);
 				output.accept(ModItems.COSMIC_MEATBALLS);
 				output.accept(ModBlocks.CRYSTAL_MATRIX_ITEM);
