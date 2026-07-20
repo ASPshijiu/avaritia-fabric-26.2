@@ -4,6 +4,7 @@ import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.inventory.CompressedChestMenu;
 import io.github.aspshijiu.avaritia26.inventory.ExtremeCraftingMenu;
 import io.github.aspshijiu.avaritia26.inventory.ExtremeSmithingMenu;
+import io.github.aspshijiu.avaritia26.inventory.InfinityChestMenu;
 import io.github.aspshijiu.avaritia26.inventory.NeutronCollectorMenu;
 import io.github.aspshijiu.avaritia26.inventory.NeutronCompressorMenu;
 import net.fabricmc.fabric.api.menu.v1.ExtendedMenuType;
@@ -36,6 +37,11 @@ public final class ModMenus {
 			BuiltInRegistries.MENU,
 			Avaritia26.id("extreme_smithing"),
 			new ExtendedMenuType<>(ExtremeSmithingMenu::new, BlockPos.STREAM_CODEC)
+	);
+	public static final ExtendedMenuType<InfinityChestMenu, BlockPos> INFINITY_CHEST = Registry.register(
+			BuiltInRegistries.MENU,
+			Avaritia26.id("infinity_chest"),
+			new ExtendedMenuType<>(InfinityChestMenu::new, BlockPos.STREAM_CODEC)
 	);
 
 	private ModMenus() {

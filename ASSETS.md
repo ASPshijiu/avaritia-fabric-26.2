@@ -53,6 +53,7 @@
 | `src/client/resources/assets/avaritia26/textures/item/upgrade_smithing_template.png` | Re:Avaritia `src/main/resources/assets/avaritia/textures/item/misc/upgrade_smithing_template.png` | Re:Avaritia `c331b7f4838667e6200b24c99dc45459e0b9dafb` | Nova Committee / Re:Avaritia artists | CC BY-NC-SA 4.0 | 仅调整资源路径，像素未修改 |
 | `textures/block/compressed_chest.png`、`compressed_chest_break.png` 与 `textures/gui/compressed_chest.png` | Re:Avaritia `textures/block/chest/compressed_chest.png`、`compressed_chest_break.png` 与 `textures/gui/chest/generic_243.png` | Re:Avaritia `c331b7f4838667e6200b24c99dc45459e0b9dafb` | Nova Committee / Re:Avaritia artists | CC BY-NC-SA 4.0 | 仅调整资源路径，内容未修改 |
 | `textures/block/extreme_smithing_table_*.png` 与 `textures/gui/extreme_smithing_table.png` | Re:Avaritia `textures/block/machine/smithing/extreme_smithing_table_*.png` 与 `textures/gui/machine/extreme_smithing_table_gui.png` | Re:Avaritia `c331b7f4838667e6200b24c99dc45459e0b9dafb` | Nova Committee / Re:Avaritia artists | CC BY-NC-SA 4.0 | 仅调整资源路径，像素未修改 |
+| `textures/block/infinity_chest.png` 与 `.png.mcmeta` | Re:Avaritia `textures/block/chest/infinity_chest.png` 与 `.png.mcmeta` | Re:Avaritia `c331b7f4838667e6200b24c99dc45459e0b9dafb` | Nova Committee / Re:Avaritia artists | CC BY-NC-SA 4.0 | 仅调整资源路径，内容未修改 |
 
 ## CC BY-NC-SA 4.0
 

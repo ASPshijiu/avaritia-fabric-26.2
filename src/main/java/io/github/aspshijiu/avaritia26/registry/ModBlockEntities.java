@@ -5,6 +5,7 @@ import java.util.Set;
 import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.block.entity.CompressedChestBlockEntity;
 import io.github.aspshijiu.avaritia26.block.entity.ExtremeCraftingTableBlockEntity;
+import io.github.aspshijiu.avaritia26.block.entity.InfinityChestBlockEntity;
 import io.github.aspshijiu.avaritia26.block.entity.NeutronCollectorBlockEntity;
 import io.github.aspshijiu.avaritia26.block.entity.NeutronCompressorBlockEntity;
 import net.minecraft.core.Registry;
@@ -31,6 +32,11 @@ public final class ModBlockEntities {
 			BuiltInRegistries.BLOCK_ENTITY_TYPE,
 			Avaritia26.id("extreme_crafting_table"),
 			new BlockEntityType<>(ExtremeCraftingTableBlockEntity::new, Set.of(ModBlocks.EXTREME_CRAFTING_TABLE))
+	);
+	public static final BlockEntityType<InfinityChestBlockEntity> INFINITY_CHEST = Registry.register(
+			BuiltInRegistries.BLOCK_ENTITY_TYPE,
+			Avaritia26.id("infinity_chest"),
+			new BlockEntityType<>(InfinityChestBlockEntity::new, Set.of(ModBlocks.INFINITY_CHEST))
 	);
 
 	private ModBlockEntities() {

@@ -105,4 +105,5 @@
 - `src/client/resources/assets/avaritia26/textures/item/upgrade_smithing_template.png` ← Re:Avaritia `src/main/resources/assets/avaritia/textures/item/misc/upgrade_smithing_template.png`，commit `c331b7f4838667e6200b24c99dc45459e0b9dafb`，CC BY-NC-SA 4.0，仅调整资源路径；原版锻造模板槽位提示适配为 26.2 的 `container/slot/*` 精灵，精确 9×9 初次配方及输出两个模板但保留无尽催化剂的复制配方依据固定 Re:Avaritia 语义重新实现。
 - `CompressedChestBlock.java`、`CompressedChestBlockEntity.java`、`CompressedChestMenu.java` 与压缩箱子配方依据固定 Re:Avaritia 的 243 槽、内容随方块物品保存、27×9 菜单和八箱子包围中子齿轮配方语义重新实现；方块实体、菜单同步和静态模型改用 Minecraft/Fabric 26.2 原生 API。
 - `ExtremeSmithingTableBlock.java`、`ExtremeSmithingMenu.java`、`ExtremeSmithingRecipe.java` 与终焉锻造台 9×9 配方依据固定 Re:Avaritia 的五输入槽、模板/基底/三追加材料、基底组件继承和一次消耗语义重新实现；追加材料按无序三元素集合逐一匹配，修正固定上游允许三份重复材料的缺陷，菜单与配方同步改用 Minecraft/Fabric 26.2 原生 API。
+- `InfinityChestBlock.java`、`InfinityChestBlockEntity.java`、`InfinityChestMenu.java` 与 `InfinityChestContents.java` 依据固定 Re:Avaritia 的 300 槽、每槽 `Integer.MAX_VALUE` 上限、方块物品携带内容和强化锻造配方语义重新实现；全部 300 槽改为 30×10 可见布局，修正固定上游仅显示 243 槽的问题，并使用 26.2 原生槽位点击/快捷移动逻辑代替旧版整套鼠标协议重写。
 - 其余已提交源码、配置和文档均为本项目新写；Gradle Wrapper 来自 Fabric 官方 26.2 CC0 模板。

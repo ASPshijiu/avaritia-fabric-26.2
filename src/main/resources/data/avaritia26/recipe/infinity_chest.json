@@ -1,0 +1,11 @@
+{
+	"type": "avaritia26:extreme_smithing",
+	"template": "avaritia26:upgrade_smithing_template",
+	"base": "avaritia26:compressed_chest",
+	"addition": [
+		"avaritia26:neutron",
+		"avaritia26:enhancement_core",
+		"avaritia26:infinity"
+	],
+	"result": {"count": 1, "id": "avaritia26:infinity_chest"}
+}

@@ -4,6 +4,7 @@ import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.block.CompressedChestBlock;
 import io.github.aspshijiu.avaritia26.block.ExtremeCraftingTableBlock;
 import io.github.aspshijiu.avaritia26.block.ExtremeSmithingTableBlock;
+import io.github.aspshijiu.avaritia26.block.InfinityChestBlock;
 import io.github.aspshijiu.avaritia26.block.NeutronCollectorBlock;
 import io.github.aspshijiu.avaritia26.block.NeutronCompressorBlock;
 import net.minecraft.core.Registry;
@@ -238,6 +239,27 @@ public final class ModBlocks {
 			new BlockItem(
 					EXTREME_SMITHING_TABLE,
 					new Item.Properties().setId(EXTREME_SMITHING_TABLE_ITEM_KEY).rarity(Rarity.EPIC).fireResistant()
+			)
+	);
+	public static final ResourceKey<Block> INFINITY_CHEST_KEY = blockKey("infinity_chest");
+	public static final Block INFINITY_CHEST = Registry.register(
+			BuiltInRegistries.BLOCK,
+			INFINITY_CHEST_KEY,
+			new InfinityChestBlock(BlockBehaviour.Properties.of()
+					.setId(INFINITY_CHEST_KEY)
+					.mapColor(MapColor.METAL)
+					.sound(SoundType.GLASS)
+					.strength(100.0F, 2000.0F)
+					.lightLevel(state -> 15)
+					.requiresCorrectToolForDrops())
+	);
+	public static final ResourceKey<Item> INFINITY_CHEST_ITEM_KEY = itemKey("infinity_chest");
+	public static final BlockItem INFINITY_CHEST_ITEM = Registry.register(
+			BuiltInRegistries.ITEM,
+			INFINITY_CHEST_ITEM_KEY,
+			new BlockItem(
+					INFINITY_CHEST,
+					new Item.Properties().setId(INFINITY_CHEST_ITEM_KEY).rarity(Rarity.EPIC).fireResistant()
 			)
 	);
 

@@ -3,6 +3,7 @@ package io.github.aspshijiu.avaritia26.registry;
 import com.mojang.serialization.Codec;
 import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.component.MatterClusterContents;
+import io.github.aspshijiu.avaritia26.component.InfinityChestContents;
 import io.github.aspshijiu.avaritia26.singularity.SingularityDefinition;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
@@ -40,6 +41,14 @@ public final class ModDataComponents {
 			DataComponentType.<MatterClusterContents>builder()
 					.persistent(MatterClusterContents.CODEC)
 					.networkSynchronized(MatterClusterContents.STREAM_CODEC)
+					.build()
+	);
+	public static final DataComponentType<InfinityChestContents> INFINITY_CHEST_CONTENTS = Registry.register(
+			BuiltInRegistries.DATA_COMPONENT_TYPE,
+			Avaritia26.id("infinity_chest_contents"),
+			DataComponentType.<InfinityChestContents>builder()
+					.persistent(InfinityChestContents.CODEC)
+					.networkSynchronized(InfinityChestContents.STREAM_CODEC)
 					.build()
 	);
 

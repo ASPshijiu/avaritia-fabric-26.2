@@ -8,14 +8,17 @@ import java.util.UUID;
 import com.mojang.serialization.JsonOps;
 import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.block.CompressedChestBlock;
+import io.github.aspshijiu.avaritia26.block.InfinityChestBlock;
 import io.github.aspshijiu.avaritia26.block.NeutronCollectorBlock;
 import io.github.aspshijiu.avaritia26.block.entity.CompressedChestBlockEntity;
 import io.github.aspshijiu.avaritia26.block.entity.ExtremeCraftingTableBlockEntity;
+import io.github.aspshijiu.avaritia26.block.entity.InfinityChestBlockEntity;
 import io.github.aspshijiu.avaritia26.block.entity.NeutronCollectorBlockEntity;
 import io.github.aspshijiu.avaritia26.block.entity.NeutronCompressorBlockEntity;
 import io.github.aspshijiu.avaritia26.crafting.ModRecipes;
 import io.github.aspshijiu.avaritia26.crafting.ExtremeSmithingInput;
 import io.github.aspshijiu.avaritia26.crafting.ExtremeSmithingRecipe;
+import io.github.aspshijiu.avaritia26.component.InfinityChestContents;
 import io.github.aspshijiu.avaritia26.crafting.NoConsumeCatalystShapedRecipe;
 import io.github.aspshijiu.avaritia26.entity.EndestPearlEntity;
 import io.github.aspshijiu.avaritia26.entity.GapingVoidEntity;
@@ -25,6 +28,7 @@ import io.github.aspshijiu.avaritia26.event.ModArmorEvents;
 import io.github.aspshijiu.avaritia26.inventory.CompressedChestMenu;
 import io.github.aspshijiu.avaritia26.inventory.ExtremeCraftingMenu;
 import io.github.aspshijiu.avaritia26.inventory.ExtremeSmithingMenu;
+import io.github.aspshijiu.avaritia26.inventory.InfinityChestMenu;
 import io.github.aspshijiu.avaritia26.inventory.NeutronCollectorMenu;
 import io.github.aspshijiu.avaritia26.inventory.NeutronCompressorMenu;
 import io.github.aspshijiu.avaritia26.item.MatterClusterItem;
@@ -80,6 +84,7 @@ import net.minecraft.world.item.SmithingTemplateItem;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.Consumable;
 import net.minecraft.world.item.component.CustomModelData;
+import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.component.UseCooldown;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
@@ -183,6 +188,127 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		Player player = helper.makeMockServerPlayer(GameType.SURVIVAL);
 		CompressedChestMenu menu = new CompressedChestMenu(1, player.getInventory(), chest);
 		helper.assertTrue(menu.slots.size() == 279, "压缩箱子菜单应包含 243 个箱子槽和 36 个玩家槽");
+		menu.removed(player);
+		helper.succeed();
+	}
+
+	@GameTest
+	public void infinityChestSmithsStoresHugeStacksAndPreservesContents(GameTestHelper helper) {
+		helper.assertTrue(BuiltInRegistries.BLOCK.getValue(ModBlocks.INFINITY_CHEST_KEY) == ModBlocks.INFINITY_CHEST, "无尽箱方块注册错误");
+		helper.assertTrue(BuiltInRegistries.ITEM.getValue(ModBlocks.INFINITY_CHEST_ITEM_KEY) == ModBlocks.INFINITY_CHEST_ITEM, "无尽箱物品注册错误");
+		helper.assertTrue(
+				BuiltInRegistries.BLOCK_ENTITY_TYPE.getValue(Avaritia26.id("infinity_chest")) == ModBlockEntities.INFINITY_CHEST,
+				"无尽箱方块实体注册错误"
+		);
+		helper.assertTrue(
+				BuiltInRegistries.DATA_COMPONENT_TYPE.getValue(Avaritia26.id("infinity_chest_contents"))
+						== ModDataComponents.INFINITY_CHEST_CONTENTS,
+				"无尽箱内容组件注册错误"
+		);
+
+		ItemStack compressedBase = new ItemStack(ModBlocks.COMPRESSED_CHEST_ITEM);
+		compressedBase.set(
+				DataComponents.CONTAINER,
+				ItemContainerContents.fromItems(List.of(new ItemStack(Items.DIAMOND, 32)))
+		);
+		ExtremeSmithingInput input = new ExtremeSmithingInput(
+				new ItemStack(ModItems.UPGRADE_SMITHING_TEMPLATE),
+				compressedBase,
+				new ItemStack(ModItems.ENHANCEMENT_CORE),
+				new ItemStack(ModBlocks.INFINITY_ITEM),
+				new ItemStack(ModBlocks.NEUTRON_ITEM)
+		);
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(Registries.RECIPE, Avaritia26.id("infinity_chest"));
+		RecipeHolder<ExtremeSmithingRecipe> recipe = helper.getLevel().getServer().getRecipeManager()
+				.getRecipeFor(ModRecipes.EXTREME_SMITHING, input, helper.getLevel())
+				.orElseThrow(() -> helper.assertionException("未匹配无尽箱强化锻造配方"));
+		helper.assertTrue(recipe.id().equals(recipeKey), "无尽箱匹配到了错误强化锻造配方");
+		ItemStack result = recipe.value().assemble(input);
+		helper.assertTrue(result.is(ModBlocks.INFINITY_CHEST_ITEM), "无尽箱强化锻造输出错误");
+		InfinityChestBlockEntity craftedChest = new InfinityChestBlockEntity(
+				helper.absolutePos(new BlockPos(8, 0, 8)),
+				ModBlocks.INFINITY_CHEST.defaultBlockState()
+		);
+		craftedChest.applyComponentsFromItemStack(result);
+		helper.assertTrue(craftedChest.getItem(0).is(Items.DIAMOND) && craftedChest.getItem(0).getCount() == 32, "无尽箱锻造丢失压缩箱内容");
+		ExtremeSmithingInput duplicates = new ExtremeSmithingInput(
+				input.template(),
+				input.base(),
+				new ItemStack(ModBlocks.NEUTRON_ITEM),
+				new ItemStack(ModBlocks.NEUTRON_ITEM),
+				new ItemStack(ModBlocks.NEUTRON_ITEM)
+		);
+		helper.assertFalse(recipe.value().matches(duplicates, helper.getLevel()), "无尽箱配方不应接受重复追加材料");
+
+		BlockPos pos = new BlockPos(5, 0, 5);
+		helper.setBlock(pos, ModBlocks.INFINITY_CHEST);
+		InfinityChestBlockEntity chest = helper.getBlockEntity(pos, InfinityChestBlockEntity.class);
+		helper.assertTrue(chest.getContainerSize() == 300, "无尽箱容量应为 300 槽");
+		helper.assertTrue(chest.getMaxStackSize() == Integer.MAX_VALUE, "无尽箱每槽上限应为 int 最大值");
+		chest.setItem(0, new ItemStack(Items.DIAMOND, 1_000_000));
+		chest.setItem(299, new ItemStack(Items.NETHERITE_INGOT, 2_000_000));
+		BlockEntity loaded = BlockEntity.loadStatic(
+				helper.absolutePos(pos),
+				helper.getBlockState(pos),
+				chest.saveWithFullMetadata(helper.getLevel().registryAccess()),
+				helper.getLevel().registryAccess()
+		);
+		helper.assertTrue(loaded instanceof InfinityChestBlockEntity, "无尽箱无法从存档恢复");
+		InfinityChestBlockEntity loadedChest = (InfinityChestBlockEntity) loaded;
+		helper.assertTrue(
+				loadedChest.getItem(0).getCount() == 1_000_000 && loadedChest.getItem(299).getCount() == 2_000_000,
+				"无尽箱首尾槽巨量堆叠存档错误"
+		);
+
+		ItemStack clone = ((InfinityChestBlock) ModBlocks.INFINITY_CHEST)
+				.getCloneItemStack(helper.getLevel(), helper.absolutePos(pos), helper.getBlockState(pos), true);
+		InfinityChestBlockEntity restored = new InfinityChestBlockEntity(helper.absolutePos(pos), helper.getBlockState(pos));
+		restored.applyComponentsFromItemStack(clone);
+		helper.assertTrue(
+				restored.getItem(0).getCount() == 1_000_000 && restored.getItem(299).getCount() == 2_000_000,
+				"无尽箱方块物品没有保留 300 槽巨量内容"
+		);
+
+		var ops = helper.getLevel().registryAccess().createSerializationContext(JsonOps.INSTANCE);
+		var encoded = ItemStack.CODEC.encodeStart(ops, clone).getOrThrow();
+		ItemStack decodedClone = ItemStack.CODEC.parse(ops, encoded).getOrThrow();
+		helper.assertTrue(
+				clone.get(ModDataComponents.INFINITY_CHEST_CONTENTS)
+						.equals(decodedClone.get(ModDataComponents.INFINITY_CHEST_CONTENTS)),
+				"无尽箱物品存档往返后内容组件不相等"
+		);
+		InfinityChestBlockEntity decodedChest = new InfinityChestBlockEntity(helper.absolutePos(pos), helper.getBlockState(pos));
+		decodedChest.applyComponentsFromItemStack(decodedClone);
+		helper.assertTrue(decodedChest.getItem(299).getCount() == 2_000_000, "无尽箱物品存档编解码丢失巨量内容");
+		InfinityChestContents contents = clone.get(ModDataComponents.INFINITY_CHEST_CONTENTS);
+		helper.assertTrue(contents != null, "无尽箱方块物品缺少内容组件");
+		RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(), helper.getLevel().registryAccess());
+		try {
+			InfinityChestContents.STREAM_CODEC.encode(buffer, contents);
+			InfinityChestContents decoded = InfinityChestContents.STREAM_CODEC.decode(buffer);
+			helper.assertTrue(contents.equals(decoded) && contents.hashCode() == decoded.hashCode(), "无尽箱内容组件网络往返后不相等");
+			NonNullList<ItemStack> networkItems = NonNullList.withSize(300, ItemStack.EMPTY);
+			decoded.copyInto(networkItems);
+			helper.assertTrue(networkItems.get(0).getCount() == 1_000_000 && networkItems.get(299).getCount() == 2_000_000, "无尽箱网络同步往返错误");
+			ItemStack.STREAM_CODEC.encode(buffer, clone);
+			ItemStack networkClone = ItemStack.STREAM_CODEC.decode(buffer);
+			InfinityChestBlockEntity networkChest = new InfinityChestBlockEntity(helper.absolutePos(pos), helper.getBlockState(pos));
+			networkChest.applyComponentsFromItemStack(networkClone);
+			helper.assertTrue(networkChest.getItem(299).getCount() == 2_000_000, "无尽箱方块物品网络同步丢失巨量内容");
+		} finally {
+			buffer.release();
+		}
+
+		Player player = helper.makeMockServerPlayer(GameType.SURVIVAL);
+		InfinityChestMenu menu = new InfinityChestMenu(1, player.getInventory(), chest);
+		helper.assertTrue(menu.slots.size() == 336, "无尽箱菜单应包含 300 个箱子槽和 36 个玩家槽");
+		helper.assertTrue(menu.getSlot(299).getMaxStackSize(new ItemStack(Items.DIAMOND)) == Integer.MAX_VALUE, "无尽箱最后一个槽位不可访问巨量堆叠");
+		player.getInventory().setItem(0, new ItemStack(Items.DIAMOND, 64));
+		menu.quickMoveStack(player, InfinityChestMenu.PLAYER_SLOT_START + 27);
+		helper.assertTrue(chest.getItem(0).getCount() == 1_000_064, "玩家物品没有合并进无尽箱巨量堆叠");
+		menu.quickMoveStack(player, 0);
+		helper.assertTrue(chest.getItem(0).getCount() == 1_000_000, "从无尽箱快捷取出没有按普通物品堆叠上限取出");
+		helper.assertTrue(player.getInventory().countItem(Items.DIAMOND) == 64, "无尽箱快捷取出数量错误");
 		menu.removed(player);
 		helper.succeed();
 	}
