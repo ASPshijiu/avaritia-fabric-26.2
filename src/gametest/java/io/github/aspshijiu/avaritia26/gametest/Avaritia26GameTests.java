@@ -15,16 +15,19 @@ import io.github.aspshijiu.avaritia26.entity.EndestPearlEntity;
 import io.github.aspshijiu.avaritia26.entity.GapingVoidEntity;
 import io.github.aspshijiu.avaritia26.entity.HeavenArrowEntity;
 import io.github.aspshijiu.avaritia26.entity.HeavenSubArrowEntity;
+import io.github.aspshijiu.avaritia26.event.ModArmorEvents;
 import io.github.aspshijiu.avaritia26.inventory.ExtremeCraftingMenu;
 import io.github.aspshijiu.avaritia26.inventory.NeutronCollectorMenu;
 import io.github.aspshijiu.avaritia26.inventory.NeutronCompressorMenu;
 import io.github.aspshijiu.avaritia26.item.MatterClusterItem;
+import io.github.aspshijiu.avaritia26.item.InfinityArmorItem;
 import io.github.aspshijiu.avaritia26.item.SingularityItem;
 import io.github.aspshijiu.avaritia26.registry.ModBlockEntities;
 import io.github.aspshijiu.avaritia26.registry.ModBlocks;
 import io.github.aspshijiu.avaritia26.registry.ModDataComponents;
 import io.github.aspshijiu.avaritia26.registry.ModEntityTypes;
 import io.github.aspshijiu.avaritia26.registry.ModItems;
+import io.github.aspshijiu.avaritia26.registry.ModArmorMaterials;
 import io.github.aspshijiu.avaritia26.singularity.SingularityDefinition;
 import io.github.aspshijiu.avaritia26.singularity.SingularityManager;
 import io.netty.buffer.Unpooled;
@@ -32,6 +35,7 @@ import net.fabricmc.fabric.api.gametest.v1.CustomTestMethodInvoker;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
+import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
@@ -42,6 +46,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.TagKey;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
@@ -53,6 +58,7 @@ import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -66,6 +72,9 @@ import net.minecraft.world.item.component.Consumable;
 import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.component.UseCooldown;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.item.equipment.ArmorType;
+import net.minecraft.world.item.equipment.Equippable;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Recipe;
@@ -923,6 +932,114 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		primaryArrow.setDeltaMovement(3.0, 0.0, 0.0);
 		primaryArrow.tick();
 		helper.assertTrue(target.isDeadOrDying(), "天堂箭 20 点基础伤害没有击杀普通目标");
+		helper.succeed();
+	}
+
+	@GameTest
+	public void infinityArmorPiecesCraftEquipAndProvideClassicAbilities(GameTestHelper helper) {
+		assertInfinityArmorPiece(
+				helper,
+				ModItems.INFINITY_HELMET_KEY,
+				ModItems.INFINITY_HELMET,
+				ArmorType.HELMET,
+				ItemTags.HEAD_ARMOR,
+				ItemTags.HEAD_ARMOR_ENCHANTABLE,
+				6
+		);
+		assertInfinityArmorPiece(
+				helper,
+				ModItems.INFINITY_CHESTPLATE_KEY,
+				ModItems.INFINITY_CHESTPLATE,
+				ArmorType.CHESTPLATE,
+				ItemTags.CHEST_ARMOR,
+				ItemTags.CHEST_ARMOR_ENCHANTABLE,
+				16
+		);
+		assertInfinityArmorPiece(
+				helper,
+				ModItems.INFINITY_PANTS_KEY,
+				ModItems.INFINITY_PANTS,
+				ArmorType.LEGGINGS,
+				ItemTags.LEG_ARMOR,
+				ItemTags.LEG_ARMOR_ENCHANTABLE,
+				12
+		);
+		assertInfinityArmorPiece(
+				helper,
+				ModItems.INFINITY_BOOTS_KEY,
+				ModItems.INFINITY_BOOTS,
+				ArmorType.BOOTS,
+				ItemTags.FOOT_ARMOR,
+				ItemTags.FOOT_ARMOR_ENCHANTABLE,
+				6
+		);
+
+		CraftingInput helmetInput = infinityHelmetInput();
+		assertExtremeRecipe(helper, "infinity_helmet", helmetInput, ModItems.INFINITY_HELMET);
+		assertWrongExtremeRecipe(helper, "infinity_helmet", helmetInput, "无尽头盔材料错误时不应匹配配方");
+		CraftingInput chestplateInput = infinityChestplateInput();
+		assertExtremeRecipe(helper, "infinity_chestplate", chestplateInput, ModItems.INFINITY_CHESTPLATE);
+		assertWrongExtremeRecipe(helper, "infinity_chestplate", chestplateInput, "无尽胸甲材料错误时不应匹配配方");
+		CraftingInput pantsInput = infinityPantsInput();
+		assertExtremeRecipe(helper, "infinity_pants", pantsInput, ModItems.INFINITY_PANTS);
+		assertWrongExtremeRecipe(helper, "infinity_pants", pantsInput, "无尽护腿材料错误时不应匹配配方");
+		CraftingInput bootsInput = infinityBootsInput();
+		assertExtremeRecipe(helper, "infinity_boots", bootsInput, ModItems.INFINITY_BOOTS);
+		assertWrongExtremeRecipe(helper, "infinity_boots", bootsInput, "无尽之靴材料错误时不应匹配配方");
+
+		ItemAttributeModifiers bootsAttributes = new ItemStack(ModItems.INFINITY_BOOTS).get(DataComponents.ATTRIBUTE_MODIFIERS);
+		helper.assertTrue(bootsAttributes != null, "无尽之靴缺少原生属性组件");
+		assertClose(helper, bootsAttributes.compute(Attributes.MOVEMENT_SPEED, 0.1, EquipmentSlot.FEET), 0.25, "无尽之靴移动速度错误");
+		assertClose(helper, bootsAttributes.compute(Attributes.JUMP_STRENGTH, 0.42, EquipmentSlot.FEET), 0.82, "无尽之靴跳跃能力错误");
+		assertClose(helper, bootsAttributes.compute(Attributes.STEP_HEIGHT, 0.6, EquipmentSlot.FEET), 1.0625, "无尽之靴跨步高度错误");
+
+		ServerPlayer player = (ServerPlayer) helper.makeMockServerPlayer(GameType.SURVIVAL);
+		player.setItemSlot(EquipmentSlot.HEAD, new ItemStack(ModItems.INFINITY_HELMET));
+		player.setAirSupply(1);
+		player.getFoodData().setFoodLevel(1);
+		player.getFoodData().setSaturation(0.0F);
+		ModArmorEvents.tickPlayer(player);
+		helper.assertTrue(
+				player.getAirSupply() == 300
+						&& player.getFoodData().getFoodLevel() == 20
+						&& player.getFoodData().getSaturationLevel() == 20.0F
+						&& player.hasEffect(MobEffects.NIGHT_VISION),
+				"无尽头盔没有补满呼吸、饥饿、饱和度或夜视"
+		);
+
+		player.setItemSlot(EquipmentSlot.CHEST, new ItemStack(ModItems.INFINITY_CHESTPLATE));
+		player.getActiveEffectsMap().put(MobEffects.POISON, new MobEffectInstance(MobEffects.POISON, 200));
+		ModArmorEvents.tickPlayer(player);
+		helper.assertTrue(player.getAbilities().mayfly, "无尽胸甲没有授予飞行权限");
+		helper.assertFalse(player.hasEffect(MobEffects.POISON), "无尽胸甲没有清除负面效果");
+		player.setItemSlot(EquipmentSlot.CHEST, ItemStack.EMPTY);
+		ModArmorEvents.tickPlayer(player);
+		helper.assertFalse(player.getAbilities().mayfly || player.getAbilities().flying, "脱下无尽胸甲后仍保留其飞行权限");
+
+		player.setItemSlot(EquipmentSlot.LEGS, new ItemStack(ModItems.INFINITY_PANTS));
+		player.setRemainingFireTicks(100);
+		ModArmorEvents.tickPlayer(player);
+		helper.assertTrue(player.getRemainingFireTicks() == 0, "无尽护腿没有熄灭穿戴者身上的火焰");
+
+		player.setItemSlot(EquipmentSlot.CHEST, new ItemStack(ModItems.INFINITY_CHESTPLATE));
+		player.setItemSlot(EquipmentSlot.FEET, new ItemStack(ModItems.INFINITY_BOOTS));
+		helper.assertTrue(ModArmorEvents.hasFullSet(player), "四件无尽护甲没有识别为完整套装");
+		var damageSource = helper.getLevel().damageSources().generic();
+		helper.assertFalse(
+				ServerLivingEntityEvents.ALLOW_DAMAGE.invoker().allowDamage(player, damageSource, 20.0F),
+				"完整无尽套装没有阻止普通伤害"
+		);
+		player.setHealth(1.0F);
+		helper.assertFalse(
+				ServerLivingEntityEvents.ALLOW_DEATH.invoker().allowDeath(player, damageSource, 20.0F),
+				"完整无尽套装没有阻止死亡"
+		);
+		helper.assertTrue(player.getHealth() == player.getMaxHealth(), "无尽套装阻止死亡后没有恢复生命");
+		player.setItemSlot(EquipmentSlot.FEET, ItemStack.EMPTY);
+		helper.assertTrue(
+				ServerLivingEntityEvents.ALLOW_DAMAGE.invoker().allowDamage(player, damageSource, 20.0F),
+				"不完整的无尽套装不应阻止伤害"
+		);
 		helper.succeed();
 	}
 
@@ -2288,6 +2405,60 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.assertTrue(recipe.value().assemble(input).is(expectedItem), path + " 输出了错误物品");
 	}
 
+	private static void assertInfinityArmorPiece(
+			GameTestHelper helper,
+			ResourceKey<Item> key,
+			Item item,
+			ArmorType type,
+			TagKey<Item> armorTag,
+			TagKey<Item> enchantmentTag,
+			int defense
+	) {
+		ItemStack stack = new ItemStack(item);
+		helper.assertTrue(BuiltInRegistries.ITEM.getValue(key) == item, item + " 没有注册到预期的 ResourceKey");
+		helper.assertTrue(item instanceof InfinityArmorItem armor && armor.armorType() == type, item + " 护甲类型错误");
+		helper.assertTrue(stack.getMaxStackSize() == 1 && !stack.isDamageableItem(), item + " 应当不可堆叠且永不损耗");
+		helper.assertTrue(stack.getRarity() == Rarity.EPIC, item + " 稀有度错误");
+		helper.assertTrue(stack.is(armorTag) && stack.is(enchantmentTag), item + " 护甲或附魔标签错误");
+		Equippable equippable = stack.get(DataComponents.EQUIPPABLE);
+		helper.assertTrue(
+				equippable != null
+						&& equippable.slot() == type.getSlot()
+						&& !equippable.damageOnHurt()
+						&& equippable.assetId().filter(ModArmorMaterials.INFINITY_ASSET::equals).isPresent(),
+				item + " 装备槽、受击损耗或渲染资产错误"
+		);
+		ItemAttributeModifiers attributes = stack.get(DataComponents.ATTRIBUTE_MODIFIERS);
+		helper.assertTrue(attributes != null, item + " 缺少护甲属性组件");
+		assertClose(helper, attributes.compute(Attributes.ARMOR, 0.0, type.getSlot()), defense, item + " 护甲值错误");
+		assertClose(helper, attributes.compute(Attributes.ARMOR_TOUGHNESS, 0.0, type.getSlot()), 1.0, item + " 韧性错误");
+	}
+
+	private static void assertWrongExtremeRecipe(GameTestHelper helper, String path, CraftingInput input, String message) {
+		List<ItemStack> wrongStacks = copyStacks(input.items());
+		int firstFilled = 0;
+		while (wrongStacks.get(firstFilled).isEmpty()) {
+			firstFilled++;
+		}
+		wrongStacks.set(firstFilled, new ItemStack(Items.DIRT));
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(Registries.RECIPE, Avaritia26.id(path));
+		helper.assertFalse(
+				helper.getLevel().getServer().getRecipeManager()
+						.getRecipeFor(
+								ModRecipes.EXTREME_CRAFTING,
+								CraftingInput.of(input.width(), input.height(), wrongStacks),
+								helper.getLevel()
+						)
+						.filter(candidate -> candidate.id().equals(recipeKey))
+						.isPresent(),
+				message
+		);
+	}
+
+	private static void assertClose(GameTestHelper helper, double actual, double expected, String message) {
+		helper.assertTrue(Math.abs(actual - expected) < 0.00001, message + "，实际值：" + actual);
+	}
+
 	private static void assertInfinityCatalystRejected(
 			GameTestHelper helper,
 			ResourceKey<Recipe<?>> recipeKey,
@@ -2571,6 +2742,74 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 			}
 		}
 		return CraftingInput.of(9, 9, stacks);
+	}
+
+	private static CraftingInput infinityHelmetInput() {
+		return infinityArmorInput(List.of(
+				"  NNNNN  ",
+				" NIIIIIN ",
+				" N XIX N ",
+				" NIIIIIN ",
+				" NIIIIIN ",
+				" NI I IN "
+		));
+	}
+
+	private static CraftingInput infinityChestplateInput() {
+		return infinityArmorInput(List.of(
+				" NN   NN ",
+				"NNN   NNN",
+				"NNN   NNN",
+				" NIIIIIN ",
+				" NIICIIN ",
+				" NIIIIIN ",
+				" NIIIIIN ",
+				" NIIIIIN ",
+				"  NNNNN  "
+		));
+	}
+
+	private static CraftingInput infinityPantsInput() {
+		return infinityArmorInput(List.of(
+				"NNNNNNNNN",
+				"NIIIXIIIN",
+				"NINNXNNIN",
+				"NIN   NIN",
+				"NCN   NCN",
+				"NIN   NIN",
+				"NIN   NIN",
+				"NIN   NIN",
+				"NNN   NNN"
+		));
+	}
+
+	private static CraftingInput infinityBootsInput() {
+		return infinityArmorInput(List.of(
+				" NNN NNN ",
+				" NIN NIN ",
+				" NIN NIN ",
+				"NNIN NINN",
+				"NIIN NIIN",
+				"NNNN NNNN"
+		));
+	}
+
+	private static CraftingInput infinityArmorInput(List<String> pattern) {
+		List<ItemStack> stacks = new java.util.ArrayList<>(pattern.size() * 9);
+		for (String row : pattern) {
+			for (char symbol : row.toCharArray()) {
+				ItemStack stack = switch (symbol) {
+					case 'C' -> new ItemStack(ModBlocks.CRYSTAL_MATRIX_ITEM);
+					case 'I' -> new ItemStack(ModItems.INFINITY_INGOT);
+					case 'N' -> new ItemStack(ModItems.NEUTRON_INGOT);
+					case 'X' -> new ItemStack(ModItems.INFINITY_CATALYST);
+					case ' ' -> ItemStack.EMPTY;
+					default -> throw new IllegalArgumentException("未知无尽护甲配方符号: " + symbol);
+				};
+				stacks.add(stack);
+			}
+		}
+		return CraftingInput.of(9, pattern.size(), stacks);
 	}
 
 	private static List<ItemEntity> skullDropsNear(GameTestHelper helper, BlockPos relativePos) {

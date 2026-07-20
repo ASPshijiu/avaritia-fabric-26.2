@@ -1,0 +1,19 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "avaritia26:infinity"
+      }
+    ],
+    "humanoid_baby": [
+      {
+        "texture": "avaritia26:infinity"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "avaritia26:infinity"
+      }
+    ]
+  }
+}

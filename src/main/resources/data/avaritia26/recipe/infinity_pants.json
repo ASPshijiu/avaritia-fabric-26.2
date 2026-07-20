@@ -1,0 +1,25 @@
+{
+  "type": "avaritia26:extreme_shaped",
+  "category": "equipment",
+  "key": {
+    "C": "avaritia26:crystal_matrix",
+    "I": "avaritia26:infinity_ingot",
+    "N": "avaritia26:neutron_ingot",
+    "X": "avaritia26:infinity_catalyst"
+  },
+  "pattern": [
+    "NNNNNNNNN",
+    "NIIIXIIIN",
+    "NINNXNNIN",
+    "NIN   NIN",
+    "NCN   NCN",
+    "NIN   NIN",
+    "NIN   NIN",
+    "NIN   NIN",
+    "NNN   NNN"
+  ],
+  "result": {
+    "count": 1,
+    "id": "avaritia26:infinity_pants"
+  }
+}

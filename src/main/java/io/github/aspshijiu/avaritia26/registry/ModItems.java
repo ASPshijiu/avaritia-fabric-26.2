@@ -6,6 +6,7 @@ import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.item.EndestPearlItem;
 import io.github.aspshijiu.avaritia26.item.EternalSingularityItem;
 import io.github.aspshijiu.avaritia26.item.InfinityAxeItem;
+import io.github.aspshijiu.avaritia26.item.InfinityArmorItem;
 import io.github.aspshijiu.avaritia26.item.InfinityBowItem;
 import io.github.aspshijiu.avaritia26.item.InfinityHoeItem;
 import io.github.aspshijiu.avaritia26.item.InfinityPickaxeItem;
@@ -26,8 +27,34 @@ import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.Weapon;
+import net.minecraft.world.item.equipment.ArmorType;
+import net.minecraft.world.item.equipment.Equippable;
 
 public final class ModItems {
+	public static final ResourceKey<Item> INFINITY_HELMET_KEY = key("infinity_helmet");
+	public static final Item INFINITY_HELMET = register(
+			INFINITY_HELMET_KEY,
+			properties -> new InfinityArmorItem(properties, ArmorType.HELMET),
+			infinityArmorProperties(ArmorType.HELMET)
+	);
+	public static final ResourceKey<Item> INFINITY_CHESTPLATE_KEY = key("infinity_chestplate");
+	public static final Item INFINITY_CHESTPLATE = register(
+			INFINITY_CHESTPLATE_KEY,
+			properties -> new InfinityArmorItem(properties, ArmorType.CHESTPLATE),
+			infinityArmorProperties(ArmorType.CHESTPLATE)
+	);
+	public static final ResourceKey<Item> INFINITY_PANTS_KEY = key("infinity_pants");
+	public static final Item INFINITY_PANTS = register(
+			INFINITY_PANTS_KEY,
+			properties -> new InfinityArmorItem(properties, ArmorType.LEGGINGS),
+			infinityArmorProperties(ArmorType.LEGGINGS)
+	);
+	public static final ResourceKey<Item> INFINITY_BOOTS_KEY = key("infinity_boots");
+	public static final Item INFINITY_BOOTS = register(
+			INFINITY_BOOTS_KEY,
+			properties -> new InfinityArmorItem(properties, ArmorType.BOOTS),
+			infinityArmorProperties(ArmorType.BOOTS)
+	);
 	public static final ResourceKey<Item> INFINITY_BOW_KEY = key("infinity_bow");
 	public static final Item INFINITY_BOW = register(
 			INFINITY_BOW_KEY,
@@ -211,6 +238,40 @@ public final class ModItems {
 	}
 
 	public static void initialize() {
+	}
+
+	private static Item.Properties infinityArmorProperties(ArmorType type) {
+		ItemAttributeModifiers attributes = ModArmorMaterials.INFINITY.createAttributes(type);
+		if (type == ArmorType.BOOTS) {
+			attributes = attributes
+					.withModifierAdded(
+							Attributes.MOVEMENT_SPEED,
+							new AttributeModifier(Avaritia26.id("infinity_boots_speed"), 0.15, AttributeModifier.Operation.ADD_VALUE),
+							EquipmentSlotGroup.FEET
+					)
+					.withModifierAdded(
+							Attributes.JUMP_STRENGTH,
+							new AttributeModifier(Avaritia26.id("infinity_boots_jump"), 0.4, AttributeModifier.Operation.ADD_VALUE),
+							EquipmentSlotGroup.FEET
+					)
+					.withModifierAdded(
+							Attributes.STEP_HEIGHT,
+							new AttributeModifier(Avaritia26.id("infinity_boots_step"), 0.4625, AttributeModifier.Operation.ADD_VALUE),
+							EquipmentSlotGroup.FEET
+					);
+		}
+		Equippable equippable = Equippable.builder(type.getSlot())
+				.setEquipSound(ModArmorMaterials.INFINITY.equipSound())
+				.setAsset(ModArmorMaterials.INFINITY_ASSET)
+				.setDamageOnHurt(false)
+				.build();
+		return new Item.Properties()
+				.rarity(Rarity.EPIC)
+				.stacksTo(1)
+				.fireResistant()
+				.enchantable(1000)
+				.attributes(attributes)
+				.component(DataComponents.EQUIPPABLE, equippable);
 	}
 
 	private static ItemAttributeModifiers infinityToolAttributes(double attackDamage, double attackSpeed) {

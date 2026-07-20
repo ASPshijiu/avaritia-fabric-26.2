@@ -29,10 +29,10 @@
 | `infinity_shovel` | 无尽铲 | 实现中 | 实现中 | 实现中 | 实现中 | — | — |
 | `infinity_axe` | 自然荒芜之斧 | 实现中 | 实现中 | 实现中 | 实现中 | — | — |
 | `infinity_bow` | 天堂陨落长弓 | 实现中 | 实现中 | 实现中 | 实现中 | — | — |
-| `infinity_helmet` | 无尽头盔 | 未开始 | — | — | — | — | — |
-| `infinity_chestplate` | 无尽胸甲 | 未开始 | — | — | — | — | — |
-| `infinity_pants` | 无尽护腿 | 未开始 | — | — | — | — | — |
-| `infinity_boots` | 无尽靴子 | 未开始 | — | — | — | — | — |
+| `infinity_helmet` | 无尽头盔 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `infinity_chestplate` | 无尽胸甲 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `infinity_pants` | 无尽护腿 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `infinity_boots` | 无尽靴子 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
 
 ## P0：经典核心方块物品
 
