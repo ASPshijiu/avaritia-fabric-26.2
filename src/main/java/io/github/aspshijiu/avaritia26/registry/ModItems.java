@@ -193,6 +193,12 @@ public final class ModItems {
 			Item::new,
 			new Item.Properties().rarity(Rarity.EPIC)
 	);
+	public static final ResourceKey<Item> NEUTRON_GEAR_KEY = key("neutron_gear");
+	public static final Item NEUTRON_GEAR = register(
+			NEUTRON_GEAR_KEY,
+			Item::new,
+			new Item.Properties().rarity(Rarity.RARE).fireResistant()
+	);
 	public static final ResourceKey<Item> RECORD_FRAGMENT_KEY = key("record_fragment");
 	public static final Item RECORD_FRAGMENT = register(
 			RECORD_FRAGMENT_KEY,

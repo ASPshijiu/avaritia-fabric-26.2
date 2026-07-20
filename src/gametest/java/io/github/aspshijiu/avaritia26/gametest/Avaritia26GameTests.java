@@ -105,6 +105,33 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	}
 
 	@GameTest
+	public void neutronGearRegistersAndCrafts(GameTestHelper helper) {
+		ItemStack gear = new ItemStack(ModItems.NEUTRON_GEAR);
+		helper.assertTrue(
+				BuiltInRegistries.ITEM.getValue(ModItems.NEUTRON_GEAR_KEY) == ModItems.NEUTRON_GEAR,
+				"中子齿轮没有注册到预期的 ResourceKey"
+		);
+		helper.assertTrue(gear.getRarity() == Rarity.RARE, "中子齿轮稀有度错误");
+		CraftingInput input = CraftingInput.of(3, 3, List.of(
+				ItemStack.EMPTY, new ItemStack(ModItems.NEUTRON_INGOT), ItemStack.EMPTY,
+				new ItemStack(ModItems.NEUTRON_INGOT), new ItemStack(ModItems.CRYSTAL_MATRIX_INGOT), new ItemStack(ModItems.NEUTRON_INGOT),
+				ItemStack.EMPTY, new ItemStack(ModItems.NEUTRON_INGOT), ItemStack.EMPTY
+		));
+		assertCraftingRecipe(helper, "neutron_gear", input, ModItems.NEUTRON_GEAR, 1);
+		List<ItemStack> wrongStacks = copyStacks(input.items());
+		wrongStacks.set(4, new ItemStack(Items.DIRT));
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(Registries.RECIPE, Avaritia26.id("neutron_gear"));
+		helper.assertFalse(
+				helper.getLevel().getServer().getRecipeManager()
+						.getRecipeFor(RecipeType.CRAFTING, CraftingInput.of(3, 3, wrongStacks), helper.getLevel())
+						.filter(recipe -> recipe.id().equals(recipeKey))
+						.isPresent(),
+				"中子齿轮中心材料错误时不应匹配配方"
+		);
+		helper.succeed();
+	}
+
+	@GameTest
 	public void builtInSingularitiesLoadAndRoundTrip(GameTestHelper helper) {
 		Map<String, ExpectedSingularity> expected = Map.ofEntries(
 				Map.entry("obsidian", new ExpectedSingularity(Items.OBSIDIAN, 3_876_692, 1_051_676)),

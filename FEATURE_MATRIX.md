@@ -99,7 +99,7 @@
 | `neutron_horse_armor` | 中子马铠 | 未开始 | — | — | — | — | — |
 | `infinity_elytra` | 无尽鞘翅 | 未开始 | — | — | — | — | — |
 | `blaze_cube` | 炽骨立方 | 实现中 | 实现中 | 不适用 | 实现中 | — | — |
-| `neutron_gear` | 中子齿轮 | 未开始 | — | — | — | — | — |
+| `neutron_gear` | 中子齿轮 | 实现中 | 通过 | 不适用 | 通过 | 通过 | 通过 |
 | `infinity_nugget` | 无尽粒 | 未开始 | — | — | — | — | — |
 | `star_fuel` | 星辰燃料 | 未开始 | — | — | — | — | — |
 | `refined_coal` | 精炼煤炭 | 未开始 | — | — | — | — | — |

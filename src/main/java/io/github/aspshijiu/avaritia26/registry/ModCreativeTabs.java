@@ -44,6 +44,7 @@ public final class ModCreativeTabs {
 				output.accept(ModItems.NEUTRON_PILE);
 				output.accept(ModItems.NEUTRON_NUGGET);
 				output.accept(ModItems.NEUTRON_INGOT);
+				output.accept(ModItems.NEUTRON_GEAR);
 				output.accept(ModItems.RECORD_FRAGMENT);
 				output.accept(ModItems.ENDEST_PEARL);
 				output.accept(ModItems.MATTER_CLUSTER);
