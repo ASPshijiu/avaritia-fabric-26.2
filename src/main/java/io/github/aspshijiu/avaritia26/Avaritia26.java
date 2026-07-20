@@ -5,6 +5,7 @@ import io.github.aspshijiu.avaritia26.registry.ModBlockEntities;
 import io.github.aspshijiu.avaritia26.registry.ModBlocks;
 import io.github.aspshijiu.avaritia26.registry.ModCreativeTabs;
 import io.github.aspshijiu.avaritia26.registry.ModItems;
+import io.github.aspshijiu.avaritia26.registry.ModMenus;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.resources.Identifier;
 import org.slf4j.Logger;
@@ -20,6 +21,7 @@ public final class Avaritia26 implements ModInitializer {
 		ModItems.initialize();
 		ModBlocks.initialize();
 		ModBlockEntities.initialize();
+		ModMenus.initialize();
 		ModCreativeTabs.initialize();
 		LOGGER.info("Avaritia 26 已初始化");
 	}

@@ -7,6 +7,7 @@ import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.block.entity.ExtremeCraftingTableBlockEntity;
 import io.github.aspshijiu.avaritia26.crafting.ExtremeShapedRecipe;
 import io.github.aspshijiu.avaritia26.crafting.ModRecipes;
+import io.github.aspshijiu.avaritia26.inventory.ExtremeCraftingMenu;
 import io.github.aspshijiu.avaritia26.registry.ModBlockEntities;
 import io.github.aspshijiu.avaritia26.registry.ModBlocks;
 import io.github.aspshijiu.avaritia26.registry.ModItems;
@@ -342,6 +343,66 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.destroyBlock(relativePos);
 		helper.assertItemEntityPresent(Items.DIAMOND, relativePos, 2.0);
 		helper.assertItemEntityPresent(Items.NETHERITE_SCRAP, relativePos, 2.0);
+		helper.succeed();
+	}
+
+	@GameTest
+	public void extremeCraftingMenuCraftsAndConsumesOnce(GameTestHelper helper) {
+		BlockPos relativePos = new BlockPos(6, 0, 0);
+		helper.setBlock(relativePos, ModBlocks.EXTREME_CRAFTING_TABLE);
+		ExtremeCraftingTableBlockEntity blockEntity = helper.getBlockEntity(
+				relativePos,
+				ExtremeCraftingTableBlockEntity.class
+		);
+		blockEntity.setItem(0, new ItemStack(Items.DIAMOND));
+		blockEntity.setItem(8, new ItemStack(Items.DIAMOND));
+		blockEntity.setItem(40, new ItemStack(Items.NETHERITE_SCRAP));
+		blockEntity.setItem(72, new ItemStack(Items.DIAMOND));
+		blockEntity.setItem(80, new ItemStack(Items.DIAMOND));
+		Player player = helper.makeMockServerPlayer(GameType.SURVIVAL);
+		ExtremeCraftingMenu menu = (ExtremeCraftingMenu) blockEntity.createMenu(
+				1,
+				player.getInventory(),
+				player
+		);
+		helper.assertTrue(menu.slots.size() == 118, "终极工作台菜单槽位总数错误");
+		ItemStack result = menu.getSlot(ExtremeCraftingMenu.RESULT_SLOT).getItem();
+		helper.assertTrue(result.is(ModItems.DIAMOND_LATTICE) && result.getCount() == 1, "菜单未显示 9x9 配方产物");
+
+		ItemStack taken = menu.getSlot(ExtremeCraftingMenu.RESULT_SLOT).remove(result.getCount());
+		menu.getSlot(ExtremeCraftingMenu.RESULT_SLOT).onTake(player, taken);
+		helper.assertTrue(taken.is(ModItems.DIAMOND_LATTICE) && taken.getCount() == 1, "取出菜单产物错误");
+		for (int slot : List.of(0, 8, 40, 72, 80)) {
+			helper.assertTrue(blockEntity.getItem(slot).isEmpty(), "终极工作台没有准确消耗一次材料");
+		}
+		helper.assertTrue(menu.getSlot(ExtremeCraftingMenu.RESULT_SLOT).getItem().isEmpty(), "材料耗尽后产物槽未清空");
+
+		for (int slot : List.of(0, 8, 72, 80)) {
+			menu.getSlot(slot + ExtremeCraftingMenu.INPUT_SLOT_START).set(new ItemStack(Items.DIAMOND));
+		}
+		menu.getSlot(40 + ExtremeCraftingMenu.INPUT_SLOT_START).set(new ItemStack(Items.NETHERITE_SCRAP));
+		ExtremeCraftingMenu secondMenu = (ExtremeCraftingMenu) blockEntity.createMenu(
+				2,
+				player.getInventory(),
+				player
+		);
+		secondMenu.getSlot(1 + ExtremeCraftingMenu.INPUT_SLOT_START).set(new ItemStack(Items.DIAMOND));
+		helper.assertTrue(
+				menu.quickMoveStack(player, ExtremeCraftingMenu.RESULT_SLOT).isEmpty(),
+				"另一个菜单修改输入后不应允许取出过期产物"
+		);
+		helper.assertFalse(blockEntity.isEmpty(), "拒绝过期产物时不应消耗任何材料");
+		secondMenu.getSlot(1 + ExtremeCraftingMenu.INPUT_SLOT_START).set(ItemStack.EMPTY);
+		ItemStack shifted = menu.quickMoveStack(player, ExtremeCraftingMenu.RESULT_SLOT);
+		helper.assertTrue(shifted.is(ModItems.DIAMOND_LATTICE), "shift-click 返回了错误的终极合成产物");
+		helper.assertTrue(
+				player.getInventory().contains(new ItemStack(ModItems.DIAMOND_LATTICE)),
+				"shift-click 未把终极合成产物移入玩家背包"
+		);
+		helper.assertTrue(blockEntity.isEmpty(), "shift-click 没有准确消耗一次材料");
+		secondMenu.removed(player);
+		menu.removed(player);
+		helper.assertTrue(blockEntity.isEmpty(), "关闭终极工作台菜单后输入状态异常");
 		helper.succeed();
 	}
 

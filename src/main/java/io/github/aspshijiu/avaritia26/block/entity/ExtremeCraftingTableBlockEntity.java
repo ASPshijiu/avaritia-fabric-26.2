@@ -1,18 +1,24 @@
 package io.github.aspshijiu.avaritia26.block.entity;
 
 import io.github.aspshijiu.avaritia26.registry.ModBlockEntities;
+import io.github.aspshijiu.avaritia26.inventory.ExtremeCraftingMenu;
+import net.fabricmc.fabric.api.menu.v1.ExtendedMenuProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
-public final class ExtremeCraftingTableBlockEntity extends BlockEntity implements Container {
+public final class ExtremeCraftingTableBlockEntity extends BlockEntity implements Container, ExtendedMenuProvider<BlockPos> {
 	public static final int GRID_SIZE = 81;
 
 	private final NonNullList<ItemStack> items = NonNullList.withSize(GRID_SIZE, ItemStack.EMPTY);
@@ -79,5 +85,25 @@ public final class ExtremeCraftingTableBlockEntity extends BlockEntity implement
 	public void clearContent() {
 		items.clear();
 		setChanged();
+	}
+
+	@Override
+	public Component getDisplayName() {
+		return Component.translatable("container.avaritia26.extreme_crafting_table");
+	}
+
+	@Override
+	public AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
+		return new ExtremeCraftingMenu(
+				containerId,
+				inventory,
+				this,
+				net.minecraft.world.inventory.ContainerLevelAccess.create(level, worldPosition)
+		);
+	}
+
+	@Override
+	public BlockPos getScreenOpeningData(ServerPlayer player) {
+		return worldPosition;
 	}
 }

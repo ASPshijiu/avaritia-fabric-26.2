@@ -16,6 +16,7 @@
 | `src/client/resources/assets/avaritia26/textures/block/double_compressed_crafting_table.png` | `src/main/resources/assets/avaritia/textures/block/machine/craft/double_compressed.png` | Re:Avaritia `c331b7f4838667e6200b24c99dc45459e0b9dafb` | Nova Committee / Re:Avaritia artists | CC BY-NC-SA 4.0 | 仅调整资源路径，像素未修改 |
 | `src/client/resources/assets/avaritia26/textures/block/extreme_crafting_table_side.png` 与 `.png.mcmeta` | `src/main/resources/assets/avaritia/textures/block/machine/craft/extreme_side.png` 与 `.png.mcmeta` | Re:Avaritia `c331b7f4838667e6200b24c99dc45459e0b9dafb` | Nova Committee / Re:Avaritia artists | CC BY-NC-SA 4.0 | 仅调整资源路径，内容未修改 |
 | `src/client/resources/assets/avaritia26/textures/block/extreme_crafting_table_top.png` 与 `.png.mcmeta` | `src/main/resources/assets/avaritia/textures/block/machine/craft/extreme_top.png` 与 `.png.mcmeta` | Re:Avaritia `c331b7f4838667e6200b24c99dc45459e0b9dafb` | Nova Committee / Re:Avaritia artists | CC BY-NC-SA 4.0 | 仅调整资源路径，内容未修改 |
+| `src/client/resources/assets/avaritia26/textures/gui/extreme_crafting_table.png` | `src/main/resources/assets/avaritia/textures/gui/craft/extreme_crafting_table_gui.png` | Re:Avaritia `c331b7f4838667e6200b24c99dc45459e0b9dafb` | Nova Committee / Re:Avaritia artists | CC BY-NC-SA 4.0 | 仅调整资源路径，像素未修改 |
 
 ## CC BY-NC-SA 4.0
 
