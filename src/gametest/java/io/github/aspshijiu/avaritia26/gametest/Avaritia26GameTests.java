@@ -296,6 +296,50 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	}
 
 	@GameTest
+	public void extremeCraftingTableRecipeWorks(GameTestHelper helper) {
+		CraftingInput input = extremeCraftingTableInput();
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(
+				Registries.RECIPE,
+				Avaritia26.id("extreme_crafting_table")
+		);
+		RecipeHolder<ExtremeShapedRecipe> recipe = helper.getLevel().getServer().getRecipeManager()
+				.getRecipeFor(ModRecipes.EXTREME_CRAFTING, input, helper.getLevel())
+				.orElseThrow(() -> helper.assertionException("正确材料未匹配终极工作台配方"));
+		helper.assertTrue(recipe.id().equals(recipeKey), "终极工作台材料匹配到了错误配方");
+		ItemStack result = recipe.value().assemble(input);
+		helper.assertTrue(
+				result.is(ModBlocks.EXTREME_CRAFTING_TABLE_ITEM) && result.getCount() == 1,
+				"终极工作台配方输出错误"
+		);
+
+		List<ItemStack> padded = new java.util.ArrayList<>(java.util.Collections.nCopies(81, ItemStack.EMPTY));
+		for (int row = 0; row < 7; row++) {
+			for (int column = 0; column < 7; column++) {
+				padded.set(column + 1 + (row + 1) * 9, input.getItem(column, row));
+			}
+		}
+		CraftingInput positioned = CraftingInput.ofPositioned(9, 9, padded).input();
+		helper.assertTrue(
+				helper.getLevel().getServer().getRecipeManager()
+						.getRecipeFor(ModRecipes.EXTREME_CRAFTING, positioned, helper.getLevel())
+						.filter(candidate -> candidate.id().equals(recipeKey))
+						.isPresent(),
+				"终极工作台配方放在 9x9 网格中央时未匹配"
+		);
+
+		padded.set(0, new ItemStack(Items.DIRT));
+		CraftingInput withExtraItem = CraftingInput.ofPositioned(9, 9, padded).input();
+		helper.assertFalse(
+				helper.getLevel().getServer().getRecipeManager()
+						.getRecipeFor(ModRecipes.EXTREME_CRAFTING, withExtraItem, helper.getLevel())
+						.filter(candidate -> candidate.id().equals(recipeKey))
+						.isPresent(),
+				"终极工作台配方不应接受网格外的额外材料"
+		);
+		helper.succeed();
+	}
+
+	@GameTest
 	public void extremeCraftingTableStoresAndDropsGrid(GameTestHelper helper) {
 		helper.assertTrue(
 				BuiltInRegistries.BLOCK_ENTITY_TYPE.getValue(Avaritia26.id("extreme_crafting_table"))
@@ -537,6 +581,38 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 				new ItemStack(item), new ItemStack(item), new ItemStack(item),
 				new ItemStack(item), new ItemStack(item), new ItemStack(item)
 		));
+	}
+
+	private static CraftingInput extremeCraftingTableInput() {
+		List<ItemStack> stacks = new java.util.ArrayList<>(49);
+		for (String row : List.of(
+				"bccfccb",
+				"cddgddc",
+				"cdihidc",
+				"cdiaidc",
+				"cdjkjdc",
+				"cdddddc",
+				"beeeeeb"
+		)) {
+			for (char symbol : row.toCharArray()) {
+				Item item = switch (symbol) {
+					case 'a' -> ModBlocks.DOUBLE_COMPRESSED_CRAFTING_TABLE_ITEM;
+					case 'b' -> Items.LODESTONE;
+					case 'c' -> ModItems.DIAMOND_LATTICE;
+					case 'd' -> ModItems.CRYSTAL_MATRIX_INGOT;
+					case 'e' -> ModBlocks.CRYSTAL_MATRIX_ITEM;
+					case 'f' -> Items.RECOVERY_COMPASS;
+					case 'g' -> Items.DRAGON_EGG;
+					case 'h' -> Items.BEACON;
+					case 'i' -> Items.REINFORCED_DEEPSLATE;
+					case 'j' -> Items.NETHERITE_BLOCK;
+					case 'k' -> Items.HEART_OF_THE_SEA;
+					default -> throw new IllegalArgumentException("未知终极工作台配方符号: " + symbol);
+				};
+				stacks.add(new ItemStack(item));
+			}
+		}
+		return CraftingInput.of(7, 7, stacks);
 	}
 
 	private static void assertCraftingRecipe(
