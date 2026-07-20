@@ -1,0 +1,26 @@
+{
+	"type": "avaritia26:extreme_shaped",
+	"key": {
+		"a": "avaritia26:double_compressed_crafting_table",
+		"b": "minecraft:end_crystal",
+		"c": "minecraft:end_portal_frame",
+		"d": "minecraft:obsidian",
+		"e": "minecraft:dragon_breath",
+		"f": "minecraft:purpur_pillar",
+		"g": "minecraft:end_stone_bricks",
+		"h": "minecraft:end_stone",
+		"i": "minecraft:ender_eye",
+		"j": "minecraft:ender_chest"
+	},
+	"pattern": [
+		"bcccb",
+		"dfifd",
+		"dgagd",
+		"dhjhd",
+		"beeeb"
+	],
+	"result": {
+		"count": 2,
+		"id": "avaritia26:end_crafting_table"
+	}
+}

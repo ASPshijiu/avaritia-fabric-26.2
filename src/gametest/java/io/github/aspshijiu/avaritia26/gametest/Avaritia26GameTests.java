@@ -12,6 +12,7 @@ import io.github.aspshijiu.avaritia26.block.InfinityChestBlock;
 import io.github.aspshijiu.avaritia26.block.NeutronCollectorBlock;
 import io.github.aspshijiu.avaritia26.block.NeutronCompressorBlock;
 import io.github.aspshijiu.avaritia26.block.entity.CompressedChestBlockEntity;
+import io.github.aspshijiu.avaritia26.block.entity.EndCraftingTableBlockEntity;
 import io.github.aspshijiu.avaritia26.block.entity.ExtremeCraftingTableBlockEntity;
 import io.github.aspshijiu.avaritia26.block.entity.InfinityChestBlockEntity;
 import io.github.aspshijiu.avaritia26.block.entity.NetherCraftingTableBlockEntity;
@@ -34,6 +35,7 @@ import io.github.aspshijiu.avaritia26.entity.HeavenArrowEntity;
 import io.github.aspshijiu.avaritia26.entity.HeavenSubArrowEntity;
 import io.github.aspshijiu.avaritia26.event.ModArmorEvents;
 import io.github.aspshijiu.avaritia26.inventory.CompressedChestMenu;
+import io.github.aspshijiu.avaritia26.inventory.EndCraftingMenu;
 import io.github.aspshijiu.avaritia26.inventory.ExtremeCraftingMenu;
 import io.github.aspshijiu.avaritia26.inventory.ExtremeSmithingMenu;
 import io.github.aspshijiu.avaritia26.inventory.InfinityChestMenu;
@@ -2709,6 +2711,103 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 			);
 			helper.assertTrue(drops.stream().mapToInt(entity -> entity.getItem().getCount()).sum() == 3,
 					"破坏炼狱工作台时没有返还持久输入");
+			helper.succeed();
+		});
+	}
+
+	@GameTest
+	public void endCraftingTableCraftsPersistsAndUsesSevenBySevenRecipes(GameTestHelper helper) {
+		helper.assertTrue(BuiltInRegistries.BLOCK.getValue(ModBlocks.END_CRAFTING_TABLE_KEY)
+				== ModBlocks.END_CRAFTING_TABLE, "末地工作台方块未注册");
+		helper.assertTrue(BuiltInRegistries.ITEM.getValue(ModBlocks.END_CRAFTING_TABLE_ITEM_KEY)
+				== ModBlocks.END_CRAFTING_TABLE_ITEM, "末地工作台物品未注册");
+		helper.assertTrue(BuiltInRegistries.BLOCK_ENTITY_TYPE.getValue(Avaritia26.id("end_crafting_table"))
+				== ModBlockEntities.END_CRAFTING_TABLE, "末地工作台方块实体未注册");
+		helper.assertTrue(BuiltInRegistries.MENU.getValue(Avaritia26.id("end_crafting"))
+				== ModMenus.END_CRAFTING, "末地工作台菜单未注册");
+
+		CraftingInput recipeInput = CraftingInput.of(5, 5, List.of(
+				new ItemStack(Items.END_CRYSTAL), new ItemStack(Blocks.END_PORTAL_FRAME), new ItemStack(Blocks.END_PORTAL_FRAME), new ItemStack(Blocks.END_PORTAL_FRAME), new ItemStack(Items.END_CRYSTAL),
+				new ItemStack(Blocks.OBSIDIAN), new ItemStack(Blocks.PURPUR_PILLAR), new ItemStack(Items.ENDER_EYE), new ItemStack(Blocks.PURPUR_PILLAR), new ItemStack(Blocks.OBSIDIAN),
+				new ItemStack(Blocks.OBSIDIAN), new ItemStack(Blocks.END_STONE_BRICKS), new ItemStack(ModBlocks.DOUBLE_COMPRESSED_CRAFTING_TABLE_ITEM), new ItemStack(Blocks.END_STONE_BRICKS), new ItemStack(Blocks.OBSIDIAN),
+				new ItemStack(Blocks.OBSIDIAN), new ItemStack(Blocks.END_STONE), new ItemStack(Blocks.ENDER_CHEST), new ItemStack(Blocks.END_STONE), new ItemStack(Blocks.OBSIDIAN),
+				new ItemStack(Items.END_CRYSTAL), new ItemStack(Items.DRAGON_BREATH), new ItemStack(Items.DRAGON_BREATH), new ItemStack(Items.DRAGON_BREATH), new ItemStack(Items.END_CRYSTAL)
+		));
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(Registries.RECIPE, Avaritia26.id("end_crafting_table"));
+		RecipeHolder<Recipe<CraftingInput>> recipe = helper.getLevel().getServer().getRecipeManager()
+				.getRecipeFor(ModRecipes.EXTREME_CRAFTING, recipeInput, helper.getLevel())
+				.filter(candidate -> candidate.id().equals(recipeKey))
+				.orElseThrow(() -> helper.assertionException("正确材料未匹配末地工作台配方"));
+		ItemStack recipeResult = recipe.value().assemble(recipeInput);
+		helper.assertTrue(recipeResult.is(ModBlocks.END_CRAFTING_TABLE_ITEM) && recipeResult.getCount() == 2,
+				"末地工作台配方应当产出两个工作台");
+		List<ItemStack> wrongRecipe = copyStacks(recipeInput.items());
+		wrongRecipe.set(12, new ItemStack(Blocks.CRAFTING_TABLE));
+		helper.assertFalse(helper.getLevel().getServer().getRecipeManager()
+				.getRecipeFor(ModRecipes.EXTREME_CRAFTING, CraftingInput.of(5, 5, wrongRecipe), helper.getLevel())
+				.filter(candidate -> candidate.id().equals(recipeKey)).isPresent(), "末地工作台配方错误接受普通工作台");
+
+		BlockPos tablePos = new BlockPos(5, 0, 5);
+		helper.setBlock(tablePos, ModBlocks.END_CRAFTING_TABLE);
+		EndCraftingTableBlockEntity table = helper.getBlockEntity(tablePos, EndCraftingTableBlockEntity.class);
+		helper.assertTrue(table.getContainerSize() == 49, "末地工作台应持久保存 7×7 输入");
+		BlockState tableState = helper.getBlockState(tablePos);
+		helper.assertTrue(tableState.getLightEmission() == 15, "末地工作台亮度错误");
+		helper.assertTrue(tableState.is(BlockTags.MINEABLE_WITH_PICKAXE), "末地工作台缺少镐类挖掘标签");
+		helper.assertTrue(tableState.getDestroySpeed(helper.getLevel(), helper.absolutePos(tablePos)) == 75.0F,
+				"末地工作台硬度错误");
+		helper.assertTrue(ModBlocks.END_CRAFTING_TABLE.getExplosionResistance() == 1500.0F,
+				"末地工作台爆炸抗性错误");
+		helper.assertTrue(tableState.getSoundType().getBreakSound() == net.minecraft.sounds.SoundEvents.END_PORTAL_FRAME_FILL,
+				"末地工作台没有使用末地传送门音效");
+		helper.assertTrue(new ItemStack(ModBlocks.END_CRAFTING_TABLE_ITEM).getRarity() == Rarity.RARE,
+				"末地工作台稀有度错误");
+
+		CraftingInput sevenBySeven = extremeCraftingTableInput();
+		for (int slot = 0; slot < 49; slot++) {
+			table.setItem(slot, sevenBySeven.items().get(slot).copy());
+		}
+		Player player = helper.makeMockServerPlayer(GameType.SURVIVAL);
+		BlockPos absoluteTablePos = helper.absolutePos(tablePos);
+		player.setPos(Vec3.atCenterOf(absoluteTablePos));
+		EndCraftingMenu menu = new EndCraftingMenu(
+				1,
+				player.getInventory(),
+				table,
+				net.minecraft.world.inventory.ContainerLevelAccess.create(helper.getLevel(), absoluteTablePos)
+		);
+		helper.assertTrue(menu.slots.size() == 86, "末地工作台菜单槽位数量错误");
+		helper.assertTrue(menu.slots.getFirst().getItem().is(ModBlocks.EXTREME_CRAFTING_TABLE_ITEM),
+				"末地工作台没有匹配 7×7 分级配方");
+		ItemStack crafted = menu.quickMoveStack(player, SculkCraftingMenu.RESULT_SLOT);
+		helper.assertTrue(crafted.is(ModBlocks.EXTREME_CRAFTING_TABLE_ITEM), "末地工作台快速合成输出错误");
+		helper.assertTrue(table.isEmpty(), "末地工作台合成后没有正确消耗 7×7 输入");
+		helper.assertTrue(player.getInventory().getNonEquipmentItems().stream()
+				.anyMatch(stack -> stack.is(ModBlocks.EXTREME_CRAFTING_TABLE_ITEM)),
+				"末地工作台快速合成没有把产物移入背包");
+
+		table.setItem(0, new ItemStack(Items.DRAGON_BREATH, 2));
+		table.setItem(48, new ItemStack(Items.ENDER_EYE));
+		BlockEntity loaded = BlockEntity.loadStatic(
+				absoluteTablePos,
+				tableState,
+				table.saveWithFullMetadata(helper.getLevel().registryAccess()),
+				helper.getLevel().registryAccess()
+		);
+		helper.assertTrue(loaded instanceof EndCraftingTableBlockEntity, "末地工作台无法从存档恢复");
+		EndCraftingTableBlockEntity loadedTable = (EndCraftingTableBlockEntity) loaded;
+		helper.assertTrue(loadedTable.getItem(0).getCount() == 2 && loadedTable.getItem(48).is(Items.ENDER_EYE),
+				"末地工作台首尾槽位存档错误");
+
+		helper.destroyBlock(tablePos);
+		helper.runAfterDelay(1, () -> {
+			List<ItemEntity> drops = helper.getLevel().getEntitiesOfClass(
+					ItemEntity.class,
+					new AABB(absoluteTablePos).inflate(2.0),
+					entity -> entity.getItem().is(Items.DRAGON_BREATH) || entity.getItem().is(Items.ENDER_EYE)
+			);
+			helper.assertTrue(drops.stream().mapToInt(entity -> entity.getItem().getCount()).sum() == 3,
+					"破坏末地工作台时没有返还持久输入");
 			helper.succeed();
 		});
 	}

@@ -121,7 +121,7 @@
 | `refined_coal_block` | 精炼煤炭块 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
 | `sculk_crafting_table` | 幽匿工作台 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
 | `nether_crafting_table` | 下界工作台 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `end_crafting_table` | 末地工作台 | 未开始 | — | — | — | — | — |
+| `end_crafting_table` | 末地工作台 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
 | `dense_neutron_collector` | 致密中子收集器 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
 | `denser_neutron_collector` | 更致密中子收集器 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
 | `densest_neutron_collector` | 最致密中子收集器 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |

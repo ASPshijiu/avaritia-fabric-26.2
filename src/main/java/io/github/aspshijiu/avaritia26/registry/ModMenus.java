@@ -2,6 +2,7 @@ package io.github.aspshijiu.avaritia26.registry;
 
 import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.inventory.CompressedChestMenu;
+import io.github.aspshijiu.avaritia26.inventory.EndCraftingMenu;
 import io.github.aspshijiu.avaritia26.inventory.ExtremeCraftingMenu;
 import io.github.aspshijiu.avaritia26.inventory.ExtremeSmithingMenu;
 import io.github.aspshijiu.avaritia26.inventory.InfinityChestMenu;
@@ -44,6 +45,11 @@ public final class ModMenus {
 			BuiltInRegistries.MENU,
 			Avaritia26.id("nether_crafting"),
 			new ExtendedMenuType<>(NetherCraftingMenu::new, BlockPos.STREAM_CODEC)
+	);
+	public static final ExtendedMenuType<EndCraftingMenu, BlockPos> END_CRAFTING = Registry.register(
+			BuiltInRegistries.MENU,
+			Avaritia26.id("end_crafting"),
+			new ExtendedMenuType<>(EndCraftingMenu::new, BlockPos.STREAM_CODEC)
 	);
 	public static final ExtendedMenuType<ExtremeSmithingMenu, BlockPos> EXTREME_SMITHING = Registry.register(
 			BuiltInRegistries.MENU,

@@ -4,6 +4,7 @@ import java.util.Set;
 
 import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.block.entity.CompressedChestBlockEntity;
+import io.github.aspshijiu.avaritia26.block.entity.EndCraftingTableBlockEntity;
 import io.github.aspshijiu.avaritia26.block.entity.ExtremeCraftingTableBlockEntity;
 import io.github.aspshijiu.avaritia26.block.entity.InfinityChestBlockEntity;
 import io.github.aspshijiu.avaritia26.block.entity.NetherCraftingTableBlockEntity;
@@ -54,6 +55,11 @@ public final class ModBlockEntities {
 			BuiltInRegistries.BLOCK_ENTITY_TYPE,
 			Avaritia26.id("nether_crafting_table"),
 			new BlockEntityType<>(NetherCraftingTableBlockEntity::new, Set.of(ModBlocks.NETHER_CRAFTING_TABLE))
+	);
+	public static final BlockEntityType<EndCraftingTableBlockEntity> END_CRAFTING_TABLE = Registry.register(
+			BuiltInRegistries.BLOCK_ENTITY_TYPE,
+			Avaritia26.id("end_crafting_table"),
+			new BlockEntityType<>(EndCraftingTableBlockEntity::new, Set.of(ModBlocks.END_CRAFTING_TABLE))
 	);
 	public static final BlockEntityType<InfinityChestBlockEntity> INFINITY_CHEST = Registry.register(
 			BuiltInRegistries.BLOCK_ENTITY_TYPE,

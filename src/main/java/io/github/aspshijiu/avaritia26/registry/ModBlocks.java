@@ -2,6 +2,7 @@ package io.github.aspshijiu.avaritia26.registry;
 
 import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.block.CompressedChestBlock;
+import io.github.aspshijiu.avaritia26.block.EndCraftingTableBlock;
 import io.github.aspshijiu.avaritia26.block.ExtremeCraftingTableBlock;
 import io.github.aspshijiu.avaritia26.block.ExtremeSmithingTableBlock;
 import io.github.aspshijiu.avaritia26.block.InfinityChestBlock;
@@ -14,6 +15,7 @@ import net.fabricmc.fabric.api.registry.FuelValueEvents;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
@@ -25,6 +27,16 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 
 public final class ModBlocks {
+	private static final SoundType END_PORTAL_SOUND = new SoundType(
+			1.0F,
+			1.0F,
+			SoundEvents.END_PORTAL_FRAME_FILL,
+			SoundEvents.END_PORTAL_FRAME_FILL,
+			SoundEvents.END_PORTAL_FRAME_FILL,
+			SoundEvents.END_PORTAL_FRAME_FILL,
+			SoundEvents.END_PORTAL_FRAME_FILL
+	);
+
 	public static final ResourceKey<Block> COMPRESSED_CHEST_KEY = blockKey("compressed_chest");
 	public static final Block COMPRESSED_CHEST = Registry.register(
 			BuiltInRegistries.BLOCK,
@@ -425,6 +437,27 @@ public final class ModBlocks {
 			new BlockItem(
 					NETHER_CRAFTING_TABLE,
 					new Item.Properties().setId(NETHER_CRAFTING_TABLE_ITEM_KEY).rarity(Rarity.UNCOMMON)
+			)
+	);
+	public static final ResourceKey<Block> END_CRAFTING_TABLE_KEY = blockKey("end_crafting_table");
+	public static final Block END_CRAFTING_TABLE = Registry.register(
+			BuiltInRegistries.BLOCK,
+			END_CRAFTING_TABLE_KEY,
+			new EndCraftingTableBlock(BlockBehaviour.Properties.of()
+					.setId(END_CRAFTING_TABLE_KEY)
+					.mapColor(MapColor.METAL)
+					.sound(END_PORTAL_SOUND)
+					.strength(75.0F, 1500.0F)
+					.lightLevel(state -> 15)
+					.requiresCorrectToolForDrops())
+	);
+	public static final ResourceKey<Item> END_CRAFTING_TABLE_ITEM_KEY = itemKey("end_crafting_table");
+	public static final BlockItem END_CRAFTING_TABLE_ITEM = Registry.register(
+			BuiltInRegistries.ITEM,
+			END_CRAFTING_TABLE_ITEM_KEY,
+			new BlockItem(
+					END_CRAFTING_TABLE,
+					new Item.Properties().setId(END_CRAFTING_TABLE_ITEM_KEY).rarity(Rarity.RARE)
 			)
 	);
 	public static final ResourceKey<Block> EXTREME_CRAFTING_TABLE_KEY = blockKey("extreme_crafting_table");
