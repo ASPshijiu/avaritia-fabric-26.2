@@ -4,6 +4,8 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import io.github.aspshijiu.avaritia26.Avaritia26;
+import io.github.aspshijiu.avaritia26.crafting.ExtremeShapedRecipe;
+import io.github.aspshijiu.avaritia26.crafting.ModRecipes;
 import io.github.aspshijiu.avaritia26.registry.ModBlocks;
 import io.github.aspshijiu.avaritia26.registry.ModItems;
 import net.fabricmc.fabric.api.gametest.v1.CustomTestMethodInvoker;
@@ -13,6 +15,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
@@ -256,6 +259,35 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 				ModBlocks.COMPRESSED_CRAFTING_TABLE_ITEM,
 				9
 		);
+		helper.succeed();
+	}
+
+	@GameTest
+	public void extremeShapedRecipeSupportsNineByNine(GameTestHelper helper) {
+		List<ItemStack> stacks = new java.util.ArrayList<>(java.util.Collections.nCopies(81, ItemStack.EMPTY));
+		stacks.set(0, new ItemStack(Items.DIAMOND));
+		stacks.set(8, new ItemStack(Items.DIAMOND));
+		stacks.set(40, new ItemStack(Items.NETHERITE_SCRAP));
+		stacks.set(72, new ItemStack(Items.DIAMOND));
+		stacks.set(80, new ItemStack(Items.DIAMOND));
+		CraftingInput input = CraftingInput.of(9, 9, stacks);
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(
+				Registries.RECIPE,
+				Identifier.fromNamespaceAndPath("avaritia26-gametest", "extreme_shaped_test")
+		);
+		RecipeHolder<ExtremeShapedRecipe> recipe = helper.getLevel().getServer().getRecipeManager()
+				.getRecipeFor(ModRecipes.EXTREME_CRAFTING, input, helper.getLevel())
+				.orElseThrow(() -> helper.assertionException("9x9 有序测试配方未匹配"));
+		helper.assertTrue(recipe.id().equals(recipeKey), "9x9 输入匹配到了错误配方");
+		ItemStack result = recipe.value().assemble(input);
+		helper.assertTrue(result.is(ModItems.DIAMOND_LATTICE) && result.getCount() == 1, "9x9 配方输出错误");
+
+		stacks.set(1, new ItemStack(Items.DIAMOND));
+		CraftingInput extraInput = CraftingInput.of(9, 9, stacks);
+		boolean extraMatches = helper.getLevel().getServer().getRecipeManager()
+				.getRecipeFor(ModRecipes.EXTREME_CRAFTING, extraInput, helper.getLevel())
+				.isPresent();
+		helper.assertFalse(extraMatches, "9x9 有序配方不应接受额外材料");
 		helper.succeed();
 	}
 

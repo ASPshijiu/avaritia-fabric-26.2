@@ -1,0 +1,22 @@
+{
+  "type": "avaritia26:extreme_shaped",
+  "key": {
+    "d": "minecraft:diamond",
+    "n": "minecraft:netherite_scrap"
+  },
+  "pattern": [
+    "d       d",
+    "         ",
+    "         ",
+    "         ",
+    "    n    ",
+    "         ",
+    "         ",
+    "         ",
+    "d       d"
+  ],
+  "result": {
+    "count": 1,
+    "id": "avaritia26:diamond_lattice"
+  }
+}

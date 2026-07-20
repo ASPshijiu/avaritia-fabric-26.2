@@ -1,0 +1,31 @@
+package io.github.aspshijiu.avaritia26.crafting;
+
+import io.github.aspshijiu.avaritia26.Avaritia26;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
+
+public final class ModRecipes {
+	public static final RecipeType<ExtremeShapedRecipe> EXTREME_CRAFTING = Registry.register(
+			BuiltInRegistries.RECIPE_TYPE,
+			Avaritia26.id("extreme_crafting"),
+			new RecipeType<>() {
+				@Override
+				public String toString() {
+					return Avaritia26.id("extreme_crafting").toString();
+				}
+			}
+	);
+	public static final RecipeSerializer<ExtremeShapedRecipe> EXTREME_SHAPED_SERIALIZER = Registry.register(
+			BuiltInRegistries.RECIPE_SERIALIZER,
+			Avaritia26.id("extreme_shaped"),
+			new RecipeSerializer<>(ExtremeShapedRecipe.CODEC, ExtremeShapedRecipe.STREAM_CODEC)
+	);
+
+	private ModRecipes() {
+	}
+
+	public static void initialize() {
+	}
+}

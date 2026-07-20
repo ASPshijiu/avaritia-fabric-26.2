@@ -1,5 +1,6 @@
 package io.github.aspshijiu.avaritia26;
 
+import io.github.aspshijiu.avaritia26.crafting.ModRecipes;
 import io.github.aspshijiu.avaritia26.registry.ModBlocks;
 import io.github.aspshijiu.avaritia26.registry.ModCreativeTabs;
 import io.github.aspshijiu.avaritia26.registry.ModItems;
@@ -14,6 +15,7 @@ public final class Avaritia26 implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
+		ModRecipes.initialize();
 		ModItems.initialize();
 		ModBlocks.initialize();
 		ModCreativeTabs.initialize();

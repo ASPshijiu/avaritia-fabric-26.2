@@ -144,7 +144,7 @@
 - `fake_end_portal_frame`：终局工具效果使用的内部方块。
 - `fake_end_portal`：终局工具效果使用的内部方块。
 - 无尽箭矢/三叉戟等自定义实体。
-- 菜单、方块实体、RecipeType、RecipeSerializer、DataComponent、payload 与渲染器。
+- 菜单、方块实体、RecipeType、RecipeSerializer、DataComponent、payload 与渲染器。其中 9×9 `extreme_crafting` / `extreme_shaped` 配方核心为实现中，81 槽正确匹配、产出与额外材料拒绝已通过 GameTest。
 
 ## 每项验收方法
 
