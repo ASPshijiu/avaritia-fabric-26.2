@@ -44,6 +44,11 @@ public final class ModRecipes {
 			Avaritia26.id("extreme_shapeless"),
 			new RecipeSerializer<>(ExtremeShapelessRecipe.CODEC, ExtremeShapelessRecipe.STREAM_CODEC)
 	);
+	public static final RecipeSerializer<NoConsumeCatalystShapedRecipe> NO_CONSUME_CATALYST_SHAPED_SERIALIZER = Registry.register(
+			BuiltInRegistries.RECIPE_SERIALIZER,
+			Avaritia26.id("no_consume_catalyst_shaped"),
+			new RecipeSerializer<>(NoConsumeCatalystShapedRecipe.CODEC, NoConsumeCatalystShapedRecipe.STREAM_CODEC)
+	);
 	public static final RecipeSerializer<FullMatterClusterRecipe> FULL_MATTER_CLUSTER_SERIALIZER = Registry.register(
 			BuiltInRegistries.RECIPE_SERIALIZER,
 			Avaritia26.id("full_matter_cluster"),

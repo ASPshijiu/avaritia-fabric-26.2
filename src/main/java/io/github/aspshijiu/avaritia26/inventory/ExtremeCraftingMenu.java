@@ -5,6 +5,7 @@ import java.util.List;
 
 import io.github.aspshijiu.avaritia26.block.entity.ExtremeCraftingTableBlockEntity;
 import io.github.aspshijiu.avaritia26.crafting.ModRecipes;
+import io.github.aspshijiu.avaritia26.crafting.NoConsumeCatalystShapedRecipe;
 import io.github.aspshijiu.avaritia26.registry.ModBlocks;
 import io.github.aspshijiu.avaritia26.registry.ModMenus;
 import net.minecraft.core.BlockPos;
@@ -115,7 +116,9 @@ public final class ExtremeCraftingMenu extends AbstractContainerMenu {
 		}
 		result.onCraftedBy(player, craftedCount);
 		resultSlots.awardUsedRecipes(player, craftSlots.getItems());
-		NonNullList<ItemStack> remaining = CraftingRecipe.defaultCraftingReminder(currentInput.input());
+		NonNullList<ItemStack> remaining = currentRecipe.value() instanceof NoConsumeCatalystShapedRecipe recipe
+				? recipe.getRemainingItems(currentInput.input())
+				: CraftingRecipe.defaultCraftingReminder(currentInput.input());
 		consuming = true;
 		try {
 			for (int row = 0; row < currentInput.input().height(); row++) {

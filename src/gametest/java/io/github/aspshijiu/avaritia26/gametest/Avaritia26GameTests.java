@@ -14,6 +14,7 @@ import io.github.aspshijiu.avaritia26.block.entity.ExtremeCraftingTableBlockEnti
 import io.github.aspshijiu.avaritia26.block.entity.NeutronCollectorBlockEntity;
 import io.github.aspshijiu.avaritia26.block.entity.NeutronCompressorBlockEntity;
 import io.github.aspshijiu.avaritia26.crafting.ModRecipes;
+import io.github.aspshijiu.avaritia26.crafting.NoConsumeCatalystShapedRecipe;
 import io.github.aspshijiu.avaritia26.entity.EndestPearlEntity;
 import io.github.aspshijiu.avaritia26.entity.GapingVoidEntity;
 import io.github.aspshijiu.avaritia26.entity.HeavenArrowEntity;
@@ -42,6 +43,7 @@ import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -71,6 +73,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.SmithingTemplateItem;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.Consumable;
 import net.minecraft.world.item.component.CustomModelData;
@@ -348,6 +351,100 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		CraftingInput input = enhancementCoreInput();
 		assertExtremeRecipe(helper, "enhancement_core", input, ModItems.ENHANCEMENT_CORE);
 		assertWrongExtremeRecipe(helper, "enhancement_core", input, "强化核心不应接受错误材料");
+		helper.succeed();
+	}
+
+	@GameTest
+	public void upgradeSmithingTemplateCraftsAndDuplicates(GameTestHelper helper) {
+		helper.assertTrue(
+				BuiltInRegistries.ITEM.getValue(ModItems.UPGRADE_SMITHING_TEMPLATE_KEY)
+						== ModItems.UPGRADE_SMITHING_TEMPLATE,
+				"强化锻造模板没有注册到预期的 ResourceKey"
+		);
+		helper.assertTrue(
+				ModItems.UPGRADE_SMITHING_TEMPLATE instanceof SmithingTemplateItem template
+						&& template.getBaseSlotEmptyIcons().size() == 5
+						&& template.getBaseSlotEmptyIcons().contains(Identifier.withDefaultNamespace("container/slot/sword"))
+						&& template.getAdditionalSlotEmptyIcons().equals(
+								List.of(Identifier.withDefaultNamespace("container/slot/ingot"))
+						),
+				"强化锻造模板的工具与方块槽位提示错误"
+		);
+
+		CraftingInput craftingInput = upgradeSmithingTemplateInput();
+		assertExtremeRecipe(
+				helper,
+				"upgrade_smithing_template",
+				craftingInput,
+				ModItems.UPGRADE_SMITHING_TEMPLATE
+		);
+		assertWrongExtremeRecipe(
+				helper,
+				"upgrade_smithing_template",
+				craftingInput,
+				"强化锻造模板初次配方不应接受错误材料"
+		);
+
+		CraftingInput duplicateInput = upgradeSmithingTemplateDuplicateInput();
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(
+				Registries.RECIPE,
+				Avaritia26.id("upgrade_smithing_template_too")
+		);
+		RecipeHolder<Recipe<CraftingInput>> duplicateRecipe = helper.getLevel().getServer().getRecipeManager()
+				.getRecipeFor(ModRecipes.EXTREME_CRAFTING, duplicateInput, helper.getLevel())
+				.orElseThrow(() -> helper.assertionException("未匹配强化锻造模板复制配方"));
+		helper.assertTrue(duplicateRecipe.id().equals(recipeKey), "强化锻造模板复制时匹配到了错误配方");
+		ItemStack result = duplicateRecipe.value().assemble(duplicateInput);
+		helper.assertTrue(result.is(ModItems.UPGRADE_SMITHING_TEMPLATE) && result.getCount() == 2, "强化锻造模板复制输出错误");
+		helper.assertTrue(duplicateRecipe.value() instanceof NoConsumeCatalystShapedRecipe, "复制配方没有使用催化剂保留类型");
+		NoConsumeCatalystShapedRecipe recipe = (NoConsumeCatalystShapedRecipe) duplicateRecipe.value();
+		NonNullList<ItemStack> remaining = recipe.getRemainingItems(duplicateInput);
+		for (int slot = 0; slot < duplicateInput.size(); slot++) {
+			if (duplicateInput.getItem(slot).is(ModItems.INFINITY_CATALYST)) {
+				helper.assertTrue(remaining.get(slot).is(ModItems.INFINITY_CATALYST), "复制配方消耗了无尽催化剂");
+			} else {
+				helper.assertTrue(remaining.get(slot).isEmpty(), "复制配方错误保留了其他材料");
+			}
+		}
+		helper.assertTrue(remaining.stream().filter(stack -> !stack.isEmpty()).count() == 8, "复制配方应当保留 8 个无尽催化剂");
+
+		BlockPos tablePos = new BlockPos(5, 0, 5);
+		helper.setBlock(tablePos, ModBlocks.EXTREME_CRAFTING_TABLE);
+		ExtremeCraftingTableBlockEntity table = helper.getBlockEntity(tablePos, ExtremeCraftingTableBlockEntity.class);
+		for (int row = 0; row < duplicateInput.height(); row++) {
+			for (int column = 0; column < duplicateInput.width(); column++) {
+				table.setItem(column + row * 9, duplicateInput.getItem(column, row).copy());
+			}
+		}
+		Player player = helper.makeMockServerPlayer(GameType.SURVIVAL);
+		ExtremeCraftingMenu menu = (ExtremeCraftingMenu) table.createMenu(1, player.getInventory(), player);
+		menu.slotsChanged(table);
+		ItemStack menuResult = menu.getSlot(ExtremeCraftingMenu.RESULT_SLOT).getItem();
+		helper.assertTrue(
+				menuResult.is(ModItems.UPGRADE_SMITHING_TEMPLATE) && menuResult.getCount() == 2,
+				"终极工作台没有显示两个复制模板，实际结果：" + menuResult
+		);
+		ItemStack taken = menu.getSlot(ExtremeCraftingMenu.RESULT_SLOT).remove(menuResult.getCount());
+		menu.getSlot(ExtremeCraftingMenu.RESULT_SLOT).onTake(player, taken);
+		for (int row = 0; row < 9; row++) {
+			for (int column = 0; column < 9; column++) {
+				ItemStack stored = menu.getSlot(column + row * 9 + ExtremeCraftingMenu.INPUT_SLOT_START).getItem();
+				ItemStack source = row < duplicateInput.height() && column < duplicateInput.width()
+						? duplicateInput.getItem(column, row) : ItemStack.EMPTY;
+				if (source.is(ModItems.INFINITY_CATALYST)) {
+					helper.assertTrue(stored.is(ModItems.INFINITY_CATALYST) && stored.getCount() == 1, "终极工作台实际消耗了无尽催化剂");
+				} else {
+					helper.assertTrue(stored.isEmpty(), "终极工作台实际复制后仍残留普通材料");
+				}
+			}
+		}
+		menu.removed(player);
+		assertWrongExtremeRecipe(
+				helper,
+				"upgrade_smithing_template_too",
+				duplicateInput,
+				"强化锻造模板复制配方不应接受错误材料"
+		);
 		helper.succeed();
 	}
 
@@ -2722,6 +2819,84 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 					case 'X' -> new ItemStack(ModItems.INFINITY_CATALYST);
 					case ' ' -> ItemStack.EMPTY;
 					default -> throw new IllegalArgumentException("未知强化核心配方符号: " + symbol);
+				};
+				stacks.add(stack);
+			}
+		}
+		return CraftingInput.of(9, 9, stacks);
+	}
+
+	private static CraftingInput upgradeSmithingTemplateInput() {
+		List<ItemStack> stacks = new java.util.ArrayList<>(81);
+		for (String row : List.of(
+				" aaabaaa ",
+				" accecca ",
+				" acefeca ",
+				"dijkelmnd",
+				"dogphqgrd",
+				"dstufvwxd",
+				" acdfdca ",
+				" accecca ",
+				" aaabaaa "
+		)) {
+			for (char symbol : row.toCharArray()) {
+				ItemStack stack = switch (symbol) {
+					case 'a' -> new ItemStack(ModItems.CRYSTAL_MATRIX_INGOT);
+					case 'b' -> new ItemStack(ModBlocks.CRYSTAL_MATRIX_ITEM);
+					case 'c' -> new ItemStack(ModItems.NEUTRON_INGOT);
+					case 'd' -> new ItemStack(ModItems.NEUTRON_PILE);
+					case 'e' -> new ItemStack(ModItems.INFINITY_NUGGET);
+					case 'f' -> new ItemStack(ModItems.INFINITY_INGOT);
+					case 'g' -> new ItemStack(ModItems.INFINITY_CATALYST);
+					case 'h' -> new ItemStack(Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE);
+					case 'i' -> new ItemStack(Items.SENTRY_ARMOR_TRIM_SMITHING_TEMPLATE);
+					case 'j' -> new ItemStack(Items.DUNE_ARMOR_TRIM_SMITHING_TEMPLATE);
+					case 'k' -> new ItemStack(Items.COAST_ARMOR_TRIM_SMITHING_TEMPLATE);
+					case 'l' -> new ItemStack(Items.WILD_ARMOR_TRIM_SMITHING_TEMPLATE);
+					case 'm' -> new ItemStack(Items.WARD_ARMOR_TRIM_SMITHING_TEMPLATE);
+					case 'n' -> new ItemStack(Items.EYE_ARMOR_TRIM_SMITHING_TEMPLATE);
+					case 'o' -> new ItemStack(Items.VEX_ARMOR_TRIM_SMITHING_TEMPLATE);
+					case 'p' -> new ItemStack(Items.TIDE_ARMOR_TRIM_SMITHING_TEMPLATE);
+					case 'q' -> new ItemStack(Items.SNOUT_ARMOR_TRIM_SMITHING_TEMPLATE);
+					case 'r' -> new ItemStack(Items.RIB_ARMOR_TRIM_SMITHING_TEMPLATE);
+					case 's' -> new ItemStack(Items.SPIRE_ARMOR_TRIM_SMITHING_TEMPLATE);
+					case 't' -> new ItemStack(Items.WAYFINDER_ARMOR_TRIM_SMITHING_TEMPLATE);
+					case 'u' -> new ItemStack(Items.SHAPER_ARMOR_TRIM_SMITHING_TEMPLATE);
+					case 'v' -> new ItemStack(Items.SILENCE_ARMOR_TRIM_SMITHING_TEMPLATE);
+					case 'w' -> new ItemStack(Items.RAISER_ARMOR_TRIM_SMITHING_TEMPLATE);
+					case 'x' -> new ItemStack(Items.HOST_ARMOR_TRIM_SMITHING_TEMPLATE);
+					case ' ' -> ItemStack.EMPTY;
+					default -> throw new IllegalArgumentException("未知强化锻造模板配方符号: " + symbol);
+				};
+				stacks.add(stack);
+			}
+		}
+		return CraftingInput.of(9, 9, stacks);
+	}
+
+	private static CraftingInput upgradeSmithingTemplateDuplicateInput() {
+		List<ItemStack> stacks = new java.util.ArrayList<>(81);
+		for (String row : List.of(
+				"         ",
+				" abbbbba ",
+				" bdcccdb ",
+				" bceeecb ",
+				" bcefecb ",
+				" bceeecb ",
+				" bdcccdb ",
+				" abbbbba ",
+				"         "
+		)) {
+			for (char symbol : row.toCharArray()) {
+				ItemStack stack = switch (symbol) {
+					case 'a' -> new ItemStack(ModBlocks.CRYSTAL_MATRIX_ITEM);
+					case 'b' -> new ItemStack(ModItems.CRYSTAL_MATRIX_INGOT);
+					case 'c' -> new ItemStack(ModItems.NEUTRON_INGOT);
+					case 'd' -> new ItemStack(ModItems.NEUTRON_PILE);
+					case 'e' -> new ItemStack(ModItems.INFINITY_CATALYST);
+					case 'f' -> new ItemStack(ModItems.UPGRADE_SMITHING_TEMPLATE);
+					case ' ' -> ItemStack.EMPTY;
+					default -> throw new IllegalArgumentException("未知强化锻造模板复制配方符号: " + symbol);
 				};
 				stacks.add(stack);
 			}

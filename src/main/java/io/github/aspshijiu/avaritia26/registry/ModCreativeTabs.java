@@ -40,6 +40,7 @@ public final class ModCreativeTabs {
 				output.accept(ModItems.INFINITY_INGOT);
 				output.accept(ModItems.INFINITY_NUGGET);
 				output.accept(ModItems.ENHANCEMENT_CORE);
+				output.accept(ModItems.UPGRADE_SMITHING_TEMPLATE);
 				output.accept(ModBlocks.INFINITY_ITEM);
 				output.accept(ModItems.DIAMOND_LATTICE);
 				output.accept(ModItems.CRYSTAL_MATRIX_INGOT);

@@ -1,5 +1,6 @@
 package io.github.aspshijiu.avaritia26.registry;
 
+import java.util.List;
 import java.util.function.Function;
 
 import io.github.aspshijiu.avaritia26.Avaritia26;
@@ -16,15 +17,19 @@ import io.github.aspshijiu.avaritia26.item.MatterClusterItem;
 import io.github.aspshijiu.avaritia26.item.SingularityItem;
 import io.github.aspshijiu.avaritia26.item.SkullFireSwordItem;
 import io.github.aspshijiu.avaritia26.item.TooltipItem;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.SmithingTemplateItem;
 import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.Weapon;
@@ -170,6 +175,12 @@ public final class ModItems {
 			properties -> new TooltipItem(properties, "tooltip.avaritia26.enhancement_core"),
 			new Item.Properties().rarity(Rarity.EPIC).fireResistant()
 	);
+	public static final ResourceKey<Item> UPGRADE_SMITHING_TEMPLATE_KEY = key("upgrade_smithing_template");
+	public static final Item UPGRADE_SMITHING_TEMPLATE = register(
+			UPGRADE_SMITHING_TEMPLATE_KEY,
+			ModItems::upgradeSmithingTemplate,
+			new Item.Properties()
+	);
 	public static final ResourceKey<Item> SINGULARITY_KEY = key("singularity");
 	public static final Item SINGULARITY = register(
 			SINGULARITY_KEY,
@@ -306,6 +317,25 @@ public final class ModItems {
 						EquipmentSlotGroup.MAINHAND
 				)
 				.build();
+	}
+
+	private static SmithingTemplateItem upgradeSmithingTemplate(Item.Properties properties) {
+		Component name = Component.translatable("item.avaritia26.upgrade_smithing_template");
+		return new SmithingTemplateItem(
+				name.copy().withStyle(ChatFormatting.BLUE),
+				name.copy().withStyle(ChatFormatting.GRAY),
+				name,
+				name,
+				List.of(
+						Identifier.withDefaultNamespace("container/slot/sword"),
+						Identifier.withDefaultNamespace("container/slot/pickaxe"),
+						Identifier.withDefaultNamespace("container/slot/axe"),
+						Identifier.withDefaultNamespace("container/slot/hoe"),
+						Identifier.withDefaultNamespace("container/slot/shovel")
+				),
+				List.of(Identifier.withDefaultNamespace("container/slot/ingot")),
+				properties
+		);
 	}
 
 	private static ResourceKey<Item> key(String path) {

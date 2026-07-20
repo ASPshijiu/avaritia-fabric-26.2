@@ -105,7 +105,7 @@
 | `refined_coal` | 精炼煤炭 | 未开始 | — | — | — | — | — |
 | `full_matter_cluster` | 满物质团 | 实现中 | 实现中 | 不适用 | 实现中 | — | — |
 | `enhancement_core` | 强化核心 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `upgrade_smithing_template` | 强化锻造模板 | 未开始 | — | — | — | — | — |
+| `upgrade_smithing_template` | 强化锻造模板 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
 | `infinity_upgrade` | 无尽升级件 | 未开始 | — | — | — | — | — |
 | `forge_energy` | 能量占位物品 | 未开始 | — | — | — | — | — |
 
