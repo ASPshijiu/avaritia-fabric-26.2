@@ -326,6 +326,32 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	}
 
 	@GameTest
+	public void enhancementCoreCraftsWithExactPattern(GameTestHelper helper) {
+		ItemStack core = new ItemStack(ModItems.ENHANCEMENT_CORE);
+		helper.assertTrue(
+				BuiltInRegistries.ITEM.getValue(ModItems.ENHANCEMENT_CORE_KEY) == ModItems.ENHANCEMENT_CORE,
+				"强化核心没有注册到预期的 ResourceKey"
+		);
+		helper.assertTrue(core.getMaxStackSize() == 64, "强化核心应当堆叠 64 个");
+		helper.assertTrue(core.getRarity() == Rarity.EPIC, "强化核心应当使用原版最高 EPIC 稀有度");
+		helper.assertTrue(core.has(DataComponents.DAMAGE_RESISTANT), "强化核心应当具有防火伤害抗性组件");
+		List<Component> tooltip = new java.util.ArrayList<>();
+		ModItems.ENHANCEMENT_CORE.appendHoverText(
+				core,
+				Item.TooltipContext.of(helper.getLevel()),
+				TooltipDisplay.DEFAULT,
+				tooltip::add,
+				TooltipFlag.NORMAL
+		);
+		helper.assertTrue(tooltip.size() == 1 && tooltip.getFirst().getStyle().isItalic(), "强化核心缺少经典斜体说明");
+
+		CraftingInput input = enhancementCoreInput();
+		assertExtremeRecipe(helper, "enhancement_core", input, ModItems.ENHANCEMENT_CORE);
+		assertWrongExtremeRecipe(helper, "enhancement_core", input, "强化核心不应接受错误材料");
+		helper.succeed();
+	}
+
+	@GameTest
 	public void infinityIngotAndBlockResourceChainWorks(GameTestHelper helper) {
 		ItemStack ingot = new ItemStack(ModItems.INFINITY_INGOT);
 		helper.assertTrue(
@@ -2670,6 +2696,37 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 				new ItemStack(item), new ItemStack(item), new ItemStack(item),
 				new ItemStack(item), new ItemStack(item), new ItemStack(item)
 		));
+	}
+
+	private static CraftingInput enhancementCoreInput() {
+		List<ItemStack> stacks = new java.util.ArrayList<>(81);
+		for (String row : List.of(
+				"   PPP   ",
+				" NPCCCPN ",
+				" PABBBAP ",
+				"PCBBXBBCP",
+				"PCBXEXBCP",
+				"PCBBXBBCP",
+				" PABBBAP ",
+				" NPCCCPN ",
+				"   PPP   "
+		)) {
+			for (char symbol : row.toCharArray()) {
+				ItemStack stack = switch (symbol) {
+					case 'A' -> new ItemStack(ModBlocks.CRYSTAL_MATRIX_ITEM);
+					case 'B' -> new ItemStack(ModItems.INFINITY_NUGGET);
+					case 'C' -> new ItemStack(ModItems.CRYSTAL_MATRIX_INGOT);
+					case 'E' -> new ItemStack(ModItems.ENDEST_PEARL);
+					case 'N' -> new ItemStack(ModItems.NEUTRON_INGOT);
+					case 'P' -> new ItemStack(ModItems.NEUTRON_PILE);
+					case 'X' -> new ItemStack(ModItems.INFINITY_CATALYST);
+					case ' ' -> ItemStack.EMPTY;
+					default -> throw new IllegalArgumentException("未知强化核心配方符号: " + symbol);
+				};
+				stacks.add(stack);
+			}
+		}
+		return CraftingInput.of(9, 9, stacks);
 	}
 
 	private static CraftingInput blazeCubeInput() {

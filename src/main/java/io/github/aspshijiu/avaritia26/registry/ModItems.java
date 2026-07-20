@@ -164,6 +164,12 @@ public final class ModItems {
 			properties -> new TooltipItem(properties, "tooltip.avaritia26.infinity_nugget"),
 			new Item.Properties().rarity(Rarity.EPIC).fireResistant()
 	);
+	public static final ResourceKey<Item> ENHANCEMENT_CORE_KEY = key("enhancement_core");
+	public static final Item ENHANCEMENT_CORE = register(
+			ENHANCEMENT_CORE_KEY,
+			properties -> new TooltipItem(properties, "tooltip.avaritia26.enhancement_core"),
+			new Item.Properties().rarity(Rarity.EPIC).fireResistant()
+	);
 	public static final ResourceKey<Item> SINGULARITY_KEY = key("singularity");
 	public static final Item SINGULARITY = register(
 			SINGULARITY_KEY,

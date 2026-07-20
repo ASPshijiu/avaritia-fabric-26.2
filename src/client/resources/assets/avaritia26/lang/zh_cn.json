@@ -17,6 +17,7 @@
 	"item.avaritia26.cosmic_meatballs": "寰宇肉丸",
 	"item.avaritia26.diamond_lattice": "钻石晶格",
 	"item.avaritia26.endest_pearl": "终望珍珠",
+	"item.avaritia26.enhancement_core": "无瑕核心",
 	"item.avaritia26.eternal_singularity": "永恒奇点",
 	"item.avaritia26.full_matter_cluster": "满物质团",
 	"item.avaritia26.infinity_axe": "自然荒芜之斧",
@@ -61,5 +62,6 @@
 	"tooltip.avaritia26.matter_cluster.counter": "已存物品：%s / %s",
 	"tooltip.avaritia26.matter_cluster.more": "……以及另外 %s 组物品",
 	"tooltip.avaritia26.infinity_nugget": "圣灵的眼泪……",
+	"tooltip.avaritia26.enhancement_core": "补全之路！",
 	"tooltip.avaritia26.skull_fire_sword": "斩骷髅首级，后烧至焦黑。"
 }

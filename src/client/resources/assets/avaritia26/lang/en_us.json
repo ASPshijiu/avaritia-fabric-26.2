@@ -17,6 +17,7 @@
 	"item.avaritia26.cosmic_meatballs": "Cosmic Meatballs",
 	"item.avaritia26.diamond_lattice": "Diamond Lattice",
 	"item.avaritia26.endest_pearl": "Endest Pearl",
+	"item.avaritia26.enhancement_core": "Enhancement Core",
 	"item.avaritia26.eternal_singularity": "Eternal Singularity",
 	"item.avaritia26.full_matter_cluster": "Full Matter Cluster",
 	"item.avaritia26.infinity_axe": "Nature's Ruin",
@@ -61,5 +62,6 @@
 	"tooltip.avaritia26.matter_cluster.counter": "Stored items: %s / %s",
 	"tooltip.avaritia26.matter_cluster.more": "...and %s more stacks",
 	"tooltip.avaritia26.infinity_nugget": "Angel's tears...",
+	"tooltip.avaritia26.enhancement_core": "The road to completion!",
 	"tooltip.avaritia26.skull_fire_sword": "Beheads skeletons and scorches them black."
 }

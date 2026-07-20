@@ -1,0 +1,28 @@
+{
+	"type": "avaritia26:extreme_shaped",
+	"category": "misc",
+	"key": {
+		"A": "avaritia26:crystal_matrix",
+		"B": "avaritia26:infinity_nugget",
+		"C": "avaritia26:crystal_matrix_ingot",
+		"E": "avaritia26:endest_pearl",
+		"N": "avaritia26:neutron_ingot",
+		"P": "avaritia26:neutron_pile",
+		"X": "avaritia26:infinity_catalyst"
+	},
+	"pattern": [
+		"   PPP   ",
+		" NPCCCPN ",
+		" PABBBAP ",
+		"PCBBXBBCP",
+		"PCBXEXBCP",
+		"PCBBXBBCP",
+		" PABBBAP ",
+		" NPCCCPN ",
+		"   PPP   "
+	],
+	"result": {
+		"count": 1,
+		"id": "avaritia26:enhancement_core"
+	}
+}
