@@ -60,4 +60,5 @@
 - `src/client/resources/assets/avaritia26/textures/item/crystal_matrix_ingot.png` ← Re:Avaritia `src/main/resources/assets/avaritia/textures/item/resource/crystal/crystal_matrix_ingot.png`，commit `c331b7f4838667e6200b24c99dc45459e0b9dafb`，CC BY-NC-SA 4.0，像素未修改。
 - `src/client/resources/assets/avaritia26/textures/item/neutron_pile.png`、`neutron_nugget.png`、`neutron_ingot.png` ← Re:Avaritia 同名 `src/main/resources/assets/avaritia/textures/item/resource/neutron/` 素材，commit `c331b7f4838667e6200b24c99dc45459e0b9dafb`，CC BY-NC-SA 4.0，像素未修改。
 - `src/client/resources/assets/avaritia26/textures/block/crystal_matrix.png` 与 `.png.mcmeta` ← Re:Avaritia `src/main/resources/assets/avaritia/textures/block/resource/crystal_matrix.png` 与 `.png.mcmeta`，commit `c331b7f4838667e6200b24c99dc45459e0b9dafb`，CC BY-NC-SA 4.0，内容未修改。
+- `src/client/resources/assets/avaritia26/textures/block/neutron.png` ← Re:Avaritia `src/main/resources/assets/avaritia/textures/block/resource/neutron.png`，commit `c331b7f4838667e6200b24c99dc45459e0b9dafb`，CC BY-NC-SA 4.0，像素未修改。
 - 其余已提交源码、配置和文档均为本项目新写；Gradle Wrapper 来自 Fabric 官方 26.2 CC0 模板。

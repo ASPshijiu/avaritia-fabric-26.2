@@ -33,6 +33,26 @@ public final class ModBlocks {
 					new Item.Properties().setId(CRYSTAL_MATRIX_ITEM_KEY).rarity(Rarity.RARE).fireResistant()
 			)
 	);
+	public static final ResourceKey<Block> NEUTRON_KEY = blockKey("neutron");
+	public static final Block NEUTRON = Registry.register(
+			BuiltInRegistries.BLOCK,
+			NEUTRON_KEY,
+			new Block(BlockBehaviour.Properties.of()
+					.setId(NEUTRON_KEY)
+					.mapColor(MapColor.METAL)
+					.sound(SoundType.METAL)
+					.strength(8888.0F, 8888.0F)
+					.lightLevel(state -> 13))
+	);
+	public static final ResourceKey<Item> NEUTRON_ITEM_KEY = itemKey("neutron");
+	public static final BlockItem NEUTRON_ITEM = Registry.register(
+			BuiltInRegistries.ITEM,
+			NEUTRON_ITEM_KEY,
+			new BlockItem(
+					NEUTRON,
+					new Item.Properties().setId(NEUTRON_ITEM_KEY).rarity(Rarity.EPIC).fireResistant()
+			)
+	);
 
 	private ModBlocks() {
 	}

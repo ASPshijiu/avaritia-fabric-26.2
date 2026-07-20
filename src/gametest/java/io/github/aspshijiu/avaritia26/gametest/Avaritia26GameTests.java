@@ -144,6 +144,39 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	}
 
 	@GameTest
+	public void neutronBlockWorks(GameTestHelper helper) {
+		helper.assertTrue(
+				BuiltInRegistries.BLOCK.getValue(ModBlocks.NEUTRON_KEY) == ModBlocks.NEUTRON,
+				"中子块没有注册到预期的 ResourceKey"
+		);
+		helper.assertTrue(
+				BuiltInRegistries.ITEM.getValue(ModBlocks.NEUTRON_ITEM_KEY) == ModBlocks.NEUTRON_ITEM,
+				"中子块物品没有注册到预期的 ResourceKey"
+		);
+		helper.assertTrue(Block.byItem(ModBlocks.NEUTRON_ITEM) == ModBlocks.NEUTRON, "中子块物品没有关联到方块");
+		ItemStack blockStack = new ItemStack(ModBlocks.NEUTRON_ITEM);
+		helper.assertTrue(blockStack.getRarity() == Rarity.EPIC, "中子块物品应当是 EPIC 稀有度");
+		helper.assertTrue(blockStack.has(DataComponents.DAMAGE_RESISTANT), "中子块物品应当具有防火伤害抗性组件");
+
+		BlockPos relativePos = new BlockPos(2, 0, 0);
+		helper.setBlock(relativePos, ModBlocks.NEUTRON);
+		helper.assertBlockPresent(ModBlocks.NEUTRON, relativePos);
+		helper.assertTrue(helper.getBlockState(relativePos).getLightEmission() == 13, "中子块光照等级应当是 13");
+		helper.assertTrue(ModBlocks.NEUTRON.getExplosionResistance() == 8888.0F, "中子块爆炸抗性应当是 8888");
+		List<ItemStack> drops = Block.getDrops(
+				helper.getBlockState(relativePos),
+				helper.getLevel(),
+				helper.absolutePos(relativePos),
+				null
+		);
+		helper.assertTrue(
+				drops.size() == 1 && drops.getFirst().is(ModBlocks.NEUTRON_ITEM),
+				"中子块应当掉落自身"
+		);
+		helper.succeed();
+	}
+
+	@GameTest
 	public void diamondLatticeNormalRecipeWorks(GameTestHelper helper) {
 		CraftingInput input = CraftingInput.of(3, 3, List.of(
 				new ItemStack(Items.DIAMOND), new ItemStack(Items.DIAMOND), new ItemStack(Items.DIAMOND),

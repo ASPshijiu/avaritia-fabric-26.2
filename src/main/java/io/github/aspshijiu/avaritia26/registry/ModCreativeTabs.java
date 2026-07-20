@@ -25,6 +25,7 @@ public final class ModCreativeTabs {
 				output.accept(ModItems.NEUTRON_NUGGET);
 				output.accept(ModItems.NEUTRON_INGOT);
 				output.accept(ModBlocks.CRYSTAL_MATRIX_ITEM);
+				output.accept(ModBlocks.NEUTRON_ITEM);
 			})
 			.build();
 
