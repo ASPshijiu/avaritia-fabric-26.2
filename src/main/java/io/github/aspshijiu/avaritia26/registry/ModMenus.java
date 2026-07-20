@@ -3,6 +3,7 @@ package io.github.aspshijiu.avaritia26.registry;
 import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.inventory.CompressedChestMenu;
 import io.github.aspshijiu.avaritia26.inventory.ExtremeCraftingMenu;
+import io.github.aspshijiu.avaritia26.inventory.ExtremeSmithingMenu;
 import io.github.aspshijiu.avaritia26.inventory.NeutronCollectorMenu;
 import io.github.aspshijiu.avaritia26.inventory.NeutronCompressorMenu;
 import net.fabricmc.fabric.api.menu.v1.ExtendedMenuType;
@@ -30,6 +31,11 @@ public final class ModMenus {
 			BuiltInRegistries.MENU,
 			Avaritia26.id("extreme_crafting"),
 			new ExtendedMenuType<>(ExtremeCraftingMenu::new, BlockPos.STREAM_CODEC)
+	);
+	public static final ExtendedMenuType<ExtremeSmithingMenu, BlockPos> EXTREME_SMITHING = Registry.register(
+			BuiltInRegistries.MENU,
+			Avaritia26.id("extreme_smithing"),
+			new ExtendedMenuType<>(ExtremeSmithingMenu::new, BlockPos.STREAM_CODEC)
 	);
 
 	private ModMenus() {

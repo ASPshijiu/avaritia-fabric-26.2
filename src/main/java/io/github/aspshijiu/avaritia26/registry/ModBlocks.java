@@ -3,6 +3,7 @@ package io.github.aspshijiu.avaritia26.registry;
 import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.block.CompressedChestBlock;
 import io.github.aspshijiu.avaritia26.block.ExtremeCraftingTableBlock;
+import io.github.aspshijiu.avaritia26.block.ExtremeSmithingTableBlock;
 import io.github.aspshijiu.avaritia26.block.NeutronCollectorBlock;
 import io.github.aspshijiu.avaritia26.block.NeutronCompressorBlock;
 import net.minecraft.core.Registry;
@@ -216,6 +217,27 @@ public final class ModBlocks {
 			new BlockItem(
 					EXTREME_CRAFTING_TABLE,
 					new Item.Properties().setId(EXTREME_CRAFTING_TABLE_ITEM_KEY).rarity(Rarity.EPIC).fireResistant()
+			)
+	);
+	public static final ResourceKey<Block> EXTREME_SMITHING_TABLE_KEY = blockKey("extreme_smithing_table");
+	public static final Block EXTREME_SMITHING_TABLE = Registry.register(
+			BuiltInRegistries.BLOCK,
+			EXTREME_SMITHING_TABLE_KEY,
+			new ExtremeSmithingTableBlock(BlockBehaviour.Properties.of()
+					.setId(EXTREME_SMITHING_TABLE_KEY)
+					.mapColor(MapColor.METAL)
+					.sound(SoundType.GLASS)
+					.strength(100.0F, 2000.0F)
+					.lightLevel(state -> 11)
+					.requiresCorrectToolForDrops())
+	);
+	public static final ResourceKey<Item> EXTREME_SMITHING_TABLE_ITEM_KEY = itemKey("extreme_smithing_table");
+	public static final BlockItem EXTREME_SMITHING_TABLE_ITEM = Registry.register(
+			BuiltInRegistries.ITEM,
+			EXTREME_SMITHING_TABLE_ITEM_KEY,
+			new BlockItem(
+					EXTREME_SMITHING_TABLE,
+					new Item.Properties().setId(EXTREME_SMITHING_TABLE_ITEM_KEY).rarity(Rarity.EPIC).fireResistant()
 			)
 	);
 

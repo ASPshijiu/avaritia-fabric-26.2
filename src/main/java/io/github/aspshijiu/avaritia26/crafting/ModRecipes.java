@@ -24,6 +24,21 @@ public final class ModRecipes {
 			Avaritia26.id("compressor"),
 			new RecipeSerializer<>(CompressorRecipe.CODEC, CompressorRecipe.STREAM_CODEC)
 	);
+	public static final RecipeType<ExtremeSmithingRecipe> EXTREME_SMITHING = Registry.register(
+			BuiltInRegistries.RECIPE_TYPE,
+			Avaritia26.id("extreme_smithing"),
+			new RecipeType<>() {
+				@Override
+				public String toString() {
+					return Avaritia26.id("extreme_smithing").toString();
+				}
+			}
+	);
+	public static final RecipeSerializer<ExtremeSmithingRecipe> EXTREME_SMITHING_SERIALIZER = Registry.register(
+			BuiltInRegistries.RECIPE_SERIALIZER,
+			Avaritia26.id("extreme_smithing"),
+			new RecipeSerializer<>(ExtremeSmithingRecipe.CODEC, ExtremeSmithingRecipe.STREAM_CODEC)
+	);
 	public static final RecipeType<Recipe<CraftingInput>> EXTREME_CRAFTING = Registry.register(
 			BuiltInRegistries.RECIPE_TYPE,
 			Avaritia26.id("extreme_crafting"),

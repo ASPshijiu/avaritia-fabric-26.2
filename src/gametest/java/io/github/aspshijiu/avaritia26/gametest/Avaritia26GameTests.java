@@ -14,6 +14,8 @@ import io.github.aspshijiu.avaritia26.block.entity.ExtremeCraftingTableBlockEnti
 import io.github.aspshijiu.avaritia26.block.entity.NeutronCollectorBlockEntity;
 import io.github.aspshijiu.avaritia26.block.entity.NeutronCompressorBlockEntity;
 import io.github.aspshijiu.avaritia26.crafting.ModRecipes;
+import io.github.aspshijiu.avaritia26.crafting.ExtremeSmithingInput;
+import io.github.aspshijiu.avaritia26.crafting.ExtremeSmithingRecipe;
 import io.github.aspshijiu.avaritia26.crafting.NoConsumeCatalystShapedRecipe;
 import io.github.aspshijiu.avaritia26.entity.EndestPearlEntity;
 import io.github.aspshijiu.avaritia26.entity.GapingVoidEntity;
@@ -22,6 +24,7 @@ import io.github.aspshijiu.avaritia26.entity.HeavenSubArrowEntity;
 import io.github.aspshijiu.avaritia26.event.ModArmorEvents;
 import io.github.aspshijiu.avaritia26.inventory.CompressedChestMenu;
 import io.github.aspshijiu.avaritia26.inventory.ExtremeCraftingMenu;
+import io.github.aspshijiu.avaritia26.inventory.ExtremeSmithingMenu;
 import io.github.aspshijiu.avaritia26.inventory.NeutronCollectorMenu;
 import io.github.aspshijiu.avaritia26.inventory.NeutronCompressorMenu;
 import io.github.aspshijiu.avaritia26.item.MatterClusterItem;
@@ -445,6 +448,102 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 				duplicateInput,
 				"强化锻造模板复制配方不应接受错误材料"
 		);
+		helper.succeed();
+	}
+
+	@GameTest
+	public void extremeSmithingTableCraftsAndConsumesFiveInputs(GameTestHelper helper) {
+		helper.assertTrue(
+				BuiltInRegistries.BLOCK.getValue(ModBlocks.EXTREME_SMITHING_TABLE_KEY)
+						== ModBlocks.EXTREME_SMITHING_TABLE,
+				"终焉锻造台没有注册到预期的 ResourceKey"
+		);
+		helper.assertTrue(
+				BuiltInRegistries.ITEM.getValue(ModBlocks.EXTREME_SMITHING_TABLE_ITEM_KEY)
+						== ModBlocks.EXTREME_SMITHING_TABLE_ITEM,
+				"终焉锻造台物品没有注册到预期的 ResourceKey"
+		);
+		helper.assertTrue(
+				BuiltInRegistries.RECIPE_TYPE.getValue(Avaritia26.id("extreme_smithing")) == ModRecipes.EXTREME_SMITHING,
+				"强化锻造配方类型没有注册"
+		);
+		helper.assertTrue(
+				BuiltInRegistries.RECIPE_SERIALIZER.getValue(Avaritia26.id("extreme_smithing"))
+						== ModRecipes.EXTREME_SMITHING_SERIALIZER,
+				"强化锻造配方序列化器没有注册"
+		);
+
+		CraftingInput tableInput = extremeSmithingTableInput();
+		assertExtremeRecipe(helper, "extreme_smithing_table", tableInput, ModBlocks.EXTREME_SMITHING_TABLE_ITEM);
+		assertWrongExtremeRecipe(
+				helper,
+				"extreme_smithing_table",
+				tableInput,
+				"终焉锻造台配方不应接受错误材料"
+		);
+
+		ItemStack namedBase = new ItemStack(Items.IRON_SWORD);
+		namedBase.set(DataComponents.CUSTOM_NAME, Component.literal("保留名称"));
+		ExtremeSmithingInput smithingInput = new ExtremeSmithingInput(
+				new ItemStack(Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE),
+				namedBase,
+				new ItemStack(Items.NETHERITE_INGOT),
+				new ItemStack(Items.DIAMOND),
+				new ItemStack(Items.GOLD_INGOT)
+		);
+		RecipeHolder<ExtremeSmithingRecipe> recipe = helper.getLevel().getServer().getRecipeManager()
+				.getRecipeFor(ModRecipes.EXTREME_SMITHING, smithingInput, helper.getLevel())
+				.orElseThrow(() -> helper.assertionException("未匹配 GameTest 强化锻造配方"));
+		helper.assertTrue(
+				recipe.id().identifier().equals(Identifier.fromNamespaceAndPath("avaritia26-gametest", "extreme_smithing_test")),
+				"强化锻造匹配到了错误配方"
+		);
+		ItemStack assembled = recipe.value().assemble(smithingInput);
+		helper.assertTrue(assembled.is(Items.NETHERITE_SWORD), "强化锻造输出类型错误");
+		helper.assertTrue(
+				Component.literal("保留名称").equals(assembled.get(DataComponents.CUSTOM_NAME)),
+				"强化锻造没有继承基底组件"
+		);
+		RegistryFriendlyByteBuf recipeBuffer = new RegistryFriendlyByteBuf(
+				Unpooled.buffer(),
+				helper.getLevel().registryAccess()
+		);
+		try {
+			ExtremeSmithingRecipe.STREAM_CODEC.encode(recipeBuffer, recipe.value());
+			ExtremeSmithingRecipe decoded = ExtremeSmithingRecipe.STREAM_CODEC.decode(recipeBuffer);
+			helper.assertTrue(decoded.matches(smithingInput, helper.getLevel()), "强化锻造配方网络同步往返后不再匹配");
+			helper.assertTrue(decoded.assemble(smithingInput).is(Items.NETHERITE_SWORD), "强化锻造配方网络同步丢失输出");
+		} finally {
+			recipeBuffer.release();
+		}
+		ExtremeSmithingInput duplicateAdditions = new ExtremeSmithingInput(
+				smithingInput.template(),
+				smithingInput.base(),
+				new ItemStack(Items.DIAMOND),
+				new ItemStack(Items.DIAMOND),
+				new ItemStack(Items.DIAMOND)
+		);
+		helper.assertFalse(recipe.value().matches(duplicateAdditions, helper.getLevel()), "三份重复追加材料不应通过强化锻造");
+
+		BlockPos tablePos = new BlockPos(5, 0, 5);
+		helper.setBlock(tablePos, ModBlocks.EXTREME_SMITHING_TABLE);
+		Player player = helper.makeMockServerPlayer(GameType.SURVIVAL);
+		ExtremeSmithingMenu menu = new ExtremeSmithingMenu(1, player.getInventory(), helper.absolutePos(tablePos));
+		menu.getSlot(ExtremeSmithingMenu.TEMPLATE_SLOT).set(new ItemStack(Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE));
+		menu.getSlot(ExtremeSmithingMenu.BASE_SLOT).set(namedBase.copy());
+		menu.getSlot(ExtremeSmithingMenu.ADDITION_SLOT_START).set(new ItemStack(Items.GOLD_INGOT));
+		menu.getSlot(ExtremeSmithingMenu.ADDITION_SLOT_START + 1).set(new ItemStack(Items.NETHERITE_INGOT));
+		menu.getSlot(ExtremeSmithingMenu.ADDITION_SLOT_START + 2).set(new ItemStack(Items.DIAMOND));
+		menu.slotsChanged(menu.getSlot(ExtremeSmithingMenu.TEMPLATE_SLOT).container);
+		ItemStack menuResult = menu.getSlot(ExtremeSmithingMenu.RESULT_SLOT).getItem();
+		helper.assertTrue(menuResult.is(Items.NETHERITE_SWORD), "终焉锻造台没有显示预期结果");
+		ItemStack taken = menu.getSlot(ExtremeSmithingMenu.RESULT_SLOT).remove(1);
+		menu.getSlot(ExtremeSmithingMenu.RESULT_SLOT).onTake(player, taken);
+		for (int slot = ExtremeSmithingMenu.TEMPLATE_SLOT; slot < ExtremeSmithingMenu.ADDITION_SLOT_END; slot++) {
+			helper.assertTrue(menu.getSlot(slot).getItem().isEmpty(), "终焉锻造台没有消耗第 " + slot + " 个输入");
+		}
+		helper.assertTrue(menu.getSlot(ExtremeSmithingMenu.RESULT_SLOT).getItem().isEmpty(), "取出后仍残留锻造结果");
+		menu.removed(player);
 		helper.succeed();
 	}
 
@@ -2867,6 +2966,41 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 					case 'x' -> new ItemStack(Items.HOST_ARMOR_TRIM_SMITHING_TEMPLATE);
 					case ' ' -> ItemStack.EMPTY;
 					default -> throw new IllegalArgumentException("未知强化锻造模板配方符号: " + symbol);
+				};
+				stacks.add(stack);
+			}
+		}
+		return CraftingInput.of(9, 9, stacks);
+	}
+
+	private static CraftingInput extremeSmithingTableInput() {
+		List<ItemStack> stacks = new java.util.ArrayList<>(81);
+		for (String row : List.of(
+				"aaaaaaaaa",
+				"bccfgfccb",
+				"bcdhhhdcb",
+				"lfhijihfl",
+				"eghjkjhge",
+				"lfhijihfl",
+				"bcdhhhdcb",
+				"bccfgfccb",
+				"bleeeeelb"
+		)) {
+			for (char symbol : row.toCharArray()) {
+				ItemStack stack = switch (symbol) {
+					case 'a' -> new ItemStack(ModBlocks.NEUTRON_ITEM);
+					case 'b' -> new ItemStack(ModItems.NEUTRON_INGOT);
+					case 'c' -> new ItemStack(ModItems.DIAMOND_LATTICE);
+					case 'd' -> new ItemStack(ModItems.BLAZE_CUBE);
+					case 'e' -> new ItemStack(ModBlocks.CRYSTAL_MATRIX_ITEM);
+					case 'f' -> new ItemStack(ModItems.INFINITY_NUGGET);
+					case 'g' -> new ItemStack(ModItems.INFINITY_INGOT);
+					case 'h' -> new ItemStack(ModItems.NEUTRON_GEAR);
+					case 'i' -> new ItemStack(ModItems.INFINITY_CATALYST);
+					case 'j' -> new ItemStack(Items.SMITHING_TABLE);
+					case 'k' -> new ItemStack(ModBlocks.EXTREME_CRAFTING_TABLE_ITEM);
+					case 'l' -> new ItemStack(ModItems.CRYSTAL_MATRIX_INGOT);
+					default -> throw new IllegalArgumentException("未知终焉锻造台配方符号: " + symbol);
 				};
 				stacks.add(stack);
 			}

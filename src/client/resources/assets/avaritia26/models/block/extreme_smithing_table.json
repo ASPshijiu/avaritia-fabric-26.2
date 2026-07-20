@@ -1,0 +1,12 @@
+{
+	"parent": "minecraft:block/cube",
+	"textures": {
+		"down": "avaritia26:block/extreme_smithing_table_bottom",
+		"east": "avaritia26:block/extreme_smithing_table_front",
+		"north": "avaritia26:block/extreme_smithing_table_side",
+		"particle": "avaritia26:block/extreme_smithing_table_front",
+		"south": "avaritia26:block/extreme_smithing_table_side",
+		"up": "avaritia26:block/extreme_smithing_table_top",
+		"west": "avaritia26:block/extreme_smithing_table_front"
+	}
+}

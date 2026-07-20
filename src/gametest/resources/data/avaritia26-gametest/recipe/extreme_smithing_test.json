@@ -1,0 +1,11 @@
+{
+	"type": "avaritia26:extreme_smithing",
+	"template": "minecraft:netherite_upgrade_smithing_template",
+	"base": "minecraft:iron_sword",
+	"addition": [
+		"minecraft:diamond",
+		"minecraft:gold_ingot",
+		"minecraft:netherite_ingot"
+	],
+	"result": {"count": 1, "id": "minecraft:netherite_sword"}
+}

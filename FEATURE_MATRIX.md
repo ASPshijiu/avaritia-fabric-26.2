@@ -128,7 +128,7 @@
 | `dense_neutron_compressor` | 致密中子压缩机 | 未开始 | — | — | — | — | — |
 | `denser_neutron_compressor` | 更致密中子压缩机 | 未开始 | — | — | — | — | — |
 | `densest_neutron_compressor` | 最致密中子压缩机 | 未开始 | — | — | — | — | — |
-| `extreme_smithing_table` | 终极锻造台 | 未开始 | — | — | — | — | — |
+| `extreme_smithing_table` | 终焉锻造台 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
 | `extreme_anvil` | 终极铁砧 | 未开始 | — | — | — | — | — |
 | `endless_cake` | 无尽蛋糕 | 未开始 | — | — | — | — | — |
 
