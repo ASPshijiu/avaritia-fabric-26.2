@@ -57,6 +57,12 @@ public final class ModItems {
 			InfinityTotemItem::new,
 			new Item.Properties().rarity(Rarity.EPIC).durability(999).fireResistant()
 	);
+	public static final ResourceKey<Item> INFINITY_RING_KEY = key("infinity_ring");
+	public static final Item INFINITY_RING = register(
+			INFINITY_RING_KEY,
+			properties -> new TooltipItem(properties, "tooltip.avaritia26.infinity_ring"),
+			new Item.Properties().rarity(Rarity.EPIC).stacksTo(1).fireResistant()
+	);
 	public static final ResourceKey<Item> INFINITY_HELMET_KEY = key("infinity_helmet");
 	public static final Item INFINITY_HELMET = register(
 			INFINITY_HELMET_KEY,

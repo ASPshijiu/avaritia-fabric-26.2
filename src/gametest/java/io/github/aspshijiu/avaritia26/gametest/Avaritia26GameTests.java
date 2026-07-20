@@ -2945,6 +2945,38 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	}
 
 	@GameTest
+	public void infinityRingPreservesUpstreamWipBehavior(GameTestHelper helper) {
+		ItemStack ring = new ItemStack(ModItems.INFINITY_RING);
+		helper.assertTrue(BuiltInRegistries.ITEM.getValue(ModItems.INFINITY_RING_KEY) == ModItems.INFINITY_RING,
+				"无尽指环物品未注册");
+		helper.assertTrue(ring.getMaxStackSize() == 1 && ring.getRarity() == Rarity.EPIC,
+				"无尽指环堆叠数或稀有度错误");
+		helper.assertTrue(ring.has(DataComponents.DAMAGE_RESISTANT), "无尽指环缺少防火属性");
+
+		List<Component> tooltip = new java.util.ArrayList<>();
+		ModItems.INFINITY_RING.appendHoverText(
+				ring,
+				Item.TooltipContext.of(helper.getLevel()),
+				TooltipDisplay.DEFAULT,
+				tooltip::add,
+				TooltipFlag.NORMAL
+		);
+		helper.assertTrue(tooltip.size() == 1 && tooltip.getFirst().getStyle().isItalic(),
+				"无尽指环缺少上游 WIP 说明");
+
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(Registries.RECIPE, Avaritia26.id("infinity_ring"));
+		helper.assertTrue(helper.getLevel().getServer().getRecipeManager().byKey(recipeKey).isEmpty(),
+				"上游 WIP 无尽指环不应拥有配方");
+		Player player = helper.makeMockServerPlayer(GameType.SURVIVAL);
+		player.setItemInHand(InteractionHand.MAIN_HAND, ring);
+		InteractionResult result = ModItems.INFINITY_RING.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+		helper.assertFalse(result.consumesAction(), "上游 WIP 无尽指环不应响应使用");
+		helper.assertTrue(player.getMainHandItem() == ring && ring.getCount() == 1,
+				"使用上游 WIP 无尽指环不应改变物品");
+		helper.succeed();
+	}
+
+	@GameTest
 	public void everyBuiltInSingularityCompresses(GameTestHelper helper) {
 		BlockPos relativePos = new BlockPos(13, 0, 0);
 		helper.setBlock(relativePos, ModBlocks.NEUTRON_COMPRESSOR);

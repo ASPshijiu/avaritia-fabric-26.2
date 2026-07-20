@@ -23,6 +23,7 @@ public final class ModCreativeTabs {
 			.displayItems((parameters, output) -> {
 				output.accept(ModItems.NEUTRON_RING);
 				output.accept(ModItems.INFINITY_TOTEM);
+				output.accept(ModItems.INFINITY_RING);
 				output.accept(ModItems.INFINITY_HELMET);
 				output.accept(ModItems.INFINITY_CHESTPLATE);
 				output.accept(ModItems.INFINITY_PANTS);
