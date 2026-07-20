@@ -4,6 +4,7 @@ import java.util.function.Function;
 
 import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.item.EndestPearlItem;
+import io.github.aspshijiu.avaritia26.item.MatterClusterItem;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
@@ -52,6 +53,12 @@ public final class ModItems {
 			ENDEST_PEARL_KEY,
 			EndestPearlItem::new,
 			new Item.Properties().rarity(Rarity.EPIC).stacksTo(16).useCooldown(1.5F)
+	);
+	public static final ResourceKey<Item> MATTER_CLUSTER_KEY = key("matter_cluster");
+	public static final Item MATTER_CLUSTER = register(
+			MATTER_CLUSTER_KEY,
+			MatterClusterItem::new,
+			new Item.Properties().rarity(Rarity.RARE).stacksTo(1)
 	);
 	public static final ResourceKey<Item> ULTIMATE_STEW_KEY = key("ultimate_stew");
 	public static final Item ULTIMATE_STEW = register(

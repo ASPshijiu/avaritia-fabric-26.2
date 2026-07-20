@@ -9,11 +9,14 @@
 	"item.avaritia26.cosmic_meatballs": "寰宇肉丸",
 	"item.avaritia26.diamond_lattice": "钻石晶格",
 	"item.avaritia26.endest_pearl": "终望珍珠",
+	"item.avaritia26.matter_cluster": "物质团",
 	"item.avaritia26.neutron_ingot": "中子锭",
 	"item.avaritia26.neutron_nugget": "中子粒",
 	"item.avaritia26.neutron_pile": "中子堆",
 	"item.avaritia26.record_fragment": "唱片碎片",
 	"item.avaritia26.ultimate_stew": "终极炖菜",
 	"itemGroup.avaritia26.main": "无尽贪婪 26",
-	"subtitles.avaritia26.gaping_void": "虚空漩涡坍缩"
+	"subtitles.avaritia26.gaping_void": "虚空漩涡坍缩",
+	"tooltip.avaritia26.matter_cluster.counter": "已存物品：%s / %s",
+	"tooltip.avaritia26.matter_cluster.more": "……以及另外 %s 组物品"
 }

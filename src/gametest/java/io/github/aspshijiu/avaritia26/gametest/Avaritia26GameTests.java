@@ -9,8 +9,10 @@ import io.github.aspshijiu.avaritia26.crafting.ModRecipes;
 import io.github.aspshijiu.avaritia26.entity.EndestPearlEntity;
 import io.github.aspshijiu.avaritia26.entity.GapingVoidEntity;
 import io.github.aspshijiu.avaritia26.inventory.ExtremeCraftingMenu;
+import io.github.aspshijiu.avaritia26.item.MatterClusterItem;
 import io.github.aspshijiu.avaritia26.registry.ModBlockEntities;
 import io.github.aspshijiu.avaritia26.registry.ModBlocks;
+import io.github.aspshijiu.avaritia26.registry.ModDataComponents;
 import io.github.aspshijiu.avaritia26.registry.ModEntityTypes;
 import io.github.aspshijiu.avaritia26.registry.ModItems;
 import net.fabricmc.fabric.api.gametest.v1.CustomTestMethodInvoker;
@@ -364,6 +366,68 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		}
 		helper.assertTrue(gapingVoid.isRemoved(), "虚空漩涡没有在 186 tick 后坍缩移除");
 		helper.assertTrue(GapingVoidEntity.getVoidScale(GapingVoidEntity.MAX_LIFETIME) == 0.0, "坍缩末尾缩放应当归零");
+		helper.succeed();
+	}
+
+	@GameTest
+	public void matterClusterStoresMergesAndReleasesItems(GameTestHelper helper) {
+		ItemStack emptyCluster = new ItemStack(ModItems.MATTER_CLUSTER);
+		helper.assertTrue(
+				BuiltInRegistries.ITEM.getValue(ModItems.MATTER_CLUSTER_KEY) == ModItems.MATTER_CLUSTER,
+				"物质团没有注册到预期的 ResourceKey"
+		);
+		helper.assertTrue(ModItems.MATTER_CLUSTER.getDefaultMaxStackSize() == 1, "物质团应当不可堆叠");
+		helper.assertTrue(emptyCluster.getRarity() == Rarity.RARE, "物质团应当是 RARE 稀有度");
+		helper.assertTrue(ModDataComponents.MATTER_CLUSTER_CONTENTS.codec() != null, "物质团组件缺少持久化编码器");
+		helper.assertTrue(ModDataComponents.MATTER_CLUSTER_CONTENTS.streamCodec() != null, "物质团组件缺少网络编码器");
+
+		List<ItemStack> packed = MatterClusterItem.createClusters(List.of(
+				new ItemStack(Items.COBBLESTONE, 5000),
+				new ItemStack(Items.DIRT, 100)
+		));
+		helper.assertTrue(packed.size() == 2, "5100 个物品应当拆成两个物质团");
+		helper.assertTrue(MatterClusterItem.getSize(packed.get(0)) == MatterClusterItem.CAPACITY, "第一个物质团应当装满 4096 个");
+		helper.assertTrue(MatterClusterItem.getSize(packed.get(1)) == 1004, "第二个物质团剩余数量错误");
+		helper.assertTrue(
+				packed.getFirst().has(ModDataComponents.MATTER_CLUSTER_CONTENTS),
+				"物质团没有保存容器数据组件"
+		);
+		helper.assertTrue(
+				MatterClusterItem.getSize(packed.getFirst().copy()) == MatterClusterItem.CAPACITY,
+				"复制物质团时容器数据丢失"
+		);
+		helper.assertTrue(ModItems.MATTER_CLUSTER.isBarVisible(packed.getFirst()), "非空物质团应当显示容量条");
+		helper.assertTrue(ModItems.MATTER_CLUSTER.getBarWidth(packed.getFirst()) == 13, "满物质团容量条应当填满");
+
+		ItemStack mergeTarget = MatterClusterItem.createClusters(List.of(new ItemStack(Items.STONE, 3000))).getFirst();
+		ItemStack mergeSource = MatterClusterItem.createClusters(List.of(new ItemStack(Items.DIRT, 1500))).getFirst();
+		helper.assertTrue(MatterClusterItem.merge(mergeSource, mergeTarget), "两个物质团未能合并");
+		helper.assertTrue(MatterClusterItem.getSize(mergeTarget) == MatterClusterItem.CAPACITY, "合并目标没有填满");
+		helper.assertTrue(MatterClusterItem.getSize(mergeSource) == 404, "合并来源剩余数量错误");
+
+		ItemStack releasable = MatterClusterItem.createClusters(List.of(
+				new ItemStack(Items.DIAMOND, 10),
+				new ItemStack(Items.DIRT, 5)
+		)).getFirst();
+		Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+		BlockPos releasePos = helper.absolutePos(new BlockPos(18, 2, 0));
+		player.setPos(releasePos.getX() + 0.5, releasePos.getY(), releasePos.getZ() + 0.5);
+		player.setItemInHand(InteractionHand.MAIN_HAND, releasable);
+		ModItems.MATTER_CLUSTER.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+		helper.assertTrue(player.getItemInHand(InteractionHand.MAIN_HAND).isEmpty(), "释放内容后物质团没有被消耗");
+		List<ItemEntity> drops = helper.getLevel().getEntitiesOfClass(
+				ItemEntity.class,
+				new AABB(releasePos).inflate(3.0)
+		);
+		int diamonds = drops.stream()
+				.filter(entity -> entity.getItem().is(Items.DIAMOND))
+				.mapToInt(entity -> entity.getItem().getCount())
+				.sum();
+		int dirt = drops.stream()
+				.filter(entity -> entity.getItem().is(Items.DIRT))
+				.mapToInt(entity -> entity.getItem().getCount())
+				.sum();
+		helper.assertTrue(diamonds == 10 && dirt == 5, "物质团右键没有完整释放保存的物品");
 		helper.succeed();
 	}
 

@@ -9,11 +9,14 @@
 	"item.avaritia26.cosmic_meatballs": "Cosmic Meatballs",
 	"item.avaritia26.diamond_lattice": "Diamond Lattice",
 	"item.avaritia26.endest_pearl": "Endest Pearl",
+	"item.avaritia26.matter_cluster": "Matter Cluster",
 	"item.avaritia26.neutron_ingot": "Neutronium Ingot",
 	"item.avaritia26.neutron_nugget": "Neutronium Nugget",
 	"item.avaritia26.neutron_pile": "Pile of Neutrons",
 	"item.avaritia26.record_fragment": "Record Fragment",
 	"item.avaritia26.ultimate_stew": "Ultimate Stew",
 	"itemGroup.avaritia26.main": "Avaritia 26",
-	"subtitles.avaritia26.gaping_void": "Gaping void collapses"
+	"subtitles.avaritia26.gaping_void": "Gaping void collapses",
+	"tooltip.avaritia26.matter_cluster.counter": "Stored items: %s / %s",
+	"tooltip.avaritia26.matter_cluster.more": "...and %s more stacks"
 }

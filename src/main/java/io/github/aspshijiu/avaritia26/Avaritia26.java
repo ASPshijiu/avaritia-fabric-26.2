@@ -4,6 +4,7 @@ import io.github.aspshijiu.avaritia26.crafting.ModRecipes;
 import io.github.aspshijiu.avaritia26.registry.ModBlockEntities;
 import io.github.aspshijiu.avaritia26.registry.ModBlocks;
 import io.github.aspshijiu.avaritia26.registry.ModCreativeTabs;
+import io.github.aspshijiu.avaritia26.registry.ModDataComponents;
 import io.github.aspshijiu.avaritia26.registry.ModEntityTypes;
 import io.github.aspshijiu.avaritia26.registry.ModItems;
 import io.github.aspshijiu.avaritia26.registry.ModMenus;
@@ -20,6 +21,7 @@ public final class Avaritia26 implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		ModRecipes.initialize();
+		ModDataComponents.initialize();
 		ModItems.initialize();
 		ModEntityTypes.initialize();
 		ModSounds.initialize();
