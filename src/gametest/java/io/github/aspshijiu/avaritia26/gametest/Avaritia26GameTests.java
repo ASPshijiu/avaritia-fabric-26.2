@@ -68,6 +68,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
@@ -112,8 +113,12 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BubbleColumnBlock;
 import net.minecraft.world.level.block.CraftingTableBlock;
+import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.MagmaBlock;
+import net.minecraft.world.level.block.NetherWartBlock;
+import net.minecraft.world.level.block.SugarCaneBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
@@ -2432,6 +2437,99 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.assertFalse(result.consumesAction(), "锻造能量占位物品不应响应使用");
 		helper.assertTrue(player.getMainHandItem().is(ModItems.FORGE_ENERGY)
 				&& player.getMainHandItem().getCount() == 64, "使用锻造能量错误消耗了物品");
+		helper.succeed();
+	}
+
+	@GameTest
+	public void soulFarmlandSupportsAndAcceleratesPlants(GameTestHelper helper) {
+		helper.assertTrue(BuiltInRegistries.BLOCK.getValue(ModBlocks.SOUL_FARMLAND_KEY) == ModBlocks.SOUL_FARMLAND,
+				"灵魂耕地方块未注册");
+		helper.assertTrue(BuiltInRegistries.ITEM.getValue(ModBlocks.SOUL_FARMLAND_ITEM_KEY)
+				== ModBlocks.SOUL_FARMLAND_ITEM, "灵魂耕地物品未注册");
+		helper.assertTrue(new ItemStack(ModBlocks.SOUL_FARMLAND_ITEM).getRarity() == Rarity.RARE,
+				"灵魂耕地物品稀有度错误");
+
+		Player player = helper.makeMockServerPlayer(GameType.SURVIVAL);
+		BlockPos supportPos = new BlockPos(6, 0, 2);
+		helper.setBlock(supportPos, Blocks.STONE);
+		player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(ModBlocks.SOUL_FARMLAND_ITEM));
+		BlockPos absoluteSupportPos = helper.absolutePos(supportPos);
+		InteractionResult placeResult = ModBlocks.SOUL_FARMLAND_ITEM.useOn(new UseOnContext(
+				player,
+				InteractionHand.MAIN_HAND,
+				new BlockHitResult(Vec3.atCenterOf(absoluteSupportPos), Direction.UP, absoluteSupportPos, false)
+		));
+		helper.assertTrue(placeResult.consumesAction(), "灵魂耕地物品不能放置");
+		helper.assertBlockPresent(ModBlocks.SOUL_FARMLAND, supportPos.above());
+
+		BlockPos farmlandPos = new BlockPos(2, 0, 2);
+		helper.setBlock(farmlandPos, Blocks.SOUL_SOIL);
+		player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(ModItems.INFINITY_HOE));
+		BlockPos absoluteFarmlandPos = helper.absolutePos(farmlandPos);
+		InteractionResult tillResult = ModItems.INFINITY_HOE.useOn(new UseOnContext(
+				player,
+				InteractionHand.MAIN_HAND,
+				new BlockHitResult(Vec3.atCenterOf(absoluteFarmlandPos), Direction.UP, absoluteFarmlandPos, false)
+		));
+		helper.assertTrue(tillResult.consumesAction(), "无尽锄不能把灵魂土转为灵魂耕地");
+		helper.assertBlockPresent(ModBlocks.SOUL_FARMLAND, farmlandPos);
+		BlockPos soulSandPos = new BlockPos(4, 0, 2);
+		helper.setBlock(soulSandPos, Blocks.SOUL_SAND);
+		BlockPos absoluteSoulSandPos = helper.absolutePos(soulSandPos);
+		ModItems.INFINITY_HOE.useOn(new UseOnContext(
+				player,
+				InteractionHand.MAIN_HAND,
+				new BlockHitResult(Vec3.atCenterOf(absoluteSoulSandPos), Direction.UP, absoluteSoulSandPos, false)
+		));
+		helper.assertBlockPresent(ModBlocks.SOUL_FARMLAND, soulSandPos);
+
+		BlockState farmland = helper.getBlockState(farmlandPos);
+		helper.assertTrue(farmland.is(BlockTags.MINEABLE_WITH_SHOVEL), "灵魂耕地没有铲类挖掘标签");
+		helper.assertTrue(farmland.is(BlockTags.SUPPORTS_CROPS) && farmland.is(BlockTags.GROWS_CROPS),
+				"灵魂耕地不能承载并滋养普通作物");
+		helper.assertTrue(farmland.is(BlockTags.SUPPORTS_NETHER_WART), "灵魂耕地不能承载地狱疣");
+		helper.assertTrue(farmland.is(BlockTags.SUPPORTS_SUGAR_CANE), "灵魂耕地不能承载甘蔗");
+		helper.assertTrue(farmland.is(BlockTags.SUPPORTS_BAMBOO) && farmland.is(BlockTags.SUPPORTS_CACTUS),
+				"灵魂耕地缺少扩展植物支持标签");
+		helper.assertTrue(Math.abs(farmland.getShape(helper.getLevel(), absoluteFarmlandPos).bounds().maxY - 0.9375) < 0.0001,
+				"灵魂耕地碰撞外形高度错误");
+
+		BlockPos plantPos = farmlandPos.above();
+		helper.setBlock(plantPos, Blocks.WHEAT.defaultBlockState().setValue(CropBlock.AGE, 0));
+		helper.assertTrue(helper.getBlockState(plantPos).canSurvive(helper.getLevel(), helper.absolutePos(plantPos)),
+				"小麦不能在灵魂耕地上存活");
+		RandomSource random = RandomSource.create(26L);
+		for (int tick = 0; tick < 20 && helper.getBlockState(plantPos).getValue(CropBlock.AGE) == 0; tick++) {
+			farmland.randomTick(helper.getLevel(), absoluteFarmlandPos, random);
+		}
+		helper.assertTrue(helper.getBlockState(plantPos).getValue(CropBlock.AGE) > 0,
+				"灵魂耕地没有加速小麦生长");
+
+		helper.setBlock(plantPos, Blocks.NETHER_WART.defaultBlockState().setValue(NetherWartBlock.AGE, 0));
+		helper.assertTrue(helper.getBlockState(plantPos).canSurvive(helper.getLevel(), helper.absolutePos(plantPos)),
+				"地狱疣不能在灵魂耕地上存活");
+		for (int tick = 0; tick < 20 && helper.getBlockState(plantPos).getValue(NetherWartBlock.AGE) == 0; tick++) {
+			farmland.randomTick(helper.getLevel(), absoluteFarmlandPos, random);
+		}
+		helper.assertTrue(helper.getBlockState(plantPos).getValue(NetherWartBlock.AGE) == 1,
+				"灵魂耕地没有加速地狱疣生长");
+
+		helper.setBlock(farmlandPos.east(), Blocks.WATER);
+		helper.setBlock(plantPos, Blocks.SUGAR_CANE.defaultBlockState().setValue(SugarCaneBlock.AGE, 1));
+		helper.assertTrue(helper.getBlockState(plantPos).canSurvive(helper.getLevel(), helper.absolutePos(plantPos)),
+				"甘蔗不能在有水的灵魂耕地上存活");
+		for (int tick = 0; tick < 20 && helper.getBlockState(plantPos).getValue(SugarCaneBlock.AGE) == 1; tick++) {
+			farmland.randomTick(helper.getLevel(), absoluteFarmlandPos, random);
+		}
+		helper.assertTrue(helper.getBlockState(plantPos).getValue(SugarCaneBlock.AGE) == 6,
+				"灵魂耕地没有把甘蔗年龄加速五级");
+
+		helper.setBlock(plantPos, Blocks.AIR);
+		helper.setBlock(farmlandPos.east(), Blocks.AIR);
+		for (int tick = 0; tick < 20; tick++) {
+			farmland.randomTick(helper.getLevel(), absoluteFarmlandPos, random);
+		}
+		helper.assertBlockPresent(ModBlocks.SOUL_FARMLAND, farmlandPos);
 		helper.succeed();
 	}
 

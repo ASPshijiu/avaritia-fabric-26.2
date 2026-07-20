@@ -1,5 +1,6 @@
 package io.github.aspshijiu.avaritia26.item;
 
+import io.github.aspshijiu.avaritia26.registry.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvents;
@@ -63,7 +64,10 @@ public final class InfinityHoeItem extends Item {
 	}
 
 	private static boolean canStartTilling(Level level, BlockPos pos) {
-		return level.getBlockState(pos).is(Blocks.FARMLAND) || canTill(level, pos);
+		BlockState state = level.getBlockState(pos);
+		return state.is(Blocks.FARMLAND)
+				|| state.is(ModBlocks.SOUL_FARMLAND)
+				|| canTill(level, pos);
 	}
 
 	private static boolean canTill(Level level, BlockPos pos) {
@@ -72,7 +76,9 @@ public final class InfinityHoeItem extends Item {
 				&& (state.is(Blocks.GRASS_BLOCK)
 				|| state.is(Blocks.DIRT_PATH)
 				|| state.is(Blocks.DIRT)
-				|| state.is(Blocks.COARSE_DIRT));
+				|| state.is(Blocks.COARSE_DIRT)
+				|| state.is(Blocks.SOUL_SAND)
+				|| state.is(Blocks.SOUL_SOIL));
 	}
 
 	private static void till(Level level, BlockPos pos) {
@@ -80,7 +86,10 @@ public final class InfinityHoeItem extends Item {
 			return;
 		}
 		BlockState state = level.getBlockState(pos);
-		level.setBlock(pos, state.is(Blocks.COARSE_DIRT) ? Blocks.DIRT.defaultBlockState() : Blocks.FARMLAND.defaultBlockState(), 11);
+		BlockState tilled = state.is(Blocks.SOUL_SAND) || state.is(Blocks.SOUL_SOIL)
+				? ModBlocks.SOUL_FARMLAND.defaultBlockState()
+				: state.is(Blocks.COARSE_DIRT) ? Blocks.DIRT.defaultBlockState() : Blocks.FARMLAND.defaultBlockState();
+		level.setBlock(pos, tilled, 11);
 	}
 
 	private static void prepareSurface(Level level, BlockPos pos, Player player) {

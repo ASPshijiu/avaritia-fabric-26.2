@@ -7,6 +7,7 @@ import io.github.aspshijiu.avaritia26.block.ExtremeSmithingTableBlock;
 import io.github.aspshijiu.avaritia26.block.InfinityChestBlock;
 import io.github.aspshijiu.avaritia26.block.NeutronCollectorBlock;
 import io.github.aspshijiu.avaritia26.block.NeutronCompressorBlock;
+import io.github.aspshijiu.avaritia26.block.SoulFarmlandBlock;
 import net.fabricmc.fabric.api.registry.FuelValueEvents;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -107,6 +108,26 @@ public final class ModBlocks {
 			new BlockItem(
 					REFINED_COAL_BLOCK,
 					new Item.Properties().setId(REFINED_COAL_BLOCK_ITEM_KEY).rarity(Rarity.UNCOMMON)
+			)
+	);
+	public static final ResourceKey<Block> SOUL_FARMLAND_KEY = blockKey("soul_farmland");
+	public static final Block SOUL_FARMLAND = Registry.register(
+			BuiltInRegistries.BLOCK,
+			SOUL_FARMLAND_KEY,
+			new SoulFarmlandBlock(BlockBehaviour.Properties.of()
+					.setId(SOUL_FARMLAND_KEY)
+					.mapColor(MapColor.COLOR_BROWN)
+					.sound(SoundType.SOUL_SOIL)
+					.strength(0.6F)
+					.randomTicks())
+	);
+	public static final ResourceKey<Item> SOUL_FARMLAND_ITEM_KEY = itemKey("soul_farmland");
+	public static final BlockItem SOUL_FARMLAND_ITEM = Registry.register(
+			BuiltInRegistries.ITEM,
+			SOUL_FARMLAND_ITEM_KEY,
+			new BlockItem(
+					SOUL_FARMLAND,
+					new Item.Properties().setId(SOUL_FARMLAND_ITEM_KEY).rarity(Rarity.RARE)
 			)
 	);
 	public static final ResourceKey<Block> NEUTRON_COLLECTOR_KEY = blockKey("neutron_collector");
