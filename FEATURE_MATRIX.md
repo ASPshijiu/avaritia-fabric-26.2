@@ -13,7 +13,7 @@
 | `neutron_pile` | 中子堆 | 实现中 | 实现中 | 不适用 | 实现中 | — | — |
 | `neutron_nugget` | 中子粒 | 实现中 | 实现中 | 不适用 | 实现中 | — | — |
 | `neutron_ingot` | 中子锭 | 实现中 | 实现中 | 不适用 | 实现中 | — | — |
-| `infinity_catalyst` | 无尽催化剂 | 未开始 | — | — | — | — | — |
+| `infinity_catalyst` | 无尽催化剂 | 实现中 | 实现中 | 不适用 | 实现中 | — | — |
 | `infinity_ingot` | 无尽锭 | 未开始 | — | — | — | — | — |
 | `singularity` | 奇点（数据驱动） | 实现中 | 实现中 | 不适用 | 实现中 | — | — |
 | `eternal_singularity` | 无尽奇点 | 未开始 | — | — | — | — | — |

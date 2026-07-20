@@ -22,6 +22,7 @@ public final class ModCreativeTabs {
 			.title(Component.translatable("itemGroup.avaritia26.main"))
 			.displayItems((parameters, output) -> {
 				SingularityManager.values().forEach(definition -> output.accept(SingularityItem.createStack(definition)));
+				output.accept(ModItems.INFINITY_CATALYST);
 				output.accept(ModItems.DIAMOND_LATTICE);
 				output.accept(ModItems.CRYSTAL_MATRIX_INGOT);
 				output.accept(ModItems.NEUTRON_PILE);

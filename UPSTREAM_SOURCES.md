@@ -75,4 +75,5 @@
 - `src/client/resources/assets/avaritia26/textures/item/singularity.png`、`singularity_overlay.png` 与 `.png.mcmeta` ← Re:Avaritia 同名 `src/main/resources/assets/avaritia/textures/item/resource/singularity/` 素材，commit `c331b7f4838667e6200b24c99dc45459e0b9dafb`，CC BY-NC-SA 4.0，内容未修改。
 - `src/client/resources/assets/avaritia26/textures/block/neutron_compressor/` 下 6 个素材文件 ← Re:Avaritia `src/main/resources/assets/avaritia/textures/block/machine/compressor/` 下同名压缩机素材，commit `c331b7f4838667e6200b24c99dc45459e0b9dafb`，CC BY-NC-SA 4.0，内容未修改。
 - `src/client/resources/assets/avaritia26/textures/gui/neutron_compressor.png` ← Re:Avaritia `src/main/resources/assets/avaritia/textures/gui/machine/neutron_compressor.png`，commit `c331b7f4838667e6200b24c99dc45459e0b9dafb`，CC BY-NC-SA 4.0，像素未修改。
+- `src/client/resources/assets/avaritia26/textures/item/infinity_catalyst.png` 与 `.png.mcmeta` ← Re:Avaritia `src/main/resources/assets/avaritia/textures/item/resource/infinity/infinity_catalyst.png` 与 `.png.mcmeta`，commit `c331b7f4838667e6200b24c99dc45459e0b9dafb`，CC BY-NC-SA 4.0，内容未修改。
 - 其余已提交源码、配置和文档均为本项目新写；Gradle Wrapper 来自 Fabric 官方 26.2 CC0 模板。

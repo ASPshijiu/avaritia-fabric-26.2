@@ -49,6 +49,11 @@ public final class ModRecipes {
 			Avaritia26.id("full_matter_cluster"),
 			new RecipeSerializer<>(FullMatterClusterRecipe.CODEC, FullMatterClusterRecipe.STREAM_CODEC)
 	);
+	public static final RecipeSerializer<InfinityCatalystRecipe> INFINITY_CATALYST_SERIALIZER = Registry.register(
+			BuiltInRegistries.RECIPE_SERIALIZER,
+			Avaritia26.id("infinity_catalyst"),
+			new RecipeSerializer<>(InfinityCatalystRecipe.CODEC, InfinityCatalystRecipe.STREAM_CODEC)
+	);
 
 	private ModRecipes() {
 	}

@@ -13,6 +13,12 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
 
 public final class ModItems {
+	public static final ResourceKey<Item> INFINITY_CATALYST_KEY = key("infinity_catalyst");
+	public static final Item INFINITY_CATALYST = register(
+			INFINITY_CATALYST_KEY,
+			Item::new,
+			new Item.Properties().rarity(Rarity.EPIC).fireResistant()
+	);
 	public static final ResourceKey<Item> SINGULARITY_KEY = key("singularity");
 	public static final Item SINGULARITY = register(
 			SINGULARITY_KEY,

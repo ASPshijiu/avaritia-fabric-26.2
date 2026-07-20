@@ -100,6 +100,81 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	}
 
 	@GameTest
+	public void infinityCatalystDynamicallyRequiresEverySingularity(GameTestHelper helper) {
+		ItemStack catalyst = new ItemStack(ModItems.INFINITY_CATALYST);
+		helper.assertTrue(
+				BuiltInRegistries.ITEM.getValue(ModItems.INFINITY_CATALYST_KEY) == ModItems.INFINITY_CATALYST,
+				"无尽催化剂没有注册到预期的 ResourceKey"
+		);
+		helper.assertTrue(ModItems.INFINITY_CATALYST.getDefaultMaxStackSize() == 64, "无尽催化剂应当堆叠 64 个");
+		helper.assertTrue(catalyst.getRarity() == Rarity.EPIC, "无尽催化剂应当是 EPIC 稀有度");
+		helper.assertTrue(catalyst.has(DataComponents.DAMAGE_RESISTANT), "无尽催化剂应当具有防火伤害抗性组件");
+		helper.assertTrue(
+				BuiltInRegistries.RECIPE_SERIALIZER.getValue(Avaritia26.id("infinity_catalyst"))
+						== ModRecipes.INFINITY_CATALYST_SERIALIZER,
+				"无尽催化剂动态配方序列化器未注册"
+		);
+
+		List<ItemStack> ingredients = new java.util.ArrayList<>(List.of(
+				new ItemStack(Items.BEDROCK),
+				new ItemStack(ModItems.CRYSTAL_MATRIX_INGOT),
+				new ItemStack(ModItems.NEUTRON_INGOT),
+				new ItemStack(ModItems.COSMIC_MEATBALLS),
+				new ItemStack(ModItems.ULTIMATE_STEW),
+				new ItemStack(ModItems.ENDEST_PEARL),
+				new ItemStack(ModItems.RECORD_FRAGMENT)
+		));
+		List<SingularityDefinition> definitions = SingularityManager.values().stream()
+				.filter(SingularityDefinition::recipeEnabled)
+				.toList();
+		helper.assertTrue(definitions.size() == 14, "无尽催化剂测试应当动态读取 14 个内置奇点");
+		definitions.stream().map(SingularityItem::createStack).forEach(ingredients::add);
+
+		CraftingInput input = CraftingInput.of(7, 3, ingredients);
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(
+				Registries.RECIPE,
+				Avaritia26.id("infinity_catalyst")
+		);
+		RecipeHolder<Recipe<CraftingInput>> recipe = helper.getLevel().getServer().getRecipeManager()
+				.getRecipeFor(ModRecipes.EXTREME_CRAFTING, input, helper.getLevel())
+				.orElseThrow(() -> helper.assertionException("七种固定材料和全部奇点未匹配无尽催化剂配方"));
+		helper.assertTrue(recipe.id().equals(recipeKey), "无尽催化剂材料匹配到了错误配方");
+		ItemStack result = recipe.value().assemble(input);
+		helper.assertTrue(result.is(ModItems.INFINITY_CATALYST) && result.getCount() == 1, "无尽催化剂输出错误");
+
+		assertInfinityCatalystRejected(helper, recipeKey, ingredients.subList(0, ingredients.size() - 1), "缺少奇点");
+
+		List<ItemStack> duplicateSingularity = copyStacks(ingredients);
+		duplicateSingularity.set(duplicateSingularity.size() - 1, duplicateSingularity.get(7).copy());
+		assertInfinityCatalystRejected(helper, recipeKey, duplicateSingularity, "重复奇点");
+
+		List<ItemStack> duplicateFixed = copyStacks(ingredients);
+		duplicateFixed.set(1, duplicateFixed.getFirst().copy());
+		assertInfinityCatalystRejected(helper, recipeKey, duplicateFixed, "重复固定材料");
+
+		List<ItemStack> staleSingularity = copyStacks(ingredients);
+		SingularityDefinition original = definitions.getFirst();
+		SingularityDefinition tampered = new SingularityDefinition(
+				original.name(),
+				original.displayName() + ".tampered",
+				original.overlayColor(),
+				original.underlayColor(),
+				original.count(),
+				original.timeCost(),
+				original.ingredient(),
+				original.enabled(),
+				original.recipeEnabled()
+		);
+		staleSingularity.set(7, SingularityItem.createStack(tampered));
+		assertInfinityCatalystRejected(helper, recipeKey, staleSingularity, "失效奇点快照");
+
+		List<ItemStack> extraIngredient = copyStacks(ingredients);
+		extraIngredient.add(new ItemStack(Items.DIRT));
+		assertInfinityCatalystRejected(helper, recipeKey, extraIngredient, "额外材料");
+		helper.succeed();
+	}
+
+	@GameTest
 	public void neutronCompressorCraftsAndProcessesAllTargets(GameTestHelper helper) {
 		assertExtremeRecipe(
 				helper,
@@ -1236,6 +1311,33 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 				.orElseThrow(() -> helper.assertionException("未匹配终极配方 " + path));
 		helper.assertTrue(recipe.id().equals(recipeKey), path + " 匹配到了错误配方");
 		helper.assertTrue(recipe.value().assemble(input).is(expectedItem), path + " 输出了错误物品");
+	}
+
+	private static void assertInfinityCatalystRejected(
+			GameTestHelper helper,
+			ResourceKey<Recipe<?>> recipeKey,
+			List<ItemStack> ingredients,
+			String scenario
+	) {
+		List<ItemStack> padded = copyStacks(ingredients);
+		int height = (padded.size() + 8) / 9;
+		while (padded.size() < 9 * height) {
+			padded.add(ItemStack.EMPTY);
+		}
+		CraftingInput input = CraftingInput.of(9, height, padded);
+		helper.assertFalse(
+				helper.getLevel().getServer().getRecipeManager()
+						.getRecipeFor(ModRecipes.EXTREME_CRAFTING, input, helper.getLevel())
+						.filter(candidate -> candidate.id().equals(recipeKey))
+						.isPresent(),
+				scenario + "不应匹配无尽催化剂配方"
+		);
+	}
+
+	private static List<ItemStack> copyStacks(List<ItemStack> stacks) {
+		List<ItemStack> copies = new java.util.ArrayList<>(stacks.size());
+		stacks.forEach(stack -> copies.add(stack.copy()));
+		return copies;
 	}
 
 	private static void feedCompressor(
