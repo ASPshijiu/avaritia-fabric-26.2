@@ -15,10 +15,12 @@ import io.github.aspshijiu.avaritia26.block.entity.ExtremeCraftingTableBlockEnti
 import io.github.aspshijiu.avaritia26.block.entity.InfinityChestBlockEntity;
 import io.github.aspshijiu.avaritia26.block.entity.NeutronCollectorBlockEntity;
 import io.github.aspshijiu.avaritia26.block.entity.NeutronCompressorBlockEntity;
-import io.github.aspshijiu.avaritia26.crafting.ModRecipes;
+import io.github.aspshijiu.avaritia26.crafting.EternalSingularityRecipe;
 import io.github.aspshijiu.avaritia26.crafting.ExtremeSmithingInput;
 import io.github.aspshijiu.avaritia26.crafting.ExtremeSmithingRecipe;
 import io.github.aspshijiu.avaritia26.crafting.FullMatterClusterRecipe;
+import io.github.aspshijiu.avaritia26.crafting.InfinityCatalystRecipe;
+import io.github.aspshijiu.avaritia26.crafting.ModRecipes;
 import io.github.aspshijiu.avaritia26.component.InfinityChestContents;
 import io.github.aspshijiu.avaritia26.crafting.NoConsumeCatalystShapedRecipe;
 import io.github.aspshijiu.avaritia26.entity.EndestPearlEntity;
@@ -386,6 +388,22 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.assertTrue(recipe.id().equals(recipeKey), "无尽催化剂材料匹配到了错误配方");
 		ItemStack result = recipe.value().assemble(input);
 		helper.assertTrue(result.is(ModItems.INFINITY_CATALYST) && result.getCount() == 1, "无尽催化剂输出错误");
+		helper.assertTrue(recipe.value() instanceof InfinityCatalystRecipe, "无尽催化剂没有使用动态配方类型");
+		RegistryFriendlyByteBuf recipeBuffer = new RegistryFriendlyByteBuf(
+				Unpooled.buffer(),
+				helper.getLevel().registryAccess()
+		);
+		try {
+			InfinityCatalystRecipe.STREAM_CODEC.encode(recipeBuffer, (InfinityCatalystRecipe) recipe.value());
+			InfinityCatalystRecipe decoded = InfinityCatalystRecipe.STREAM_CODEC.decode(recipeBuffer);
+			helper.assertTrue(decoded.matches(input, helper.getLevel()), "无尽催化剂配方网络同步往返后不再匹配");
+			helper.assertTrue(
+					decoded.assemble(input).is(ModItems.INFINITY_CATALYST),
+					"无尽催化剂配方网络同步丢失输出"
+			);
+		} finally {
+			recipeBuffer.release();
+		}
 
 		assertInfinityCatalystRejected(helper, recipeKey, ingredients.subList(0, ingredients.size() - 1), "缺少奇点");
 
@@ -1564,6 +1582,22 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.assertTrue(recipe.id().equals(recipeKey), "永恒奇点材料匹配到了错误配方");
 		ItemStack result = recipe.value().assemble(input);
 		helper.assertTrue(result.is(ModItems.ETERNAL_SINGULARITY) && result.getCount() == 1, "永恒奇点输出错误");
+		helper.assertTrue(recipe.value() instanceof EternalSingularityRecipe, "永恒奇点没有使用动态配方类型");
+		RegistryFriendlyByteBuf recipeBuffer = new RegistryFriendlyByteBuf(
+				Unpooled.buffer(),
+				helper.getLevel().registryAccess()
+		);
+		try {
+			EternalSingularityRecipe.STREAM_CODEC.encode(recipeBuffer, (EternalSingularityRecipe) recipe.value());
+			EternalSingularityRecipe decoded = EternalSingularityRecipe.STREAM_CODEC.decode(recipeBuffer);
+			helper.assertTrue(decoded.matches(input, helper.getLevel()), "永恒奇点配方网络同步往返后不再匹配");
+			helper.assertTrue(
+					decoded.assemble(input).is(ModItems.ETERNAL_SINGULARITY),
+					"永恒奇点配方网络同步丢失输出"
+			);
+		} finally {
+			recipeBuffer.release();
+		}
 
 		List<ItemStack> missing = copyStacks(singularities);
 		missing.removeLast();
