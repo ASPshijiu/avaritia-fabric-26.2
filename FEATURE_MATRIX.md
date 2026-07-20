@@ -38,14 +38,14 @@
 
 | Registry path | 中文名 | 实现 | 合成/产出 | 使用 | 功能 | 客户端 | 专服 |
 |---|---|---|---|---|---|---|---|
-| `compressed_crafting_table` | 压缩工作台 | 实现中 | 实现中 | 实现中 | 实现中 | — | — |
-| `double_compressed_crafting_table` | 二重压缩工作台 | 实现中 | 实现中 | 实现中 | 实现中 | — | — |
-| `extreme_crafting_table` | 终极工作台 | 实现中 | 实现中 | 实现中 | 实现中 | — | — |
-| `crystal_matrix` | 晶态矩阵块 | 实现中 | 实现中 | 实现中 | 实现中 | — | — |
-| `neutron` | 中子块 | 实现中 | 实现中 | 实现中 | 实现中 | — | — |
+| `compressed_crafting_table` | 压缩工作台 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `double_compressed_crafting_table` | 二重压缩工作台 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `extreme_crafting_table` | 终极工作台 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `crystal_matrix` | 晶态矩阵块 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `neutron` | 中子块 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
 | `infinity` | 无尽块 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `neutron_collector` | 中子收集器 | 实现中 | 实现中 | 实现中 | 实现中 | — | — |
-| `neutron_compressor` | 中子压缩机 | 实现中 | 实现中 | 实现中 | 实现中 | — | — |
+| `neutron_collector` | 中子收集器 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `neutron_compressor` | 中子压缩机 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
 | `infinity_chest` | 无尽箱子 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
 
 ## P0：内置奇点变体
