@@ -287,6 +287,45 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	}
 
 	@GameTest
+	public void infinityNuggetCraftsAndRecombines(GameTestHelper helper) {
+		ItemStack nugget = new ItemStack(ModItems.INFINITY_NUGGET);
+		helper.assertTrue(
+				BuiltInRegistries.ITEM.getValue(ModItems.INFINITY_NUGGET_KEY) == ModItems.INFINITY_NUGGET,
+				"无尽粒没有注册到预期的 ResourceKey"
+		);
+		helper.assertTrue(nugget.getMaxStackSize() == 64, "无尽粒应当堆叠 64 个");
+		helper.assertTrue(nugget.getRarity() == Rarity.EPIC, "无尽粒应当是 EPIC 稀有度");
+		helper.assertTrue(nugget.has(DataComponents.DAMAGE_RESISTANT), "无尽粒应当具有防火伤害抗性组件");
+		List<Component> tooltip = new java.util.ArrayList<>();
+		ModItems.INFINITY_NUGGET.appendHoverText(
+				nugget,
+				Item.TooltipContext.of(helper.getLevel()),
+				TooltipDisplay.DEFAULT,
+				tooltip::add,
+				TooltipFlag.NORMAL
+		);
+		helper.assertTrue(tooltip.size() == 1 && tooltip.getFirst().getStyle().isItalic(), "无尽粒缺少经典斜体说明");
+
+		CraftingInput unpackInput = CraftingInput.of(1, 1, List.of(new ItemStack(ModItems.INFINITY_INGOT)));
+		assertCraftingRecipe(helper, "infinity_nugget_from_ingot", unpackInput, ModItems.INFINITY_NUGGET, 9);
+		CraftingInput packInput = filledCraftingInput(ModItems.INFINITY_NUGGET);
+		assertCraftingRecipe(helper, "infinity_ingot_from_nuggets", packInput, ModItems.INFINITY_INGOT, 1);
+		List<ItemStack> wrongStacks = copyStacks(packInput.items());
+		wrongStacks.set(4, new ItemStack(Items.DIRT));
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(
+				Registries.RECIPE,
+				Avaritia26.id("infinity_ingot_from_nuggets")
+		);
+		helper.assertFalse(
+				helper.getLevel().getServer().getRecipeManager()
+						.getRecipeFor(RecipeType.CRAFTING, CraftingInput.of(3, 3, wrongStacks), helper.getLevel())
+						.filter(candidate -> candidate.id().equals(recipeKey)).isPresent(),
+				"无尽粒回压配方不应接受错误材料"
+		);
+		helper.succeed();
+	}
+
+	@GameTest
 	public void infinityIngotAndBlockResourceChainWorks(GameTestHelper helper) {
 		ItemStack ingot = new ItemStack(ModItems.INFINITY_INGOT);
 		helper.assertTrue(

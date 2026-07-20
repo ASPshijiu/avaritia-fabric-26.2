@@ -1,0 +1,16 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"category": "misc",
+	"key": {
+		"n": "avaritia26:infinity_nugget"
+	},
+	"pattern": [
+		"nnn",
+		"nnn",
+		"nnn"
+	],
+	"result": {
+		"count": 1,
+		"id": "avaritia26:infinity_ingot"
+	}
+}

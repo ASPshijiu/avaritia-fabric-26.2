@@ -26,6 +26,7 @@
 	"item.avaritia26.infinity_chestplate": "无尽胸甲",
 	"item.avaritia26.infinity_helmet": "无尽头盔",
 	"item.avaritia26.infinity_ingot": "无尽之锭",
+	"item.avaritia26.infinity_nugget": "无尽之泪",
 	"item.avaritia26.infinity_hoe": "无尽锄",
 	"item.avaritia26.infinity_pickaxe": "无尽镐",
 	"item.avaritia26.infinity_pants": "无尽护腿",
@@ -59,5 +60,6 @@
 	"subtitles.avaritia26.gaping_void": "虚空漩涡坍缩",
 	"tooltip.avaritia26.matter_cluster.counter": "已存物品：%s / %s",
 	"tooltip.avaritia26.matter_cluster.more": "……以及另外 %s 组物品",
+	"tooltip.avaritia26.infinity_nugget": "圣灵的眼泪……",
 	"tooltip.avaritia26.skull_fire_sword": "斩骷髅首级，后烧至焦黑。"
 }

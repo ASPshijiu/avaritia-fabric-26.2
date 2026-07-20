@@ -38,6 +38,7 @@ public final class ModCreativeTabs {
 				output.accept(ModItems.ETERNAL_SINGULARITY);
 				output.accept(ModItems.INFINITY_CATALYST);
 				output.accept(ModItems.INFINITY_INGOT);
+				output.accept(ModItems.INFINITY_NUGGET);
 				output.accept(ModBlocks.INFINITY_ITEM);
 				output.accept(ModItems.DIAMOND_LATTICE);
 				output.accept(ModItems.CRYSTAL_MATRIX_INGOT);

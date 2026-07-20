@@ -15,6 +15,7 @@ import io.github.aspshijiu.avaritia26.item.InfinitySwordItem;
 import io.github.aspshijiu.avaritia26.item.MatterClusterItem;
 import io.github.aspshijiu.avaritia26.item.SingularityItem;
 import io.github.aspshijiu.avaritia26.item.SkullFireSwordItem;
+import io.github.aspshijiu.avaritia26.item.TooltipItem;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -155,6 +156,12 @@ public final class ModItems {
 	public static final Item INFINITY_INGOT = register(
 			INFINITY_INGOT_KEY,
 			Item::new,
+			new Item.Properties().rarity(Rarity.EPIC).fireResistant()
+	);
+	public static final ResourceKey<Item> INFINITY_NUGGET_KEY = key("infinity_nugget");
+	public static final Item INFINITY_NUGGET = register(
+			INFINITY_NUGGET_KEY,
+			properties -> new TooltipItem(properties, "tooltip.avaritia26.infinity_nugget"),
 			new Item.Properties().rarity(Rarity.EPIC).fireResistant()
 	);
 	public static final ResourceKey<Item> SINGULARITY_KEY = key("singularity");
