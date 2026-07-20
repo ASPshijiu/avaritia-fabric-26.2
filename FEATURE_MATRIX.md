@@ -27,7 +27,7 @@
 | `infinity_hoe` | 无尽锄 | 实现中 | 实现中 | 实现中 | 实现中 | — | — |
 | `infinity_pickaxe` | 无尽镐 | 实现中 | 实现中 | 实现中 | 实现中 | — | — |
 | `infinity_shovel` | 无尽铲 | 实现中 | 实现中 | 实现中 | 实现中 | — | — |
-| `infinity_axe` | 无尽斧 | 未开始 | — | — | — | — | — |
+| `infinity_axe` | 自然荒芜之斧 | 实现中 | 实现中 | 实现中 | 实现中 | — | — |
 | `infinity_bow` | 天堂陨落长弓 | 未开始 | — | — | — | — | — |
 | `infinity_helmet` | 无尽头盔 | 未开始 | — | — | — | — | — |
 | `infinity_chestplate` | 无尽胸甲 | 未开始 | — | — | — | — | — |

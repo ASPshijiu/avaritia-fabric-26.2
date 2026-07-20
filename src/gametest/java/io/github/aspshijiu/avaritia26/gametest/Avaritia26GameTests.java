@@ -752,6 +752,104 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	}
 
 	@GameTest
+	public void infinityAxeCraftsChainsTreesAndClearsClassicArea(GameTestHelper helper) {
+		ItemStack axe = new ItemStack(ModItems.INFINITY_AXE);
+		helper.assertTrue(
+				BuiltInRegistries.ITEM.getValue(ModItems.INFINITY_AXE_KEY) == ModItems.INFINITY_AXE,
+				"自然荒芜之斧没有注册到预期的 ResourceKey"
+		);
+		helper.assertTrue(axe.getMaxStackSize() == 1 && !axe.isDamageableItem(), "自然荒芜之斧应当不可堆叠且永不损耗");
+		helper.assertTrue(axe.getRarity() == Rarity.EPIC && axe.is(ItemTags.AXES), "自然荒芜之斧稀有度或工具标签错误");
+		helper.assertTrue(ModItems.INFINITY_AXE.getDestroySpeed(axe, Blocks.OAK_LOG.defaultBlockState()) == 9999.0F, "自然荒芜之斧木材速度错误");
+		helper.assertTrue(ModItems.INFINITY_AXE.getDestroySpeed(axe, Blocks.STONE.defaultBlockState()) == 6.0F, "自然荒芜之斧非木材保底速度错误");
+		var modifiers = axe.get(DataComponents.ATTRIBUTE_MODIFIERS);
+		helper.assertTrue(
+				modifiers != null && modifiers.compute(Attributes.ATTACK_DAMAGE, 1.0, EquipmentSlot.MAINHAND) == 40.0,
+				"自然荒芜之斧主手攻击伤害应当是 40"
+		);
+		helper.assertTrue(
+				modifiers != null && Math.abs(modifiers.compute(Attributes.ATTACK_SPEED, 4.0, EquipmentSlot.MAINHAND) - 1.0) < 0.0001,
+				"自然荒芜之斧主手攻击速度应当是 1.0"
+		);
+
+		CraftingInput input = infinityAxeInput();
+		assertExtremeRecipe(helper, "infinity_axe", input, ModItems.INFINITY_AXE);
+		List<ItemStack> wrongStacks = copyStacks(input.items());
+		wrongStacks.set(1, new ItemStack(Items.DIRT));
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(Registries.RECIPE, Avaritia26.id("infinity_axe"));
+		helper.assertFalse(
+				helper.getLevel().getServer().getRecipeManager()
+						.getRecipeFor(ModRecipes.EXTREME_CRAFTING, CraftingInput.of(input.width(), input.height(), wrongStacks), helper.getLevel())
+						.filter(candidate -> candidate.id().equals(recipeKey))
+						.isPresent(),
+				"自然荒芜之斧刃部材料错误时不应匹配配方"
+		);
+
+		Player player = helper.makeMockServerPlayer(GameType.SURVIVAL);
+		player.setItemInHand(InteractionHand.MAIN_HAND, axe);
+		BlockPos treeOrigin = new BlockPos(10, 10, 10);
+		for (int distance = 0; distance <= 33; distance++) {
+			helper.setBlock(treeOrigin.above(distance), Blocks.OAK_LOG);
+		}
+		for (int distance = 1; distance <= 5; distance++) {
+			helper.setBlock(treeOrigin.east(distance), Blocks.OAK_LEAVES);
+		}
+		BlockPos absoluteTreeOrigin = helper.absolutePos(treeOrigin);
+		player.setPos(absoluteTreeOrigin.getX() + 0.5, absoluteTreeOrigin.getY(), absoluteTreeOrigin.getZ() + 0.5);
+		var chainResult = AttackBlockCallback.EVENT.invoker().interact(
+				player,
+				helper.getLevel(),
+				InteractionHand.MAIN_HAND,
+				absoluteTreeOrigin,
+				Direction.UP
+		);
+		helper.assertTrue(chainResult.consumesAction(), "自然荒芜之斧没有接管连锁砍树");
+		helper.assertBlockPresent(Blocks.AIR, treeOrigin.above(32));
+		helper.assertBlockPresent(Blocks.OAK_LOG, treeOrigin.above(33));
+		helper.assertBlockPresent(Blocks.AIR, treeOrigin.east(4));
+		helper.assertBlockPresent(Blocks.OAK_LEAVES, treeOrigin.east(5));
+
+		BlockPos areaOrigin = new BlockPos(50, 10, 50);
+		BlockPos minCorner = areaOrigin.offset(-13, -3, -13);
+		BlockPos maxXBoundary = areaOrigin.east(13);
+		BlockPos maxYBoundary = areaOrigin.above(23);
+		BlockPos leaves = areaOrigin.east();
+		BlockPos vine = areaOrigin.west();
+		BlockPos coral = areaOrigin.north();
+		BlockPos flower = areaOrigin.south();
+		BlockPos stone = areaOrigin.south(2);
+		helper.setBlock(minCorner, Blocks.OAK_PLANKS);
+		helper.setBlock(maxXBoundary, Blocks.OAK_PLANKS);
+		helper.setBlock(maxYBoundary, Blocks.OAK_PLANKS);
+		helper.setBlock(leaves, Blocks.OAK_LEAVES);
+		helper.setBlock(vine, Blocks.VINE);
+		helper.setBlock(coral, Blocks.TUBE_CORAL_BLOCK);
+		helper.setBlock(flower, Blocks.DANDELION);
+		helper.setBlock(stone, Blocks.STONE);
+		BlockPos absoluteAreaOrigin = helper.absolutePos(areaOrigin);
+		player.setPos(absoluteAreaOrigin.getX() + 0.5, absoluteAreaOrigin.getY(), absoluteAreaOrigin.getZ() + 0.5);
+		player.setShiftKeyDown(true);
+		var areaResult = ModItems.INFINITY_AXE.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+		helper.assertTrue(areaResult.consumesAction(), "自然荒芜之斧没有接管潜行范围清理");
+		helper.assertBlockPresent(Blocks.AIR, minCorner);
+		helper.assertBlockPresent(Blocks.OAK_PLANKS, maxXBoundary);
+		helper.assertBlockPresent(Blocks.OAK_PLANKS, maxYBoundary);
+		helper.assertBlockPresent(Blocks.AIR, leaves);
+		helper.assertBlockPresent(Blocks.AIR, vine);
+		helper.assertBlockPresent(Blocks.AIR, coral);
+		helper.assertBlockPresent(Blocks.AIR, flower);
+		helper.assertBlockPresent(Blocks.STONE, stone);
+		List<ItemEntity> clusters = helper.getLevel().getEntitiesOfClass(
+				ItemEntity.class,
+				new AABB(absoluteAreaOrigin).inflate(2.0),
+				entity -> entity.getItem().is(ModItems.MATTER_CLUSTER)
+		);
+		helper.assertTrue(clusters.size() == 1 && MatterClusterItem.getSize(clusters.getFirst().getItem()) >= 2, "自然荒芜之斧没有把范围掉落压入物质团");
+		helper.assertTrue(axe.getDamageValue() == 0, "自然荒芜之斧使用后不应产生耐久损耗");
+		helper.succeed();
+	}
+
+	@GameTest
 	public void eternalSingularityDynamicallyCombinesEverySingularity(GameTestHelper helper) {
 		ItemStack eternal = new ItemStack(ModItems.ETERNAL_SINGULARITY);
 		helper.assertTrue(
@@ -2338,6 +2436,32 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 					case 'X' -> new ItemStack(ModBlocks.INFINITY_ITEM);
 					case ' ' -> ItemStack.EMPTY;
 					default -> throw new IllegalArgumentException("未知无尽铲配方符号: " + symbol);
+				};
+				stacks.add(stack);
+			}
+		}
+		return CraftingInput.of(9, 9, stacks);
+	}
+
+	private static CraftingInput infinityAxeInput() {
+		List<ItemStack> stacks = new java.util.ArrayList<>(81);
+		for (String row : List.of(
+				"   I     ",
+				"  IIIII  ",
+				"   IIII  ",
+				"     IN  ",
+				"      N  ",
+				"      N  ",
+				"      N  ",
+				"      N  ",
+				"      N  "
+		)) {
+			for (char symbol : row.toCharArray()) {
+				ItemStack stack = switch (symbol) {
+					case 'I' -> new ItemStack(ModItems.INFINITY_INGOT);
+					case 'N' -> new ItemStack(ModItems.NEUTRON_INGOT);
+					case ' ' -> ItemStack.EMPTY;
+					default -> throw new IllegalArgumentException("未知自然荒芜之斧配方符号: " + symbol);
 				};
 				stacks.add(stack);
 			}

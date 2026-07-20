@@ -1,0 +1,23 @@
+{
+  "type": "avaritia26:extreme_shaped",
+  "category": "equipment",
+  "key": {
+    "I": "avaritia26:infinity_ingot",
+    "N": "avaritia26:neutron_ingot"
+  },
+  "pattern": [
+    "   I     ",
+    "  IIIII  ",
+    "   IIII  ",
+    "     IN  ",
+    "      N  ",
+    "      N  ",
+    "      N  ",
+    "      N  ",
+    "      N  "
+  ],
+  "result": {
+    "count": 1,
+    "id": "avaritia26:infinity_axe"
+  }
+}
