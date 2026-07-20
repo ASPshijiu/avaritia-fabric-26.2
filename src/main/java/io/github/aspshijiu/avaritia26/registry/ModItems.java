@@ -40,6 +40,12 @@ public final class ModItems {
 			Item::new,
 			new Item.Properties().rarity(Rarity.EPIC)
 	);
+	public static final ResourceKey<Item> RECORD_FRAGMENT_KEY = key("record_fragment");
+	public static final Item RECORD_FRAGMENT = register(
+			RECORD_FRAGMENT_KEY,
+			Item::new,
+			new Item.Properties().rarity(Rarity.RARE)
+	);
 
 	private ModItems() {
 	}

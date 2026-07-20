@@ -97,6 +97,45 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	}
 
 	@GameTest
+	public void recordFragmentRecipeWorks(GameTestHelper helper) {
+		assertRegisteredMaterial(
+				helper,
+				ModItems.RECORD_FRAGMENT_KEY,
+				ModItems.RECORD_FRAGMENT,
+				Rarity.RARE,
+				"唱片碎片"
+		);
+		CraftingInput input = CraftingInput.of(3, 3, List.of(
+				ItemStack.EMPTY, new ItemStack(ModItems.NEUTRON_PILE), ItemStack.EMPTY,
+				new ItemStack(ModItems.NEUTRON_PILE), new ItemStack(Items.MUSIC_DISC_13),
+				new ItemStack(ModItems.NEUTRON_PILE),
+				ItemStack.EMPTY, new ItemStack(ModItems.NEUTRON_PILE), ItemStack.EMPTY
+		));
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(Registries.RECIPE, Avaritia26.id("record_fragment"));
+		RecipeHolder<ExtremeShapedRecipe> recipe = helper.getLevel().getServer().getRecipeManager()
+				.getRecipeFor(ModRecipes.EXTREME_CRAFTING, input, helper.getLevel())
+				.orElseThrow(() -> helper.assertionException("正确唱片材料未匹配唱片碎片配方"));
+		helper.assertTrue(recipe.id().equals(recipeKey), "唱片碎片材料匹配到了错误配方");
+		ItemStack result = recipe.value().assemble(input);
+		helper.assertTrue(
+				result.is(ModItems.RECORD_FRAGMENT) && result.getCount() == 4,
+				"唱片碎片配方应当输出 4 个"
+		);
+
+		List<ItemStack> wrongStacks = new java.util.ArrayList<>(input.items());
+		wrongStacks.set(4, new ItemStack(Items.DIRT));
+		CraftingInput wrongInput = CraftingInput.of(3, 3, wrongStacks);
+		helper.assertFalse(
+				helper.getLevel().getServer().getRecipeManager()
+						.getRecipeFor(ModRecipes.EXTREME_CRAFTING, wrongInput, helper.getLevel())
+						.filter(candidate -> candidate.id().equals(recipeKey))
+						.isPresent(),
+				"非唱片物品不应匹配唱片碎片配方"
+		);
+		helper.succeed();
+	}
+
+	@GameTest
 	public void crystalMatrixBlockWorks(GameTestHelper helper) {
 		helper.assertTrue(
 				BuiltInRegistries.BLOCK.getValue(ModBlocks.CRYSTAL_MATRIX_KEY) == ModBlocks.CRYSTAL_MATRIX,
