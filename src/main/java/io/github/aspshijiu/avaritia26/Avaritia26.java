@@ -9,6 +9,7 @@ import io.github.aspshijiu.avaritia26.registry.ModEntityTypes;
 import io.github.aspshijiu.avaritia26.registry.ModItems;
 import io.github.aspshijiu.avaritia26.registry.ModMenus;
 import io.github.aspshijiu.avaritia26.registry.ModSounds;
+import io.github.aspshijiu.avaritia26.singularity.SingularityManager;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.resources.Identifier;
 import org.slf4j.Logger;
@@ -29,6 +30,7 @@ public final class Avaritia26 implements ModInitializer {
 		ModBlockEntities.initialize();
 		ModMenus.initialize();
 		ModCreativeTabs.initialize();
+		SingularityManager.initialize();
 		LOGGER.info("Avaritia 26 已初始化");
 	}
 

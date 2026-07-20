@@ -2,11 +2,20 @@ package io.github.aspshijiu.avaritia26.registry;
 
 import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.component.MatterClusterContents;
+import io.github.aspshijiu.avaritia26.singularity.SingularityDefinition;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 
 public final class ModDataComponents {
+	public static final DataComponentType<SingularityDefinition> SINGULARITY = Registry.register(
+			BuiltInRegistries.DATA_COMPONENT_TYPE,
+			Avaritia26.id("singularity"),
+			DataComponentType.<SingularityDefinition>builder()
+					.persistent(SingularityDefinition.CODEC)
+					.networkSynchronized(SingularityDefinition.STREAM_CODEC)
+					.build()
+	);
 	public static final DataComponentType<MatterClusterContents> MATTER_CLUSTER_CONTENTS = Registry.register(
 			BuiltInRegistries.DATA_COMPONENT_TYPE,
 			Avaritia26.id("matter_cluster_contents"),

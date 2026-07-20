@@ -1,6 +1,8 @@
 package io.github.aspshijiu.avaritia26.registry;
 
 import io.github.aspshijiu.avaritia26.Avaritia26;
+import io.github.aspshijiu.avaritia26.item.SingularityItem;
+import io.github.aspshijiu.avaritia26.singularity.SingularityManager;
 import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTab;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -19,6 +21,7 @@ public final class ModCreativeTabs {
 			.icon(() -> new ItemStack(ModItems.DIAMOND_LATTICE))
 			.title(Component.translatable("itemGroup.avaritia26.main"))
 			.displayItems((parameters, output) -> {
+				SingularityManager.values().forEach(definition -> output.accept(SingularityItem.createStack(definition)));
 				output.accept(ModItems.DIAMOND_LATTICE);
 				output.accept(ModItems.CRYSTAL_MATRIX_INGOT);
 				output.accept(ModItems.NEUTRON_PILE);

@@ -1,0 +1,7 @@
+{
+  "name": "avaritia26:redstone",
+  "displayName": "singularity.avaritia26.redstone",
+  "overlayColor": 16711680,
+  "underlayColor": 9046273,
+  "ingredient": ["minecraft:redstone"]
+}

@@ -2,7 +2,9 @@ package io.github.aspshijiu.avaritia26.gametest;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Map;
 
+import com.mojang.serialization.JsonOps;
 import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.block.entity.ExtremeCraftingTableBlockEntity;
 import io.github.aspshijiu.avaritia26.crafting.ModRecipes;
@@ -10,11 +12,15 @@ import io.github.aspshijiu.avaritia26.entity.EndestPearlEntity;
 import io.github.aspshijiu.avaritia26.entity.GapingVoidEntity;
 import io.github.aspshijiu.avaritia26.inventory.ExtremeCraftingMenu;
 import io.github.aspshijiu.avaritia26.item.MatterClusterItem;
+import io.github.aspshijiu.avaritia26.item.SingularityItem;
 import io.github.aspshijiu.avaritia26.registry.ModBlockEntities;
 import io.github.aspshijiu.avaritia26.registry.ModBlocks;
 import io.github.aspshijiu.avaritia26.registry.ModDataComponents;
 import io.github.aspshijiu.avaritia26.registry.ModEntityTypes;
 import io.github.aspshijiu.avaritia26.registry.ModItems;
+import io.github.aspshijiu.avaritia26.singularity.SingularityDefinition;
+import io.github.aspshijiu.avaritia26.singularity.SingularityManager;
+import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.gametest.v1.CustomTestMethodInvoker;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.BlockPos;
@@ -22,6 +28,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.InteractionHand;
@@ -38,6 +45,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.component.Consumable;
+import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.item.component.UseCooldown;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
@@ -55,6 +63,36 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	@GameTest
 	public void modStartsOnServer(GameTestHelper helper) {
 		helper.assertBlockPresent(Blocks.AIR, 0, 0, 0);
+		helper.succeed();
+	}
+
+	@GameTest
+	public void builtInSingularitiesLoadAndRoundTrip(GameTestHelper helper) {
+		Map<String, ExpectedSingularity> expected = Map.ofEntries(
+				Map.entry("obsidian", new ExpectedSingularity(Items.OBSIDIAN, 3_876_692, 1_051_676)),
+				Map.entry("blue_ice", new ExpectedSingularity(Items.BLUE_ICE, 9_353_470, 7_052_795)),
+				Map.entry("coal", new ExpectedSingularity(Items.COAL, 3_553_081, 2_498_084)),
+				Map.entry("copper", new ExpectedSingularity(Items.COPPER_INGOT, 16_422_780, 12_342_320)),
+				Map.entry("iron", new ExpectedSingularity(Items.IRON_INGOT, 14_803_425, 7_105_644)),
+				Map.entry("lapis_lazuli", new ExpectedSingularity(Items.LAPIS_LAZULI, 6_786_538, 1_790_887)),
+				Map.entry("redstone", new ExpectedSingularity(Items.REDSTONE, 16_711_680, 9_046_273)),
+				Map.entry("glowstone", new ExpectedSingularity(Items.GLOWSTONE_DUST, 16_765_839, 10_510_645)),
+				Map.entry("gold", new ExpectedSingularity(Items.GOLD_INGOT, 16_643_423, 14_257_668)),
+				Map.entry("diamond", new ExpectedSingularity(Items.DIAMOND, 10_943_721, 1_748_136)),
+				Map.entry("emerald", new ExpectedSingularity(Items.EMERALD, 8_255_660, 36_378)),
+				Map.entry("quartz", new ExpectedSingularity(Items.QUARTZ, 15_394_270, 11_969_678)),
+				Map.entry("amethyst_shard", new ExpectedSingularity(Items.AMETHYST_SHARD, 13_607_155, 9_267_916)),
+				Map.entry("netherite", new ExpectedSingularity(Items.NETHERITE_INGOT, 4_471_355, 1_709_590))
+		);
+
+		helper.assertTrue(SingularityManager.values().size() == expected.size(), "内置奇点定义数量错误");
+		helper.assertTrue(
+				BuiltInRegistries.ITEM.getValue(ModItems.SINGULARITY_KEY) == ModItems.SINGULARITY,
+				"奇点共用物品没有注册"
+		);
+		helper.assertTrue(ModItems.SINGULARITY.getDefaultMaxStackSize() == 64, "奇点应当可以堆叠 64 个");
+
+		expected.forEach((path, values) -> assertSingularity(helper, path, values));
 		helper.succeed();
 	}
 
@@ -983,6 +1021,57 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.assertTrue(stack.is(item), name + " ItemStack 未指向注册物品");
 		helper.assertTrue(item.getDefaultMaxStackSize() == 64, name + "应当可以堆叠 64 个");
 		helper.assertTrue(stack.getRarity() == rarity, name + "稀有度错误");
+	}
+
+	private static void assertSingularity(GameTestHelper helper, String path, ExpectedSingularity values) {
+		SingularityDefinition definition = SingularityManager.get(Avaritia26.id(path));
+		helper.assertTrue(definition != null, "缺少奇点定义 " + path);
+		helper.assertTrue(definition.enabled() && definition.recipeEnabled(), path + " 奇点应当启用");
+		helper.assertTrue(
+				definition.count() == 1000 && definition.timeCost() == 240,
+				path + " 奇点默认压缩参数错误"
+		);
+		helper.assertTrue(definition.overlayColor() == values.overlayColor(), path + " 奇点覆盖色错误");
+		helper.assertTrue(definition.underlayColor() == values.underlayColor(), path + " 奇点底色错误");
+		helper.assertTrue(definition.ingredient().test(new ItemStack(values.ingredient())), path + " 奇点输入错误");
+
+		ItemStack stack = SingularityItem.createStack(definition);
+		helper.assertTrue(stack.is(ModItems.SINGULARITY), path + " 奇点没有使用共用物品");
+		helper.assertTrue(stack.getRarity() == Rarity.UNCOMMON, path + " 奇点稀有度错误");
+		helper.assertTrue(
+				definition.equals(stack.get(ModDataComponents.SINGULARITY)),
+				path + " 奇点组件写入失败"
+		);
+		CustomModelData colors = stack.get(DataComponents.CUSTOM_MODEL_DATA);
+		helper.assertTrue(colors != null, path + " 奇点缺少模型颜色组件");
+		helper.assertTrue(colors.getColor(0) == definition.underlayColor(), path + " 奇点模型底色错误");
+		helper.assertTrue(colors.getColor(1) == definition.overlayColor(), path + " 奇点模型覆盖色错误");
+		helper.assertTrue(
+				definition.equals(stack.copy().get(ModDataComponents.SINGULARITY)),
+				path + " 奇点复制丢失组件"
+		);
+		var ops = helper.getLevel().registryAccess().createSerializationContext(JsonOps.INSTANCE);
+		var encoded = ItemStack.CODEC.encodeStart(ops, stack).getOrThrow();
+		ItemStack restored = ItemStack.CODEC.parse(ops, encoded).getOrThrow();
+		helper.assertTrue(
+				definition.equals(restored.get(ModDataComponents.SINGULARITY)),
+				path + " 奇点存档往返丢失组件"
+		);
+
+		RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(
+				Unpooled.buffer(),
+				helper.getLevel().registryAccess()
+		);
+		try {
+			SingularityDefinition.STREAM_CODEC.encode(buffer, definition);
+			SingularityDefinition decoded = SingularityDefinition.STREAM_CODEC.decode(buffer);
+			helper.assertTrue(definition.equals(decoded), path + " 奇点网络同步往返不一致");
+		} finally {
+			buffer.release();
+		}
+	}
+
+	private record ExpectedSingularity(Item ingredient, int overlayColor, int underlayColor) {
 	}
 
 	private static CraftingInput filledCraftingInput(Item item) {
