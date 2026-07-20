@@ -33,6 +33,7 @@ import io.github.aspshijiu.avaritia26.entity.EndestPearlEntity;
 import io.github.aspshijiu.avaritia26.entity.GapingVoidEntity;
 import io.github.aspshijiu.avaritia26.entity.HeavenArrowEntity;
 import io.github.aspshijiu.avaritia26.entity.HeavenSubArrowEntity;
+import io.github.aspshijiu.avaritia26.entity.UmbrellaProjectileEntity;
 import io.github.aspshijiu.avaritia26.event.ModArmorEvents;
 import io.github.aspshijiu.avaritia26.event.ModCombatEvents;
 import io.github.aspshijiu.avaritia26.inventory.CompressedChestMenu;
@@ -48,6 +49,7 @@ import io.github.aspshijiu.avaritia26.inventory.SculkCraftingMenu;
 import io.github.aspshijiu.avaritia26.item.MatterClusterItem;
 import io.github.aspshijiu.avaritia26.item.NeutronRingItem;
 import io.github.aspshijiu.avaritia26.item.InfinityArmorItem;
+import io.github.aspshijiu.avaritia26.item.InfinityUmbrellaItem;
 import io.github.aspshijiu.avaritia26.item.SingularityItem;
 import io.github.aspshijiu.avaritia26.registry.ModBlockEntities;
 import io.github.aspshijiu.avaritia26.registry.ModBlocks;
@@ -86,6 +88,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -2977,6 +2980,93 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	}
 
 	@GameTest
+	public void infinityUmbrellaCraftsCyclesWeatherAndProjectiles(GameTestHelper helper) {
+		ItemStack umbrella = new ItemStack(ModItems.INFINITY_UMBRELLA);
+		helper.assertTrue(BuiltInRegistries.ITEM.getValue(ModItems.INFINITY_UMBRELLA_KEY) == ModItems.INFINITY_UMBRELLA,
+				"无尽雨伞物品未注册");
+		helper.assertTrue(umbrella.getMaxStackSize() == 1 && umbrella.getRarity() == Rarity.EPIC
+				&& umbrella.has(DataComponents.DAMAGE_RESISTANT), "无尽雨伞物品属性错误");
+		helper.assertTrue(BuiltInRegistries.ENTITY_TYPE.getValue(ModEntityTypes.UMBRELLA_SUN_PROJECTILE_KEY)
+				== ModEntityTypes.UMBRELLA_SUN_PROJECTILE, "无尽雨伞晴天弹未注册");
+		helper.assertTrue(BuiltInRegistries.ENTITY_TYPE.getValue(ModEntityTypes.UMBRELLA_RAIN_PROJECTILE_KEY)
+				== ModEntityTypes.UMBRELLA_RAIN_PROJECTILE, "无尽雨伞雨天弹未注册");
+		helper.assertTrue(BuiltInRegistries.ENTITY_TYPE.getValue(ModEntityTypes.UMBRELLA_STORM_PROJECTILE_KEY)
+				== ModEntityTypes.UMBRELLA_STORM_PROJECTILE, "无尽雨伞雷暴弹未注册");
+
+		CraftingInput input = infinityUmbrellaInput();
+		assertExtremeRecipe(helper, "infinity_umbrella", input, ModItems.INFINITY_UMBRELLA);
+		List<ItemStack> wrongStacks = copyStacks(input.items());
+		wrongStacks.set(13, new ItemStack(Items.IRON_INGOT));
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(Registries.RECIPE, Avaritia26.id("infinity_umbrella"));
+		helper.assertFalse(helper.getLevel().getServer().getRecipeManager()
+				.getRecipeFor(ModRecipes.EXTREME_CRAFTING, CraftingInput.of(9, 9, wrongStacks), helper.getLevel())
+				.filter(candidate -> candidate.id().equals(recipeKey)).isPresent(),
+				"无尽雨伞配方错误接受了替代材料");
+
+		ServerPlayer player = (ServerPlayer) helper.makeMockServerPlayer(GameType.SURVIVAL);
+		player.setPos(Vec3.atCenterOf(helper.absolutePos(new BlockPos(5, 2, 5))));
+		player.setItemInHand(InteractionHand.MAIN_HAND, umbrella);
+		player.setShiftKeyDown(true);
+		helper.assertTrue(ModItems.INFINITY_UMBRELLA.use(helper.getLevel(), player, InteractionHand.MAIN_HAND)
+				.consumesAction(), "潜行使用无尽雨伞没有切换模式");
+		helper.assertTrue(InfinityUmbrellaItem.getMode(umbrella) == InfinityUmbrellaItem.SUN,
+				"无尽雨伞没有从普通模式切换到晴天模式");
+		player.setShiftKeyDown(false);
+		player.setXRot(-90.0F);
+
+		InfinityUmbrellaItem.setMode(umbrella, InfinityUmbrellaItem.RAIN);
+		ModItems.INFINITY_UMBRELLA.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+		helper.assertTrue(helper.getLevel().getWeatherData().isRaining()
+				&& !helper.getLevel().getWeatherData().isThundering(), "雨天模式没有开启降雨");
+		helper.assertTrue(helper.getLevel().getWeatherData().getRainTime() >= 12000
+				&& helper.getLevel().getWeatherData().getRainTime() <= 24000, "雨天持续时间不在上游范围内");
+
+		InfinityUmbrellaItem.setMode(umbrella, InfinityUmbrellaItem.STORM);
+		ModItems.INFINITY_UMBRELLA.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+		helper.assertTrue(helper.getLevel().getWeatherData().isRaining()
+				&& helper.getLevel().getWeatherData().isThundering(), "雷暴模式没有开启雷雨");
+		InfinityUmbrellaItem.setMode(umbrella, InfinityUmbrellaItem.SUN);
+		ModItems.INFINITY_UMBRELLA.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+		helper.assertFalse(helper.getLevel().getWeatherData().isRaining()
+				|| helper.getLevel().getWeatherData().isThundering(), "晴天模式没有清除恶劣天气");
+
+		player.setXRot(0.0F);
+		BlockPos lavaPos = helper.absolutePos(new BlockPos(10, 2, 5));
+		InfinityUmbrellaItem.setMode(umbrella, InfinityUmbrellaItem.SUN);
+		ModItems.INFINITY_UMBRELLA.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+		UmbrellaProjectileEntity sunProjectile = helper.getLevel().getEntitiesOfClass(
+				UmbrellaProjectileEntity.class,
+				player.getBoundingBox().inflate(4.0),
+				entity -> entity.getType() == ModEntityTypes.UMBRELLA_SUN_PROJECTILE
+		).getFirst();
+		sunProjectile.applyImpact(helper.getLevel(), lavaPos);
+		helper.assertBlockPresent(Blocks.LAVA, new BlockPos(10, 2, 5));
+
+		BlockPos waterPos = helper.absolutePos(new BlockPos(11, 2, 5));
+		UmbrellaProjectileEntity rainProjectile = new UmbrellaProjectileEntity(
+				helper.getLevel(), player, UmbrellaProjectileEntity.Mode.RAIN);
+		rainProjectile.applyImpact(helper.getLevel(), waterPos);
+		helper.assertBlockPresent(Blocks.WATER, new BlockPos(11, 2, 5));
+
+		BlockPos lightningPos = helper.absolutePos(new BlockPos(12, 2, 5));
+		UmbrellaProjectileEntity stormProjectile = new UmbrellaProjectileEntity(
+				helper.getLevel(), player, UmbrellaProjectileEntity.Mode.STORM);
+		stormProjectile.applyImpact(helper.getLevel(), lightningPos);
+		helper.assertTrue(!helper.getLevel().getEntitiesOfClass(
+				LightningBolt.class,
+				new AABB(lightningPos).inflate(1.0)
+		).isEmpty(), "雷暴弹没有生成闪电");
+
+		ModItems.INFINITY_UMBRELLA.inventoryTick(umbrella, helper.getLevel(), player, EquipmentSlot.MAINHAND);
+		helper.assertTrue(player.hasEffect(MobEffects.SLOW_FALLING), "手持无尽雨伞没有获得缓降");
+		player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+		player.getInventory().setItem(9, umbrella);
+		ModItems.INFINITY_UMBRELLA.inventoryTick(umbrella, helper.getLevel(), player, null);
+		helper.assertFalse(player.hasEffect(MobEffects.SLOW_FALLING), "收起无尽雨伞后缓降没有移除");
+		helper.succeed();
+	}
+
+	@GameTest
 	public void everyBuiltInSingularityCompresses(GameTestHelper helper) {
 		BlockPos relativePos = new BlockPos(13, 0, 0);
 		helper.setBlock(relativePos, ModBlocks.NEUTRON_COMPRESSOR);
@@ -4631,6 +4721,40 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 					case 'N' -> new ItemStack(ModItems.NEUTRON_INGOT);
 					case ' ' -> ItemStack.EMPTY;
 					default -> throw new IllegalArgumentException("未知无尽镐配方符号: " + symbol);
+				};
+				stacks.add(stack);
+			}
+		}
+		return CraftingInput.of(9, 9, stacks);
+	}
+
+	private static CraftingInput infinityUmbrellaInput() {
+		List<ItemStack> stacks = new java.util.ArrayList<>(81);
+		for (String row : List.of(
+				" IBNND  C",
+				" INENNNA ",
+				" XINNNBN ",
+				"  INNFNND",
+				"   INNNNN",
+				"   NINNGN",
+				"  N  IINB",
+				" B    XII",
+				"ACC      "
+		)) {
+			for (char symbol : row.toCharArray()) {
+				ItemStack stack = switch (symbol) {
+					case 'A' -> new ItemStack(ModBlocks.CRYSTAL_MATRIX_ITEM);
+					case 'B' -> new ItemStack(ModBlocks.NEUTRON_ITEM);
+					case 'C' -> new ItemStack(ModItems.CRYSTAL_MATRIX_INGOT);
+					case 'D' -> new ItemStack(ModItems.NEUTRON_NUGGET);
+					case 'E' -> new ItemStack(Items.FLINT_AND_STEEL);
+					case 'F' -> new ItemStack(Items.WATER_BUCKET);
+					case 'G' -> new ItemStack(Items.TRIDENT);
+					case 'I' -> new ItemStack(ModItems.INFINITY_INGOT);
+					case 'N' -> new ItemStack(ModItems.NEUTRON_INGOT);
+					case 'X' -> new ItemStack(ModItems.INFINITY_NUGGET);
+					case ' ' -> ItemStack.EMPTY;
+					default -> throw new IllegalArgumentException("未知无尽雨伞配方符号: " + symbol);
 				};
 				stacks.add(stack);
 			}

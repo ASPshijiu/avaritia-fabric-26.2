@@ -76,7 +76,7 @@
 | `neutron_ring` | 中子指环 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
 | `infinity_totem` | 无尽图腾 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
 | `infinity_ring` | 无尽指环（上游 WIP） | 实现中 | 不适用 | 不适用 | 通过 | 通过 | 通过 |
-| `infinity_umbrella` | 无尽雨伞 | 未开始 | — | — | — | — | — |
+| `infinity_umbrella` | 无尽雨伞 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
 | `infinity_clock` | 无尽时钟 | 未开始 | — | — | — | — | — |
 | `side_config_card` | 侧面配置卡 | 未开始 | — | — | — | — | — |
 | `infinity_bucket` | 无尽桶 | 未开始 | — | — | — | — | — |

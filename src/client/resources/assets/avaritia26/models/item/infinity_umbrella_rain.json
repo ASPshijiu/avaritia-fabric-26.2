@@ -1,0 +1,4 @@
+{
+	"parent": "minecraft:item/handheld",
+	"textures": { "layer0": "avaritia26:item/infinity_umbrella_rain" }
+}

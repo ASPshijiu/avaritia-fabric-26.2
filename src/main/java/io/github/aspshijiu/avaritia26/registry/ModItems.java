@@ -14,6 +14,7 @@ import io.github.aspshijiu.avaritia26.item.InfinityPickaxeItem;
 import io.github.aspshijiu.avaritia26.item.InfinityShovelItem;
 import io.github.aspshijiu.avaritia26.item.InfinitySwordItem;
 import io.github.aspshijiu.avaritia26.item.InfinityTotemItem;
+import io.github.aspshijiu.avaritia26.item.InfinityUmbrellaItem;
 import io.github.aspshijiu.avaritia26.item.InfinityUpgradeItem;
 import io.github.aspshijiu.avaritia26.item.MatterClusterItem;
 import io.github.aspshijiu.avaritia26.item.NeutronRingItem;
@@ -34,6 +35,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.SmithingTemplateItem;
 import net.minecraft.world.item.ToolMaterial;
+import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.item.component.Weapon;
@@ -62,6 +64,18 @@ public final class ModItems {
 			INFINITY_RING_KEY,
 			properties -> new TooltipItem(properties, "tooltip.avaritia26.infinity_ring"),
 			new Item.Properties().rarity(Rarity.EPIC).stacksTo(1).fireResistant()
+	);
+	public static final ResourceKey<Item> INFINITY_UMBRELLA_KEY = key("infinity_umbrella");
+	public static final Item INFINITY_UMBRELLA = register(
+			INFINITY_UMBRELLA_KEY,
+			InfinityUmbrellaItem::new,
+			new Item.Properties()
+					.rarity(Rarity.EPIC)
+					.stacksTo(1)
+					.fireResistant()
+					.component(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(
+							List.of(0.0F), List.of(), List.of(), List.of()
+					))
 	);
 	public static final ResourceKey<Item> INFINITY_HELMET_KEY = key("infinity_helmet");
 	public static final Item INFINITY_HELMET = register(

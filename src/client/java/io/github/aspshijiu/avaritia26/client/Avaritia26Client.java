@@ -14,6 +14,7 @@ import io.github.aspshijiu.avaritia26.client.screen.NeutronRingScreen;
 import io.github.aspshijiu.avaritia26.client.screen.SculkCraftingScreen;
 import io.github.aspshijiu.avaritia26.entity.EndestPearlEntity;
 import io.github.aspshijiu.avaritia26.entity.GapingVoidEntity;
+import io.github.aspshijiu.avaritia26.entity.UmbrellaProjectileEntity;
 import io.github.aspshijiu.avaritia26.network.OpenNeutronRingPayload;
 import io.github.aspshijiu.avaritia26.registry.ModEntityTypes;
 import io.github.aspshijiu.avaritia26.registry.ModMenus;
@@ -57,5 +58,11 @@ public final class Avaritia26Client implements ClientModInitializer {
 		EntityRendererRegistry.register(ModEntityTypes.GAPING_VOID, NoopRenderer<GapingVoidEntity>::new);
 		EntityRendererRegistry.register(ModEntityTypes.HEAVEN_ARROW, context -> new HeavenArrowRenderer<>(context));
 		EntityRendererRegistry.register(ModEntityTypes.HEAVEN_SUB_ARROW, context -> new HeavenArrowRenderer<>(context));
+		EntityRendererRegistry.register(ModEntityTypes.UMBRELLA_SUN_PROJECTILE,
+				ThrownItemRenderer<UmbrellaProjectileEntity>::new);
+		EntityRendererRegistry.register(ModEntityTypes.UMBRELLA_RAIN_PROJECTILE,
+				ThrownItemRenderer<UmbrellaProjectileEntity>::new);
+		EntityRendererRegistry.register(ModEntityTypes.UMBRELLA_STORM_PROJECTILE,
+				ThrownItemRenderer<UmbrellaProjectileEntity>::new);
 	}
 }

@@ -5,6 +5,7 @@ import io.github.aspshijiu.avaritia26.entity.EndestPearlEntity;
 import io.github.aspshijiu.avaritia26.entity.GapingVoidEntity;
 import io.github.aspshijiu.avaritia26.entity.HeavenArrowEntity;
 import io.github.aspshijiu.avaritia26.entity.HeavenSubArrowEntity;
+import io.github.aspshijiu.avaritia26.entity.UmbrellaProjectileEntity;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -53,6 +54,21 @@ public final class ModEntityTypes {
 					.updateInterval(3)
 					.build(GAPING_VOID_KEY)
 	);
+	public static final ResourceKey<EntityType<?>> UMBRELLA_SUN_PROJECTILE_KEY = key("umbrella_sun_projectile");
+	public static final EntityType<UmbrellaProjectileEntity> UMBRELLA_SUN_PROJECTILE = umbrellaProjectile(
+			UMBRELLA_SUN_PROJECTILE_KEY,
+			UmbrellaProjectileEntity.Mode.SUN
+	);
+	public static final ResourceKey<EntityType<?>> UMBRELLA_RAIN_PROJECTILE_KEY = key("umbrella_rain_projectile");
+	public static final EntityType<UmbrellaProjectileEntity> UMBRELLA_RAIN_PROJECTILE = umbrellaProjectile(
+			UMBRELLA_RAIN_PROJECTILE_KEY,
+			UmbrellaProjectileEntity.Mode.RAIN
+	);
+	public static final ResourceKey<EntityType<?>> UMBRELLA_STORM_PROJECTILE_KEY = key("umbrella_storm_projectile");
+	public static final EntityType<UmbrellaProjectileEntity> UMBRELLA_STORM_PROJECTILE = umbrellaProjectile(
+			UMBRELLA_STORM_PROJECTILE_KEY,
+			UmbrellaProjectileEntity.Mode.STORM
+	);
 
 	private ModEntityTypes() {
 	}
@@ -62,5 +78,23 @@ public final class ModEntityTypes {
 
 	private static ResourceKey<EntityType<?>> key(String path) {
 		return ResourceKey.create(Registries.ENTITY_TYPE, Avaritia26.id(path));
+	}
+
+	private static EntityType<UmbrellaProjectileEntity> umbrellaProjectile(
+			ResourceKey<EntityType<?>> key,
+			UmbrellaProjectileEntity.Mode mode
+	) {
+		return Registry.register(
+				BuiltInRegistries.ENTITY_TYPE,
+				key,
+				EntityType.Builder.<UmbrellaProjectileEntity>of(
+						(type, level) -> new UmbrellaProjectileEntity(type, level, mode),
+						MobCategory.MISC
+				)
+						.sized(0.25F, 0.25F)
+						.clientTrackingRange(4)
+						.updateInterval(10)
+						.build(key)
+		);
 	}
 }

@@ -1,0 +1,28 @@
+{
+	"type": "avaritia26:extreme_shaped",
+	"category": "equipment",
+	"key": {
+		"A": "avaritia26:crystal_matrix",
+		"B": "avaritia26:neutron",
+		"C": "avaritia26:crystal_matrix_ingot",
+		"D": "avaritia26:neutron_nugget",
+		"E": "minecraft:flint_and_steel",
+		"F": "minecraft:water_bucket",
+		"G": "minecraft:trident",
+		"I": "avaritia26:infinity_ingot",
+		"N": "avaritia26:neutron_ingot",
+		"X": "avaritia26:infinity_nugget"
+	},
+	"pattern": [
+		" IBNND  C",
+		" INENNNA ",
+		" XINNNBN ",
+		"  INNFNND",
+		"   INNNNN",
+		"   NINNGN",
+		"  N  IINB",
+		" B    XII",
+		"ACC      "
+	],
+	"result": { "count": 1, "id": "avaritia26:infinity_umbrella" }
+}
