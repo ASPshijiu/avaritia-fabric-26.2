@@ -235,6 +235,12 @@ public final class ModItems {
 			properties -> new TooltipItem(properties, "tooltip.avaritia26.star_fuel"),
 			new Item.Properties().rarity(Rarity.RARE).stacksTo(16)
 	);
+	public static final ResourceKey<Item> REFINED_COAL_KEY = key("refined_coal");
+	public static final Item REFINED_COAL = register(
+			REFINED_COAL_KEY,
+			properties -> new TooltipItem(properties, "tooltip.avaritia26.refined_coal"),
+			new Item.Properties().rarity(Rarity.UNCOMMON).stacksTo(32)
+	);
 	public static final ResourceKey<Item> ENDEST_PEARL_KEY = key("endest_pearl");
 	public static final Item ENDEST_PEARL = register(
 			ENDEST_PEARL_KEY,

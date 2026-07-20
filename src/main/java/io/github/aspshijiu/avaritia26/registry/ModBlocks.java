@@ -91,6 +91,24 @@ public final class ModBlocks {
 					new Item.Properties().setId(STAR_FUEL_BLOCK_ITEM_KEY).rarity(Rarity.RARE)
 			)
 	);
+	public static final ResourceKey<Block> REFINED_COAL_BLOCK_KEY = blockKey("refined_coal_block");
+	public static final Block REFINED_COAL_BLOCK = Registry.register(
+			BuiltInRegistries.BLOCK,
+			REFINED_COAL_BLOCK_KEY,
+			new Block(BlockBehaviour.Properties.of()
+					.setId(REFINED_COAL_BLOCK_KEY)
+					.sound(SoundType.STONE)
+					.strength(50.0F, 50.0F))
+	);
+	public static final ResourceKey<Item> REFINED_COAL_BLOCK_ITEM_KEY = itemKey("refined_coal_block");
+	public static final BlockItem REFINED_COAL_BLOCK_ITEM = Registry.register(
+			BuiltInRegistries.ITEM,
+			REFINED_COAL_BLOCK_ITEM_KEY,
+			new BlockItem(
+					REFINED_COAL_BLOCK,
+					new Item.Properties().setId(REFINED_COAL_BLOCK_ITEM_KEY).rarity(Rarity.UNCOMMON)
+			)
+	);
 	public static final ResourceKey<Block> NEUTRON_COLLECTOR_KEY = blockKey("neutron_collector");
 	public static final Block NEUTRON_COLLECTOR = Registry.register(
 			BuiltInRegistries.BLOCK,
@@ -307,6 +325,8 @@ public final class ModBlocks {
 		FuelValueEvents.BUILD.register((builder, context) -> {
 			builder.add(ModItems.STAR_FUEL, Integer.MAX_VALUE);
 			builder.add(STAR_FUEL_BLOCK_ITEM, Integer.MAX_VALUE);
+			builder.add(ModItems.REFINED_COAL, 160_000);
+			builder.add(REFINED_COAL_BLOCK_ITEM, 1_440_000);
 		});
 	}
 

@@ -1,0 +1,4 @@
+{
+	"type":"minecraft:crafting_shaped","category":"building","key":{"c":"avaritia26:refined_coal"},
+	"pattern":["ccc","ccc","ccc"],"result":{"count":1,"id":"avaritia26:refined_coal_block"}
+}

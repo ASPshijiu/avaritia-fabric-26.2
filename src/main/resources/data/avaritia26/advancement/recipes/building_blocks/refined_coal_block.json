@@ -1,0 +1,5 @@
+{
+	"parent":"minecraft:recipes/root",
+	"criteria":{"has_refined_coal":{"trigger":"minecraft:inventory_changed","conditions":{"items":[{"items":"avaritia26:refined_coal"}]}},"has_the_recipe":{"trigger":"minecraft:recipe_unlocked","conditions":{"recipe":"avaritia26:refined_coal_block"}}},
+	"requirements":[["has_refined_coal","has_the_recipe"]],"rewards":{"recipes":["avaritia26:refined_coal_block"]}
+}

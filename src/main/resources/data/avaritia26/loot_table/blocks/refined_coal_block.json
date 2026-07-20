@@ -1,0 +1,5 @@
+{
+	"type":"minecraft:block",
+	"pools":[{"conditions":[{"condition":"minecraft:survives_explosion"}],"entries":[{"type":"minecraft:item","name":"avaritia26:refined_coal_block"}],"rolls":1.0}],
+	"random_sequence":"avaritia26:blocks/refined_coal_block"
+}

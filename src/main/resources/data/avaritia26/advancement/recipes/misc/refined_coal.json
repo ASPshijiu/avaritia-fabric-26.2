@@ -1,0 +1,5 @@
+{
+	"parent":"minecraft:recipes/root",
+	"criteria":{"has_neutron_nugget":{"trigger":"minecraft:inventory_changed","conditions":{"items":[{"items":"avaritia26:neutron_nugget"}]}},"has_the_recipe":{"trigger":"minecraft:recipe_unlocked","conditions":{"recipe":"avaritia26:refined_coal"}}},
+	"requirements":[["has_neutron_nugget","has_the_recipe"]],"rewards":{"recipes":["avaritia26:refined_coal"]}
+}

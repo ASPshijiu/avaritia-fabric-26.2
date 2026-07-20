@@ -1063,6 +1063,67 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	}
 
 	@GameTest
+	public void refinedCoalResourceChainPowersAlternateStarFuel(GameTestHelper helper) {
+		ItemStack coal = new ItemStack(ModItems.REFINED_COAL);
+		helper.assertTrue(BuiltInRegistries.ITEM.getValue(ModItems.REFINED_COAL_KEY) == ModItems.REFINED_COAL, "精炼煤炭注册错误");
+		helper.assertTrue(coal.getMaxStackSize() == 32, "精炼煤炭应当堆叠 32 个");
+		helper.assertTrue(coal.getRarity() == Rarity.UNCOMMON, "精炼煤炭应当是 UNCOMMON 稀有度");
+		helper.assertTrue(helper.getLevel().fuelValues().burnDuration(coal) == 160_000, "精炼煤炭燃烧时间错误");
+		List<Component> tooltip = new java.util.ArrayList<>();
+		ModItems.REFINED_COAL.appendHoverText(
+				coal, Item.TooltipContext.of(helper.getLevel()), TooltipDisplay.DEFAULT, tooltip::add, TooltipFlag.NORMAL
+		);
+		helper.assertTrue(tooltip.size() == 1 && tooltip.getFirst().getStyle().isItalic(), "精炼煤炭缺少经典斜体说明");
+
+		CraftingInput coalInput = filledCraftingInput(Items.COAL);
+		List<ItemStack> coalStacks = copyStacks(coalInput.items());
+		coalStacks.set(4, new ItemStack(ModItems.NEUTRON_NUGGET));
+		coalInput = CraftingInput.of(3, 3, coalStacks);
+		assertExtremeRecipe(helper, "refined_coal", coalInput, ModItems.REFINED_COAL);
+		assertWrongExtremeRecipe(helper, "refined_coal", coalInput, "精炼煤炭配方不应接受错误材料");
+
+		helper.assertTrue(
+				BuiltInRegistries.BLOCK.getValue(ModBlocks.REFINED_COAL_BLOCK_KEY) == ModBlocks.REFINED_COAL_BLOCK,
+				"精炼煤炭块注册错误"
+		);
+		helper.assertTrue(
+				BuiltInRegistries.ITEM.getValue(ModBlocks.REFINED_COAL_BLOCK_ITEM_KEY) == ModBlocks.REFINED_COAL_BLOCK_ITEM,
+				"精炼煤炭块物品注册错误"
+		);
+		ItemStack blockStack = new ItemStack(ModBlocks.REFINED_COAL_BLOCK_ITEM);
+		helper.assertTrue(Block.byItem(blockStack.getItem()) == ModBlocks.REFINED_COAL_BLOCK, "精炼煤炭块物品未关联方块");
+		helper.assertTrue(blockStack.getRarity() == Rarity.UNCOMMON, "精炼煤炭块稀有度错误");
+		helper.assertTrue(helper.getLevel().fuelValues().burnDuration(blockStack) == 1_440_000, "精炼煤炭块燃烧时间错误");
+		helper.assertTrue(ModBlocks.REFINED_COAL_BLOCK.getExplosionResistance() == 50.0F, "精炼煤炭块爆炸抗性错误");
+		BlockPos relativePos = new BlockPos(23, 0, 0);
+		helper.setBlock(relativePos, ModBlocks.REFINED_COAL_BLOCK);
+		helper.assertBlockPresent(ModBlocks.REFINED_COAL_BLOCK, relativePos);
+		helper.assertTrue(
+				helper.getBlockState(relativePos).getDestroySpeed(helper.getLevel(), helper.absolutePos(relativePos)) == 50.0F,
+				"精炼煤炭块硬度错误"
+		);
+		List<ItemStack> drops = Block.getDrops(
+				helper.getBlockState(relativePos), helper.getLevel(), helper.absolutePos(relativePos), null
+		);
+		helper.assertTrue(drops.size() == 1 && drops.getFirst().is(ModBlocks.REFINED_COAL_BLOCK_ITEM), "精炼煤炭块应当掉落自身");
+		assertCraftingRecipe(
+				helper, "refined_coal_block", filledCraftingInput(ModItems.REFINED_COAL), ModBlocks.REFINED_COAL_BLOCK_ITEM, 1
+		);
+		assertCraftingRecipe(
+				helper, "refined_coal_from_block", CraftingInput.of(1, 1, List.of(blockStack)), ModItems.REFINED_COAL, 9
+		);
+
+		List<ItemStack> alternateStacks = new java.util.ArrayList<>(9);
+		for (int index = 0; index < 9; index++) {
+			alternateStacks.add(new ItemStack(index == 4 ? ModItems.ETERNAL_SINGULARITY : ModBlocks.REFINED_COAL_BLOCK_ITEM));
+		}
+		CraftingInput alternateInput = CraftingInput.of(3, 3, alternateStacks);
+		assertExtremeRecipe(helper, "star_fuel_alternate", alternateInput, ModItems.STAR_FUEL);
+		assertWrongExtremeRecipe(helper, "star_fuel_alternate", alternateInput, "星辰燃料替代配方不应接受错误材料");
+		helper.succeed();
+	}
+
+	@GameTest
 	public void skullFireSwordCraftsAndBeheadsSkeletons(GameTestHelper helper) {
 		ItemStack sword = new ItemStack(ModItems.SKULL_FIRE_SWORD);
 		helper.assertTrue(
