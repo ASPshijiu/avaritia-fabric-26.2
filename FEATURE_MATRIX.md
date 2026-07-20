@@ -41,7 +41,7 @@
 | `compressed_crafting_table` | 压缩工作台 | 未开始 | — | — | — | — | — |
 | `double_compressed_crafting_table` | 二重压缩工作台 | 未开始 | — | — | — | — | — |
 | `extreme_crafting_table` | 终极工作台 | 未开始 | — | — | — | — | — |
-| `crystal_matrix` | 晶态矩阵块 | 未开始 | — | — | — | — | — |
+| `crystal_matrix` | 晶态矩阵块 | 实现中 | — | 实现中 | 实现中 | — | — |
 | `neutron` | 中子块 | 未开始 | — | — | — | — | — |
 | `infinity` | 无尽块 | 未开始 | — | — | — | — | — |
 | `neutron_collector` | 中子收集器 | 未开始 | — | — | — | — | — |

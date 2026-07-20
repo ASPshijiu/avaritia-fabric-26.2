@@ -1,5 +1,6 @@
 package io.github.aspshijiu.avaritia26;
 
+import io.github.aspshijiu.avaritia26.registry.ModBlocks;
 import io.github.aspshijiu.avaritia26.registry.ModCreativeTabs;
 import io.github.aspshijiu.avaritia26.registry.ModItems;
 import net.fabricmc.api.ModInitializer;
@@ -14,6 +15,7 @@ public final class Avaritia26 implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		ModItems.initialize();
+		ModBlocks.initialize();
 		ModCreativeTabs.initialize();
 		LOGGER.info("Avaritia 26 已初始化");
 	}

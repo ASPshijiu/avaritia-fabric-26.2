@@ -4,9 +4,11 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import io.github.aspshijiu.avaritia26.Avaritia26;
+import io.github.aspshijiu.avaritia26.registry.ModBlocks;
 import io.github.aspshijiu.avaritia26.registry.ModItems;
 import net.fabricmc.fabric.api.gametest.v1.CustomTestMethodInvoker;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -21,6 +23,7 @@ import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 
 public final class Avaritia26GameTests implements CustomTestMethodInvoker {
@@ -77,6 +80,47 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		assertRegisteredMaterial(helper, ModItems.NEUTRON_PILE_KEY, ModItems.NEUTRON_PILE, Rarity.UNCOMMON, "中子堆");
 		assertRegisteredMaterial(helper, ModItems.NEUTRON_NUGGET_KEY, ModItems.NEUTRON_NUGGET, Rarity.RARE, "中子粒");
 		assertRegisteredMaterial(helper, ModItems.NEUTRON_INGOT_KEY, ModItems.NEUTRON_INGOT, Rarity.EPIC, "中子锭");
+		helper.succeed();
+	}
+
+	@GameTest
+	public void crystalMatrixBlockWorks(GameTestHelper helper) {
+		helper.assertTrue(
+				BuiltInRegistries.BLOCK.getValue(ModBlocks.CRYSTAL_MATRIX_KEY) == ModBlocks.CRYSTAL_MATRIX,
+				"晶态矩阵块没有注册到预期的 ResourceKey"
+		);
+		helper.assertTrue(
+				BuiltInRegistries.ITEM.getValue(ModBlocks.CRYSTAL_MATRIX_ITEM_KEY) == ModBlocks.CRYSTAL_MATRIX_ITEM,
+				"晶态矩阵块物品没有注册到预期的 ResourceKey"
+		);
+		helper.assertTrue(
+				Block.byItem(ModBlocks.CRYSTAL_MATRIX_ITEM) == ModBlocks.CRYSTAL_MATRIX,
+				"晶态矩阵块物品没有关联到方块"
+		);
+		ItemStack blockStack = new ItemStack(ModBlocks.CRYSTAL_MATRIX_ITEM);
+		helper.assertTrue(blockStack.getRarity() == Rarity.RARE, "晶态矩阵块物品应当是 RARE 稀有度");
+		helper.assertTrue(
+				blockStack.has(DataComponents.DAMAGE_RESISTANT),
+				"晶态矩阵块物品应当具有防火伤害抗性组件"
+		);
+
+		BlockPos relativePos = new BlockPos(1, 0, 0);
+		helper.setBlock(relativePos, ModBlocks.CRYSTAL_MATRIX);
+		helper.assertBlockPresent(ModBlocks.CRYSTAL_MATRIX, relativePos);
+		helper.assertTrue(
+				helper.getBlockState(relativePos).getLightEmission() == 11,
+				"晶态矩阵块光照等级应当是 11"
+		);
+		List<ItemStack> drops = Block.getDrops(
+				helper.getBlockState(relativePos),
+				helper.getLevel(),
+				helper.absolutePos(relativePos),
+				null
+		);
+		helper.assertTrue(
+				drops.size() == 1 && drops.getFirst().is(ModBlocks.CRYSTAL_MATRIX_ITEM),
+				"晶态矩阵块应当掉落自身"
+		);
 		helper.succeed();
 	}
 
