@@ -15,6 +15,7 @@ import io.github.aspshijiu.avaritia26.block.entity.ExtremeCraftingTableBlockEnti
 import io.github.aspshijiu.avaritia26.block.entity.InfinityChestBlockEntity;
 import io.github.aspshijiu.avaritia26.block.entity.NeutronCollectorBlockEntity;
 import io.github.aspshijiu.avaritia26.block.entity.NeutronCollectorTier;
+import io.github.aspshijiu.avaritia26.block.entity.NeutronCompressorTier;
 import io.github.aspshijiu.avaritia26.block.entity.NeutronCompressorBlockEntity;
 import io.github.aspshijiu.avaritia26.crafting.EternalSingularityRecipe;
 import io.github.aspshijiu.avaritia26.crafting.ExtremeSmithingInput;
@@ -2224,6 +2225,67 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	}
 
 	@GameTest
+	public void tieredNeutronCompressorsCraftAndApplyEveryMultiplier(GameTestHelper helper) {
+		SingularityDefinition gold = SingularityManager.get(Avaritia26.id("gold"));
+		SingularityDefinition redstone = SingularityManager.get(Avaritia26.id("redstone"));
+		SingularityDefinition copper = SingularityManager.get(Avaritia26.id("copper"));
+		helper.assertTrue(gold != null && redstone != null && copper != null, "高阶压缩机配方所需奇点未加载");
+		helper.assertTrue(NeutronCompressorTier.DENSER.scaleInput(1001) == 751, "更致密压缩机输入倍率没有向上取整");
+		helper.assertTrue(NeutronCompressorTier.DENSER.scaleTime(241) == 61, "更致密压缩机时间倍率没有向上取整");
+		helper.assertTrue(NeutronCompressorTier.DENSEST.scaleInput(1001) == 501, "最致密压缩机输入倍率没有向上取整");
+		helper.assertTrue(NeutronCompressorTier.DENSEST.scaleTime(241) == 31, "最致密压缩机时间倍率没有向上取整");
+
+		CraftingInput denseInput = extremeInput(List.of(
+				"AAC   CAA", "AB     BA", "C DEEED C", "  EGGGE  ", "  EGFGE  ",
+				"  EGGGE  ", "C DEEED C", "AB     BA", "AAC   CAA"
+		), Map.of(
+				'A', new ItemStack(Items.ENDER_PEARL), 'B', new ItemStack(Items.NETHER_STAR),
+				'C', new ItemStack(ModItems.DIAMOND_LATTICE), 'D', new ItemStack(ModItems.NEUTRON_INGOT),
+				'E', new ItemStack(Items.EMERALD_BLOCK), 'F', new ItemStack(ModItems.ENDEST_PEARL),
+				'G', new ItemStack(ModBlocks.NEUTRON_COMPRESSOR_ITEM)
+		));
+		assertExtremeRecipe(helper, "dense_neutron_compressor", denseInput, ModBlocks.DENSE_NEUTRON_COMPRESSOR_ITEM);
+
+		CraftingInput denserInput = extremeInput(List.of(
+				"ABB F BBA", "BCC   CCB", "BCDEEEDCB", "  EGGGE  ", "F EGEGE F",
+				"  EGGGE  ", "BCDEEEDCB", "BCC   CCB", "ABB F BBA"
+		), Map.of(
+				'A', new ItemStack(ModItems.NEUTRON_GEAR), 'B', new ItemStack(ModItems.NEUTRON_PILE),
+				'C', new ItemStack(ModItems.BLAZE_CUBE), 'D', SingularityItem.createStack(gold),
+				'E', new ItemStack(ModBlocks.BLAZE_CUBE_BLOCK_ITEM), 'F', new ItemStack(Items.GOLD_BLOCK),
+				'G', new ItemStack(ModBlocks.DENSE_NEUTRON_COMPRESSOR_ITEM)
+		));
+		assertExtremeRecipe(helper, "denser_neutron_compressor", denserInput, ModBlocks.DENSER_NEUTRON_COMPRESSOR_ITEM);
+		List<ItemStack> wrongGold = copyStacks(denserInput.items());
+		wrongGold.set(20, SingularityItem.createStack(copper));
+		assertExtremeRecipeDoesNotMatch(helper, "denser_neutron_compressor", CraftingInput.of(9, 9, wrongGold));
+
+		CraftingInput densestInput = extremeInput(List.of(
+				"CC     CC", "C  BBB  C", "  AAAAA  ", " BAXXXAB ", " BAXYXAB ",
+				" BAXXXAB ", "  AAAAA  ", "C  BBB  C", "CC     CC"
+		), Map.of(
+				'A', new ItemStack(Items.REDSTONE_BLOCK), 'B', new ItemStack(ModItems.NEUTRON_INGOT),
+				'C', new ItemStack(ModItems.NEUTRON_GEAR), 'X', new ItemStack(ModBlocks.DENSER_NEUTRON_COMPRESSOR_ITEM),
+				'Y', SingularityItem.createStack(redstone)
+		));
+		assertExtremeRecipe(helper, "densest_neutron_compressor", densestInput, ModBlocks.DENSEST_NEUTRON_COMPRESSOR_ITEM);
+		List<ItemStack> wrongRedstone = copyStacks(densestInput.items());
+		wrongRedstone.set(40, SingularityItem.createStack(gold));
+		assertExtremeRecipeDoesNotMatch(helper, "densest_neutron_compressor", CraftingInput.of(9, 9, wrongRedstone));
+
+		assertCompressorTier(helper, new BlockPos(2, 0, 0), ModBlocks.DENSE_NEUTRON_COMPRESSOR,
+				ModBlocks.DENSE_NEUTRON_COMPRESSOR_ITEM, NeutronCompressorTier.DENSE,
+				1000, 120, 1, "致密中子压缩机");
+		assertCompressorTier(helper, new BlockPos(4, 0, 0), ModBlocks.DENSER_NEUTRON_COMPRESSOR,
+				ModBlocks.DENSER_NEUTRON_COMPRESSOR_ITEM, NeutronCompressorTier.DENSER,
+				750, 60, 1, "更致密中子压缩机");
+		assertCompressorTier(helper, new BlockPos(6, 0, 0), ModBlocks.DENSEST_NEUTRON_COMPRESSOR,
+				ModBlocks.DENSEST_NEUTRON_COMPRESSOR_ITEM, NeutronCompressorTier.DENSEST,
+				500, 30, 2, "最致密中子压缩机");
+		helper.succeed();
+	}
+
+	@GameTest
 	public void everyBuiltInSingularityCompresses(GameTestHelper helper) {
 		BlockPos relativePos = new BlockPos(13, 0, 0);
 		helper.setBlock(relativePos, ModBlocks.NEUTRON_COMPRESSOR);
@@ -3353,6 +3415,69 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.assertTrue(collector.canTakeItemThroughFace(0, collector.getItem(0), Direction.DOWN), name + "产物无法自动抽取");
 		List<ItemStack> drops = Block.getDrops(
 				helper.getBlockState(relativePos), helper.getLevel(), helper.absolutePos(relativePos), collector
+		);
+		helper.assertTrue(drops.size() == 1 && drops.getFirst().is(blockItem), name + "没有掉落自身");
+	}
+
+	private static void assertCompressorTier(
+			GameTestHelper helper,
+			BlockPos relativePos,
+			Block block,
+			Item blockItem,
+			NeutronCompressorTier expectedTier,
+			int materialsRequired,
+			int timeRequired,
+			int outputCount,
+			String name
+	) {
+		ItemStack machineStack = new ItemStack(blockItem);
+		helper.assertTrue(machineStack.getRarity() == Rarity.EPIC, name + "稀有度错误");
+		helper.assertTrue(machineStack.has(DataComponents.DAMAGE_RESISTANT), name + "应当防火");
+		helper.setBlock(relativePos, block);
+		helper.assertTrue(helper.getBlockState(relativePos).is(BlockTags.MINEABLE_WITH_PICKAXE), name + "应当可用镐挖掘");
+		helper.assertTrue(helper.getBlockState(relativePos).is(BlockTags.NEEDS_DIAMOND_TOOL), name + "应当需要钻石级工具");
+		NeutronCompressorBlockEntity compressor = helper.getBlockEntity(relativePos, NeutronCompressorBlockEntity.class);
+		helper.assertTrue(compressor.getTier() == expectedTier, name + "层级识别错误");
+		feedCompressor(helper, relativePos, compressor, Items.OBSIDIAN, materialsRequired);
+		helper.assertTrue(compressor.getMaterialCount() == materialsRequired, name + "折算输入数量错误");
+		helper.assertTrue(compressor.getMaterialsRequired() == materialsRequired, name + "菜单所需材料数量错误");
+		helper.assertTrue(compressor.getTimeRequired() == timeRequired, name + "折算处理时间错误");
+		helper.assertTrue(compressor.getProgress() == 1, name + "装满材料后没有开始处理");
+
+		Player menuPlayer = helper.makeMockServerPlayer(GameType.SURVIVAL);
+		menuPlayer.setPos(Vec3.atCenterOf(helper.absolutePos(relativePos)));
+		NeutronCompressorMenu menu = (NeutronCompressorMenu) compressor.createMenu(
+				5, menuPlayer.getInventory(), menuPlayer
+		);
+		helper.assertTrue(menu.materialsRequired() == materialsRequired, name + "材料数量未同步到菜单");
+		helper.assertTrue(menu.timeRequired() == timeRequired, name + "处理时间未同步到菜单");
+		helper.assertTrue(menu.stillValid(menuPlayer), name + "菜单错误判定为不可用");
+		if (outputCount == 2) {
+			ItemStack blockedOutput = SingularityItem.createStack(SingularityManager.get(Avaritia26.id("obsidian")));
+			blockedOutput.setCount(63);
+			compressor.setItem(NeutronCompressorBlockEntity.OUTPUT_SLOT, blockedOutput);
+			NeutronCompressorBlockEntity.serverTick(
+					helper.getLevel(), helper.absolutePos(relativePos), helper.getBlockState(relativePos), compressor
+			);
+			helper.assertTrue(compressor.getProgress() == 1, name + "输出空间不足时仍推进进度");
+			compressor.setItem(NeutronCompressorBlockEntity.OUTPUT_SLOT, ItemStack.EMPTY);
+		}
+
+		for (int tick = 1; tick < timeRequired - 1; tick++) {
+			NeutronCompressorBlockEntity.serverTick(
+					helper.getLevel(), helper.absolutePos(relativePos), helper.getBlockState(relativePos), compressor
+			);
+		}
+		helper.assertTrue(compressor.getItem(NeutronCompressorBlockEntity.OUTPUT_SLOT).isEmpty(), name + "提前产出");
+		NeutronCompressorBlockEntity.serverTick(
+				helper.getLevel(), helper.absolutePos(relativePos), helper.getBlockState(relativePos), compressor
+		);
+		ItemStack output = compressor.getItem(NeutronCompressorBlockEntity.OUTPUT_SLOT);
+		SingularityDefinition definition = output.get(ModDataComponents.SINGULARITY);
+		helper.assertTrue(definition != null && definition.name().equals(Avaritia26.id("obsidian")), name + "产物类型错误");
+		helper.assertTrue(output.getCount() == outputCount, name + "产出倍率错误");
+		List<ItemStack> drops = Block.getDrops(
+				helper.getBlockState(relativePos), helper.getLevel(), helper.absolutePos(relativePos), compressor
 		);
 		helper.assertTrue(drops.size() == 1 && drops.getFirst().is(blockItem), name + "没有掉落自身");
 	}

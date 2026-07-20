@@ -125,9 +125,9 @@
 | `dense_neutron_collector` | 致密中子收集器 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
 | `denser_neutron_collector` | 更致密中子收集器 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
 | `densest_neutron_collector` | 最致密中子收集器 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `dense_neutron_compressor` | 致密中子压缩机 | 未开始 | — | — | — | — | — |
-| `denser_neutron_compressor` | 更致密中子压缩机 | 未开始 | — | — | — | — | — |
-| `densest_neutron_compressor` | 最致密中子压缩机 | 未开始 | — | — | — | — | — |
+| `dense_neutron_compressor` | 致密中子压缩机 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `denser_neutron_compressor` | 更致密中子压缩机 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `densest_neutron_compressor` | 最致密中子压缩机 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
 | `extreme_smithing_table` | 终焉锻造台 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
 | `extreme_anvil` | 终极铁砧 | 未开始 | — | — | — | — | — |
 | `endless_cake` | 无尽蛋糕 | 未开始 | — | — | — | — | — |

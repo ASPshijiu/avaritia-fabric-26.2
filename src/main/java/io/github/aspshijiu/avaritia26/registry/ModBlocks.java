@@ -223,6 +223,60 @@ public final class ModBlocks {
 					new Item.Properties().setId(NEUTRON_COMPRESSOR_ITEM_KEY).rarity(Rarity.EPIC).fireResistant()
 			)
 	);
+	public static final ResourceKey<Block> DENSE_NEUTRON_COMPRESSOR_KEY = blockKey("dense_neutron_compressor");
+	public static final Block DENSE_NEUTRON_COMPRESSOR = Registry.register(
+			BuiltInRegistries.BLOCK,
+			DENSE_NEUTRON_COMPRESSOR_KEY,
+			new NeutronCompressorBlock(BlockBehaviour.Properties.of()
+					.setId(DENSE_NEUTRON_COMPRESSOR_KEY)
+					.mapColor(MapColor.METAL)
+					.sound(SoundType.METAL)
+					.strength(50.0F, 2000.0F)
+					.requiresCorrectToolForDrops())
+	);
+	public static final ResourceKey<Item> DENSE_NEUTRON_COMPRESSOR_ITEM_KEY = itemKey("dense_neutron_compressor");
+	public static final BlockItem DENSE_NEUTRON_COMPRESSOR_ITEM = Registry.register(
+			BuiltInRegistries.ITEM,
+			DENSE_NEUTRON_COMPRESSOR_ITEM_KEY,
+			new BlockItem(DENSE_NEUTRON_COMPRESSOR,
+					new Item.Properties().setId(DENSE_NEUTRON_COMPRESSOR_ITEM_KEY).rarity(Rarity.EPIC).fireResistant())
+	);
+	public static final ResourceKey<Block> DENSER_NEUTRON_COMPRESSOR_KEY = blockKey("denser_neutron_compressor");
+	public static final Block DENSER_NEUTRON_COMPRESSOR = Registry.register(
+			BuiltInRegistries.BLOCK,
+			DENSER_NEUTRON_COMPRESSOR_KEY,
+			new NeutronCompressorBlock(BlockBehaviour.Properties.of()
+					.setId(DENSER_NEUTRON_COMPRESSOR_KEY)
+					.mapColor(MapColor.METAL)
+					.sound(SoundType.METAL)
+					.strength(50.0F, 2000.0F)
+					.requiresCorrectToolForDrops())
+	);
+	public static final ResourceKey<Item> DENSER_NEUTRON_COMPRESSOR_ITEM_KEY = itemKey("denser_neutron_compressor");
+	public static final BlockItem DENSER_NEUTRON_COMPRESSOR_ITEM = Registry.register(
+			BuiltInRegistries.ITEM,
+			DENSER_NEUTRON_COMPRESSOR_ITEM_KEY,
+			new BlockItem(DENSER_NEUTRON_COMPRESSOR,
+					new Item.Properties().setId(DENSER_NEUTRON_COMPRESSOR_ITEM_KEY).rarity(Rarity.EPIC).fireResistant())
+	);
+	public static final ResourceKey<Block> DENSEST_NEUTRON_COMPRESSOR_KEY = blockKey("densest_neutron_compressor");
+	public static final Block DENSEST_NEUTRON_COMPRESSOR = Registry.register(
+			BuiltInRegistries.BLOCK,
+			DENSEST_NEUTRON_COMPRESSOR_KEY,
+			new NeutronCompressorBlock(BlockBehaviour.Properties.of()
+					.setId(DENSEST_NEUTRON_COMPRESSOR_KEY)
+					.mapColor(MapColor.METAL)
+					.sound(SoundType.METAL)
+					.strength(50.0F, 2000.0F)
+					.requiresCorrectToolForDrops())
+	);
+	public static final ResourceKey<Item> DENSEST_NEUTRON_COMPRESSOR_ITEM_KEY = itemKey("densest_neutron_compressor");
+	public static final BlockItem DENSEST_NEUTRON_COMPRESSOR_ITEM = Registry.register(
+			BuiltInRegistries.ITEM,
+			DENSEST_NEUTRON_COMPRESSOR_ITEM_KEY,
+			new BlockItem(DENSEST_NEUTRON_COMPRESSOR,
+					new Item.Properties().setId(DENSEST_NEUTRON_COMPRESSOR_ITEM_KEY).rarity(Rarity.EPIC).fireResistant())
+	);
 	public static final ResourceKey<Block> CRYSTAL_MATRIX_KEY = blockKey("crystal_matrix");
 	public static final Block CRYSTAL_MATRIX = Registry.register(
 			BuiltInRegistries.BLOCK,

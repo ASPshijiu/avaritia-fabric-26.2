@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "avaritia26:block/denser_neutron_compressor", "y": 180 },
+    "facing=south": { "model": "avaritia26:block/denser_neutron_compressor" },
+    "facing=west": { "model": "avaritia26:block/denser_neutron_compressor", "y": 90 },
+    "facing=east": { "model": "avaritia26:block/denser_neutron_compressor", "y": 270 }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "type": "avaritia26:extreme_shaped",
+  "key": {
+    "A": "avaritia26:neutron_gear", "B": "avaritia26:neutron_pile", "C": "avaritia26:blaze_cube",
+    "D": {
+      "fabric:type": "fabric:components", "base": "avaritia26:singularity",
+      "components": { "avaritia26:singularity": {
+        "name": "avaritia26:gold", "displayName": "singularity.avaritia26.gold",
+        "overlayColor": 16643423, "underlayColor": 14257668, "ingredient": ["minecraft:gold_ingot"]
+      } }
+    },
+    "E": "avaritia26:blaze_cube_block", "F": "minecraft:gold_block", "G": "avaritia26:dense_neutron_compressor"
+  },
+  "pattern": ["ABB F BBA", "BCC   CCB", "BCDEEEDCB", "  EGGGE  ", "F EGEGE F", "  EGGGE  ", "BCDEEEDCB", "BCC   CCB", "ABB F BBA"],
+  "result": { "count": 1, "id": "avaritia26:denser_neutron_compressor" }
+}

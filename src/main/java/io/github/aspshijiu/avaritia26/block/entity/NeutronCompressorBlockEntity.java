@@ -123,6 +123,10 @@ public final class NeutronCompressorBlockEntity extends BlockEntity
 		return progress;
 	}
 
+	public NeutronCompressorTier getTier() {
+		return NeutronCompressorTier.from(getBlockState());
+	}
+
 	public int getMaterialsRequired() {
 		Target target = findTarget(materialStack.isEmpty() ? getItem(INPUT_SLOT) : materialStack);
 		return target == null ? 0 : target.inputCount();
@@ -255,7 +259,7 @@ public final class NeutronCompressorBlockEntity extends BlockEntity
 
 	@Override
 	public Component getDisplayName() {
-		return Component.translatable("container.avaritia26.neutron_compressor");
+		return getBlockState().getBlock().getName();
 	}
 
 	@Override
@@ -274,7 +278,7 @@ public final class NeutronCompressorBlockEntity extends BlockEntity
 		}
 		for (SingularityDefinition definition : SingularityManager.values()) {
 			if (definition.recipeEnabled() && definition.ingredient().test(candidate)) {
-				return new Target(
+				return scaleTarget(
 						definition.ingredient(),
 						definition.count(),
 						definition.timeCost(),
@@ -288,7 +292,7 @@ public final class NeutronCompressorBlockEntity extends BlockEntity
 					.map(holder -> holder.value())
 					.orElse(null);
 			if (recipe != null) {
-				return new Target(
+				return scaleTarget(
 						recipe.ingredient(),
 						recipe.inputCount(),
 						recipe.timeCost(),
@@ -297,6 +301,16 @@ public final class NeutronCompressorBlockEntity extends BlockEntity
 			}
 		}
 		return null;
+	}
+
+	private Target scaleTarget(Ingredient ingredient, int inputCount, int timeCost, ItemStack result) {
+		NeutronCompressorTier tier = getTier();
+		return new Target(
+				ingredient,
+				tier.scaleInput(inputCount),
+				tier.scaleTime(timeCost),
+				tier.scaleOutput(result)
+		);
 	}
 
 	private boolean canOutput(ItemStack result) {

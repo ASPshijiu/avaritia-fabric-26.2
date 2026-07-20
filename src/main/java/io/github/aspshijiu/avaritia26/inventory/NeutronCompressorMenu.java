@@ -1,7 +1,6 @@
 package io.github.aspshijiu.avaritia26.inventory;
 
 import io.github.aspshijiu.avaritia26.block.entity.NeutronCompressorBlockEntity;
-import io.github.aspshijiu.avaritia26.registry.ModBlocks;
 import io.github.aspshijiu.avaritia26.registry.ModMenus;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
@@ -10,7 +9,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
-import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -23,15 +21,13 @@ public final class NeutronCompressorMenu extends AbstractContainerMenu {
 
 	private final Container container;
 	private final ContainerData data;
-	private final ContainerLevelAccess access;
 
 	public NeutronCompressorMenu(int containerId, Inventory inventory, BlockPos pos) {
 		this(
 				containerId,
 				inventory,
 				new SimpleContainer(2),
-				new SimpleContainerData(4),
-				ContainerLevelAccess.create(inventory.player.level(), pos)
+				new SimpleContainerData(4)
 		);
 	}
 
@@ -41,30 +37,11 @@ public final class NeutronCompressorMenu extends AbstractContainerMenu {
 			Container container,
 			ContainerData data
 	) {
-		this(
-				containerId,
-				inventory,
-				container,
-				data,
-				container instanceof NeutronCompressorBlockEntity compressor
-						? ContainerLevelAccess.create(compressor.getLevel(), compressor.getBlockPos())
-						: ContainerLevelAccess.NULL
-		);
-	}
-
-	private NeutronCompressorMenu(
-			int containerId,
-			Inventory inventory,
-			Container container,
-			ContainerData data,
-			ContainerLevelAccess access
-	) {
 		super(ModMenus.NEUTRON_COMPRESSOR, containerId);
 		checkContainerSize(container, 2);
 		checkContainerDataCount(data, 4);
 		this.container = container;
 		this.data = data;
-		this.access = access;
 		container.startOpen(inventory.player);
 		addSlot(new Slot(container, NeutronCompressorBlockEntity.INPUT_SLOT, 39, 35) {
 			@Override
@@ -138,6 +115,6 @@ public final class NeutronCompressorMenu extends AbstractContainerMenu {
 
 	@Override
 	public boolean stillValid(Player player) {
-		return stillValid(access, player, ModBlocks.NEUTRON_COMPRESSOR);
+		return container.stillValid(player);
 	}
 }

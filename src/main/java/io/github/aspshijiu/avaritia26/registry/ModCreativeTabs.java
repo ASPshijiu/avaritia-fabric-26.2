@@ -64,6 +64,9 @@ public final class ModCreativeTabs {
 				output.accept(ModBlocks.DENSER_NEUTRON_COLLECTOR_ITEM);
 				output.accept(ModBlocks.DENSEST_NEUTRON_COLLECTOR_ITEM);
 				output.accept(ModBlocks.NEUTRON_COMPRESSOR_ITEM);
+				output.accept(ModBlocks.DENSE_NEUTRON_COMPRESSOR_ITEM);
+				output.accept(ModBlocks.DENSER_NEUTRON_COMPRESSOR_ITEM);
+				output.accept(ModBlocks.DENSEST_NEUTRON_COMPRESSOR_ITEM);
 				output.accept(ModBlocks.CRYSTAL_MATRIX_ITEM);
 				output.accept(ModBlocks.NEUTRON_ITEM);
 				output.accept(ModBlocks.COMPRESSED_CRAFTING_TABLE_ITEM);

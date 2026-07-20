@@ -1,0 +1,16 @@
+{
+  "type": "avaritia26:extreme_shaped",
+  "key": {
+    "A": "minecraft:redstone_block", "B": "avaritia26:neutron_ingot", "C": "avaritia26:neutron_gear",
+    "X": "avaritia26:denser_neutron_compressor",
+    "Y": {
+      "fabric:type": "fabric:components", "base": "avaritia26:singularity",
+      "components": { "avaritia26:singularity": {
+        "name": "avaritia26:redstone", "displayName": "singularity.avaritia26.redstone",
+        "overlayColor": 16711680, "underlayColor": 9046273, "ingredient": ["minecraft:redstone"]
+      } }
+    }
+  },
+  "pattern": ["CC     CC", "C  BBB  C", "  AAAAA  ", " BAXXXAB ", " BAXYXAB ", " BAXXXAB ", "  AAAAA  ", "C  BBB  C", "CC     CC"],
+  "result": { "count": 1, "id": "avaritia26:densest_neutron_compressor" }
+}

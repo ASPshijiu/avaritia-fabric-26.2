@@ -31,7 +31,12 @@ public final class ModBlockEntities {
 	public static final BlockEntityType<NeutronCompressorBlockEntity> NEUTRON_COMPRESSOR = Registry.register(
 			BuiltInRegistries.BLOCK_ENTITY_TYPE,
 			Avaritia26.id("neutron_compressor"),
-			new BlockEntityType<>(NeutronCompressorBlockEntity::new, Set.of(ModBlocks.NEUTRON_COMPRESSOR))
+			new BlockEntityType<>(NeutronCompressorBlockEntity::new, Set.of(
+					ModBlocks.NEUTRON_COMPRESSOR,
+					ModBlocks.DENSE_NEUTRON_COMPRESSOR,
+					ModBlocks.DENSER_NEUTRON_COMPRESSOR,
+					ModBlocks.DENSEST_NEUTRON_COMPRESSOR
+			))
 	);
 	public static final BlockEntityType<ExtremeCraftingTableBlockEntity> EXTREME_CRAFTING_TABLE = Registry.register(
 			BuiltInRegistries.BLOCK_ENTITY_TYPE,
