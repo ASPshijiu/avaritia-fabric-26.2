@@ -152,6 +152,39 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.succeed();
 	}
 
+	@GameTest
+	public void neutronMaterialConversionRecipesWork(GameTestHelper helper) {
+		assertCraftingRecipe(
+				helper,
+				"neutron_pile_from_nugget",
+				CraftingInput.of(1, 1, List.of(new ItemStack(ModItems.NEUTRON_NUGGET))),
+				ModItems.NEUTRON_PILE,
+				9
+		);
+		assertCraftingRecipe(
+				helper,
+				"neutron_nugget_from_piles",
+				filledCraftingInput(ModItems.NEUTRON_PILE),
+				ModItems.NEUTRON_NUGGET,
+				1
+		);
+		assertCraftingRecipe(
+				helper,
+				"neutron_nugget_from_ingot",
+				CraftingInput.of(1, 1, List.of(new ItemStack(ModItems.NEUTRON_INGOT))),
+				ModItems.NEUTRON_NUGGET,
+				9
+		);
+		assertCraftingRecipe(
+				helper,
+				"neutron_ingot_from_nuggets",
+				filledCraftingInput(ModItems.NEUTRON_NUGGET),
+				ModItems.NEUTRON_INGOT,
+				1
+		);
+		helper.succeed();
+	}
+
 	@Override
 	public void invokeTestMethod(GameTestHelper helper, Method method) throws ReflectiveOperationException {
 		helper.setBlock(0, 0, 0, Blocks.AIR);
@@ -170,5 +203,30 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.assertTrue(stack.is(item), name + " ItemStack 未指向注册物品");
 		helper.assertTrue(item.getDefaultMaxStackSize() == 64, name + "应当可以堆叠 64 个");
 		helper.assertTrue(stack.getRarity() == rarity, name + "稀有度错误");
+	}
+
+	private static CraftingInput filledCraftingInput(Item item) {
+		return CraftingInput.of(3, 3, List.of(
+				new ItemStack(item), new ItemStack(item), new ItemStack(item),
+				new ItemStack(item), new ItemStack(item), new ItemStack(item),
+				new ItemStack(item), new ItemStack(item), new ItemStack(item)
+		));
+	}
+
+	private static void assertCraftingRecipe(
+			GameTestHelper helper,
+			String path,
+			CraftingInput input,
+			Item expectedItem,
+			int expectedCount
+	) {
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(Registries.RECIPE, Avaritia26.id(path));
+		RecipeHolder<CraftingRecipe> recipe = helper.getLevel().getServer().getRecipeManager()
+				.getRecipeFor(RecipeType.CRAFTING, input, helper.getLevel())
+				.orElseThrow(() -> helper.assertionException("未匹配配方 " + path));
+		helper.assertTrue(recipe.id().equals(recipeKey), "输入匹配到了错误配方 " + path);
+		ItemStack result = recipe.value().assemble(input);
+		helper.assertTrue(result.is(expectedItem), path + " 输出了错误物品");
+		helper.assertTrue(result.getCount() == expectedCount, path + " 输出数量错误");
 	}
 }

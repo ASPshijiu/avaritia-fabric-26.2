@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "p": "avaritia26:neutron_pile"
+  },
+  "pattern": [
+    "ppp",
+    "ppp",
+    "ppp"
+  ],
+  "result": {
+    "count": 1,
+    "id": "avaritia26:neutron_nugget"
+  }
+}
