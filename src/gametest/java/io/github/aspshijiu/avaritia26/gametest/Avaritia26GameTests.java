@@ -2273,6 +2273,35 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		);
 		helper.assertTrue(ModItems.MATTER_CLUSTER.isBarVisible(packed.getFirst()), "非空物质团应当显示容量条");
 		helper.assertTrue(ModItems.MATTER_CLUSTER.getBarWidth(packed.getFirst()) == 13, "满物质团容量条应当填满");
+		helper.assertTrue(ModItems.MATTER_CLUSTER.getBarColor(packed.getFirst()) == 0x7F3FFF, "物质团容量条颜色错误");
+		List<Component> tooltip = new java.util.ArrayList<>();
+		ModItems.MATTER_CLUSTER.appendHoverText(
+				packed.getFirst(),
+				Item.TooltipContext.of(helper.getLevel()),
+				TooltipDisplay.DEFAULT,
+				tooltip::add,
+				TooltipFlag.NORMAL
+		);
+		helper.assertTrue(tooltip.size() == 7, "满物质团提示应当包含容量、五组预览和剩余组数");
+
+		var ops = helper.getLevel().registryAccess().createSerializationContext(JsonOps.INSTANCE);
+		var encoded = ItemStack.CODEC.encodeStart(ops, packed.getFirst()).getOrThrow();
+		ItemStack restored = ItemStack.CODEC.parse(ops, encoded).getOrThrow();
+		helper.assertTrue(MatterClusterItem.getSize(restored) == MatterClusterItem.CAPACITY, "物质团存档往返丢失内容");
+		RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(
+				Unpooled.buffer(),
+				helper.getLevel().registryAccess()
+		);
+		try {
+			ItemStack.STREAM_CODEC.encode(buffer, packed.getFirst());
+			ItemStack networkRestored = ItemStack.STREAM_CODEC.decode(buffer);
+			helper.assertTrue(
+					MatterClusterItem.getSize(networkRestored) == MatterClusterItem.CAPACITY,
+					"物质团网络同步往返丢失内容"
+			);
+		} finally {
+			buffer.release();
+		}
 
 		ItemStack mergeTarget = MatterClusterItem.createClusters(List.of(new ItemStack(Items.STONE, 3000))).getFirst();
 		ItemStack mergeSource = MatterClusterItem.createClusters(List.of(new ItemStack(Items.DIRT, 1500))).getFirst();
