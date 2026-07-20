@@ -42,6 +42,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
@@ -63,7 +64,9 @@ import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.BubbleColumnBlock;
 import net.minecraft.world.level.block.CraftingTableBlock;
+import net.minecraft.world.level.block.MagmaBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.AABB;
 
@@ -256,6 +259,110 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 				"infinity_ingot_from_block",
 				CraftingInput.of(1, 1, List.of(new ItemStack(ModBlocks.INFINITY_ITEM))),
 				ModItems.INFINITY_INGOT,
+				9
+		);
+		helper.succeed();
+	}
+
+	@GameTest
+	public void blazeCubeResourceChainWorks(GameTestHelper helper) {
+		assertRegisteredMaterial(helper, ModItems.BLAZE_CUBE_KEY, ModItems.BLAZE_CUBE, Rarity.UNCOMMON, "炽骨立方");
+		ItemStack cubeStack = new ItemStack(ModItems.BLAZE_CUBE);
+		helper.assertTrue(cubeStack.has(DataComponents.DAMAGE_RESISTANT), "炽骨立方应当具有防火伤害抗性组件");
+
+		CraftingInput cubeInput = blazeCubeInput();
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(Registries.RECIPE, Avaritia26.id("blaze_cube"));
+		RecipeHolder<Recipe<CraftingInput>> recipe = helper.getLevel().getServer().getRecipeManager()
+				.getRecipeFor(ModRecipes.EXTREME_CRAFTING, cubeInput, helper.getLevel())
+				.orElseThrow(() -> helper.assertionException("正确 5x5 材料未匹配炽骨立方配方"));
+		helper.assertTrue(recipe.id().equals(recipeKey), "炽骨立方材料匹配到了错误配方");
+		ItemStack result = recipe.value().assemble(cubeInput);
+		helper.assertTrue(result.is(ModItems.BLAZE_CUBE) && result.getCount() == 2, "炽骨立方应当产出 2 个");
+		List<ItemStack> wrongStacks = copyStacks(cubeInput.items());
+		wrongStacks.set(12, new ItemStack(Items.DIRT));
+		helper.assertFalse(
+				helper.getLevel().getServer().getRecipeManager()
+						.getRecipeFor(ModRecipes.EXTREME_CRAFTING, CraftingInput.of(5, 5, wrongStacks), helper.getLevel())
+						.filter(candidate -> candidate.id().equals(recipeKey))
+						.isPresent(),
+				"炽骨立方中心材料错误时不应匹配配方"
+		);
+
+		helper.assertTrue(
+				BuiltInRegistries.BLOCK.getValue(ModBlocks.BLAZE_CUBE_BLOCK_KEY) == ModBlocks.BLAZE_CUBE_BLOCK,
+				"炽骨立方块没有注册到预期的 ResourceKey"
+		);
+		helper.assertTrue(
+				BuiltInRegistries.ITEM.getValue(ModBlocks.BLAZE_CUBE_BLOCK_ITEM_KEY) == ModBlocks.BLAZE_CUBE_BLOCK_ITEM,
+				"炽骨立方块物品没有注册到预期的 ResourceKey"
+		);
+		helper.assertTrue(Block.byItem(ModBlocks.BLAZE_CUBE_BLOCK_ITEM) == ModBlocks.BLAZE_CUBE_BLOCK, "炽骨立方块物品没有关联到方块");
+		helper.assertTrue(ModBlocks.BLAZE_CUBE_BLOCK instanceof MagmaBlock, "炽骨立方块应当使用原版岩浆块灼烧语义");
+		ItemStack blockStack = new ItemStack(ModBlocks.BLAZE_CUBE_BLOCK_ITEM);
+		helper.assertTrue(blockStack.getRarity() == Rarity.RARE, "炽骨立方块物品应当是 RARE 稀有度");
+		helper.assertTrue(blockStack.has(DataComponents.DAMAGE_RESISTANT), "炽骨立方块物品应当具有防火伤害抗性组件");
+
+		BlockPos relativePos = new BlockPos(5, 0, 0);
+		helper.setBlock(relativePos, ModBlocks.BLAZE_CUBE_BLOCK);
+		helper.assertBlockPresent(ModBlocks.BLAZE_CUBE_BLOCK, relativePos);
+		helper.assertTrue(helper.getBlockState(relativePos).getLightEmission() == 9, "炽骨立方块光照等级应当是 9");
+		helper.assertTrue(ModBlocks.BLAZE_CUBE_BLOCK.getExplosionResistance() == 50.0F, "炽骨立方块爆炸抗性应当是 50");
+		helper.assertTrue(
+				helper.getBlockState(relativePos).getDestroySpeed(helper.getLevel(), helper.absolutePos(relativePos)) == 1000.0F,
+				"炽骨立方块硬度应当是 1000"
+		);
+		helper.assertTrue(helper.getBlockState(relativePos).is(BlockTags.MINEABLE_WITH_PICKAXE), "炽骨立方块应当可用镐挖掘");
+		helper.assertTrue(
+				helper.getBlockState(relativePos).is(BlockTags.ENABLES_BUBBLE_COLUMN_DRAG_DOWN),
+				"炽骨立方块应当生成向下气泡柱"
+		);
+
+		var pig = helper.spawn(EntityTypes.PIG, relativePos.above());
+		float initialHealth = pig.getHealth();
+		ModBlocks.BLAZE_CUBE_BLOCK.stepOn(
+				helper.getLevel(),
+				helper.absolutePos(relativePos),
+				helper.getBlockState(relativePos),
+				pig
+		);
+		helper.assertTrue(pig.getHealth() == initialHealth - 1.0F, "炽骨立方块应当灼伤未潜行生物 1 点生命");
+		pig.setHealth(initialHealth);
+		pig.invulnerableTime = 0;
+		pig.setShiftKeyDown(true);
+		ModBlocks.BLAZE_CUBE_BLOCK.stepOn(
+				helper.getLevel(),
+				helper.absolutePos(relativePos),
+				helper.getBlockState(relativePos),
+				pig
+		);
+		helper.assertTrue(pig.getHealth() == initialHealth, "潜行生物不应受到炽骨立方块灼伤");
+
+		helper.setBlock(relativePos.above(), Blocks.WATER);
+		BubbleColumnBlock.updateColumn(
+				Blocks.BUBBLE_COLUMN,
+				helper.getLevel(),
+				helper.absolutePos(relativePos.above()),
+				helper.getBlockState(relativePos)
+		);
+		helper.assertBlockPresent(Blocks.BUBBLE_COLUMN, relativePos.above());
+		helper.assertTrue(
+				helper.getBlockState(relativePos.above()).getValue(BubbleColumnBlock.DRAG_DOWN),
+				"炽骨立方块生成的气泡柱方向应当向下"
+		);
+		List<ItemStack> drops = Block.getDrops(
+				helper.getBlockState(relativePos),
+				helper.getLevel(),
+				helper.absolutePos(relativePos),
+				null
+		);
+		helper.assertTrue(drops.size() == 1 && drops.getFirst().is(ModBlocks.BLAZE_CUBE_BLOCK_ITEM), "炽骨立方块应当掉落自身");
+
+		assertCraftingRecipe(helper, "blaze_cube_block", filledCraftingInput(ModItems.BLAZE_CUBE), ModBlocks.BLAZE_CUBE_BLOCK_ITEM, 1);
+		assertCraftingRecipe(
+				helper,
+				"blaze_cube_from_block",
+				CraftingInput.of(1, 1, List.of(new ItemStack(ModBlocks.BLAZE_CUBE_BLOCK_ITEM))),
+				ModItems.BLAZE_CUBE,
 				9
 		);
 		helper.succeed();
@@ -1697,6 +1804,25 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 				new ItemStack(item), new ItemStack(item), new ItemStack(item),
 				new ItemStack(item), new ItemStack(item), new ItemStack(item)
 		));
+	}
+
+	private static CraftingInput blazeCubeInput() {
+		List<ItemStack> stacks = new java.util.ArrayList<>(25);
+		for (String row : List.of(" bcb ", "byxyb", "cxaxc", "byxyb", " bcb ")) {
+			for (char symbol : row.toCharArray()) {
+				ItemStack stack = switch (symbol) {
+					case 'a' -> new ItemStack(Items.ANCIENT_DEBRIS);
+					case 'b' -> new ItemStack(Items.BLAZE_POWDER);
+					case 'c' -> new ItemStack(Items.FIRE_CHARGE);
+					case 'x' -> new ItemStack(Items.BLAZE_ROD);
+					case 'y' -> new ItemStack(Items.BONE);
+					case ' ' -> ItemStack.EMPTY;
+					default -> throw new IllegalArgumentException("未知炽骨立方配方符号: " + symbol);
+				};
+				stacks.add(stack);
+			}
+		}
+		return CraftingInput.of(5, 5, stacks);
 	}
 
 	private static CraftingInput extremeCraftingTableInput() {

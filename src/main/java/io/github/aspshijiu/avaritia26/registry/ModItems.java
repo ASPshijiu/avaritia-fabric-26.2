@@ -14,6 +14,12 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
 
 public final class ModItems {
+	public static final ResourceKey<Item> BLAZE_CUBE_KEY = key("blaze_cube");
+	public static final Item BLAZE_CUBE = register(
+			BLAZE_CUBE_KEY,
+			Item::new,
+			new Item.Properties().rarity(Rarity.UNCOMMON).fireResistant()
+	);
 	public static final ResourceKey<Item> ETERNAL_SINGULARITY_KEY = key("eternal_singularity");
 	public static final Item ETERNAL_SINGULARITY = register(
 			ETERNAL_SINGULARITY_KEY,

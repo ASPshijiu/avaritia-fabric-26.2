@@ -1,4 +1,5 @@
 {
+	"block.avaritia26.blaze_cube_block": "Blaze Cube Block",
 	"block.avaritia26.crystal_matrix": "Crystal Matrix Block",
 	"block.avaritia26.compressed_crafting_table": "Compressed Crafting Table",
 	"block.avaritia26.double_compressed_crafting_table": "Double Compressed Crafting Table",
@@ -11,6 +12,7 @@
 	"container.avaritia26.neutron_collector": "Neutron Collector",
 	"container.avaritia26.neutron_compressor": "Neutron Compressor",
 	"item.avaritia26.crystal_matrix_ingot": "Crystal Matrix Ingot",
+	"item.avaritia26.blaze_cube": "Blaze Cube",
 	"item.avaritia26.cosmic_meatballs": "Cosmic Meatballs",
 	"item.avaritia26.diamond_lattice": "Diamond Lattice",
 	"item.avaritia26.endest_pearl": "Endest Pearl",

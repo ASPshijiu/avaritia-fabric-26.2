@@ -12,11 +12,32 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.CraftingTableBlock;
+import net.minecraft.world.level.block.MagmaBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 
 public final class ModBlocks {
+	public static final ResourceKey<Block> BLAZE_CUBE_BLOCK_KEY = blockKey("blaze_cube_block");
+	public static final Block BLAZE_CUBE_BLOCK = Registry.register(
+			BuiltInRegistries.BLOCK,
+			BLAZE_CUBE_BLOCK_KEY,
+			new MagmaBlock(BlockBehaviour.Properties.of()
+					.setId(BLAZE_CUBE_BLOCK_KEY)
+					.mapColor(MapColor.METAL)
+					.sound(SoundType.METAL)
+					.strength(1000.0F, 50.0F)
+					.lightLevel(state -> 9))
+	);
+	public static final ResourceKey<Item> BLAZE_CUBE_BLOCK_ITEM_KEY = itemKey("blaze_cube_block");
+	public static final BlockItem BLAZE_CUBE_BLOCK_ITEM = Registry.register(
+			BuiltInRegistries.ITEM,
+			BLAZE_CUBE_BLOCK_ITEM_KEY,
+			new BlockItem(
+					BLAZE_CUBE_BLOCK,
+					new Item.Properties().setId(BLAZE_CUBE_BLOCK_ITEM_KEY).rarity(Rarity.RARE).fireResistant()
+			)
+	);
 	public static final ResourceKey<Block> NEUTRON_COLLECTOR_KEY = blockKey("neutron_collector");
 	public static final Block NEUTRON_COLLECTOR = Registry.register(
 			BuiltInRegistries.BLOCK,

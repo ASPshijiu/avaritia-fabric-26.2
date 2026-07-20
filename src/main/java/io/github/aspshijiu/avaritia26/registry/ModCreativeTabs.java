@@ -21,6 +21,8 @@ public final class ModCreativeTabs {
 			.icon(() -> new ItemStack(ModItems.DIAMOND_LATTICE))
 			.title(Component.translatable("itemGroup.avaritia26.main"))
 			.displayItems((parameters, output) -> {
+				output.accept(ModItems.BLAZE_CUBE);
+				output.accept(ModBlocks.BLAZE_CUBE_BLOCK_ITEM);
 				SingularityManager.values().forEach(definition -> output.accept(SingularityItem.createStack(definition)));
 				output.accept(ModItems.ETERNAL_SINGULARITY);
 				output.accept(ModItems.INFINITY_CATALYST);
