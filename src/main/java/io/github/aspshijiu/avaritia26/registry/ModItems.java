@@ -5,6 +5,7 @@ import java.util.function.Function;
 import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.item.EndestPearlItem;
 import io.github.aspshijiu.avaritia26.item.EternalSingularityItem;
+import io.github.aspshijiu.avaritia26.item.InfinityHoeItem;
 import io.github.aspshijiu.avaritia26.item.InfinitySwordItem;
 import io.github.aspshijiu.avaritia26.item.MatterClusterItem;
 import io.github.aspshijiu.avaritia26.item.SingularityItem;
@@ -23,6 +24,18 @@ import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.Weapon;
 
 public final class ModItems {
+	public static final ResourceKey<Item> INFINITY_HOE_KEY = key("infinity_hoe");
+	public static final Item INFINITY_HOE = register(
+			INFINITY_HOE_KEY,
+			InfinityHoeItem::new,
+			new Item.Properties()
+					.rarity(Rarity.EPIC)
+					.stacksTo(1)
+					.fireResistant()
+					.enchantable(200)
+					.attributes(infinityToolAttributes(19.0, -3.0))
+					.component(DataComponents.WEAPON, new Weapon(0))
+	);
 	public static final ResourceKey<Item> INFINITY_SWORD_KEY = key("infinity_sword");
 	public static final Item INFINITY_SWORD = register(
 			INFINITY_SWORD_KEY,
@@ -32,7 +45,7 @@ public final class ModItems {
 					.stacksTo(1)
 					.fireResistant()
 					.enchantable(200)
-					.attributes(infinitySwordAttributes())
+					.attributes(infinityToolAttributes(99.0, -2.4))
 					.component(DataComponents.WEAPON, new Weapon(0))
 	);
 	public static final ResourceKey<Item> SKULL_FIRE_SWORD_KEY = key("skull_fire_sword");
@@ -150,16 +163,16 @@ public final class ModItems {
 	public static void initialize() {
 	}
 
-	private static ItemAttributeModifiers infinitySwordAttributes() {
+	private static ItemAttributeModifiers infinityToolAttributes(double attackDamage, double attackSpeed) {
 		return ItemAttributeModifiers.builder()
 				.add(
 						Attributes.ATTACK_DAMAGE,
-						new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID, 99.0, AttributeModifier.Operation.ADD_VALUE),
+						new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID, attackDamage, AttributeModifier.Operation.ADD_VALUE),
 						EquipmentSlotGroup.MAINHAND
 				)
 				.add(
 						Attributes.ATTACK_SPEED,
-						new AttributeModifier(Item.BASE_ATTACK_SPEED_ID, -2.4, AttributeModifier.Operation.ADD_VALUE),
+						new AttributeModifier(Item.BASE_ATTACK_SPEED_ID, attackSpeed, AttributeModifier.Operation.ADD_VALUE),
 						EquipmentSlotGroup.MAINHAND
 				)
 				.build();

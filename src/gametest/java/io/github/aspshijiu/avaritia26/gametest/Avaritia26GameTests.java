@@ -68,6 +68,7 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -76,7 +77,9 @@ import net.minecraft.world.level.block.CraftingTableBlock;
 import net.minecraft.world.level.block.MagmaBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.Vec3;
 
 public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	@GameTest
@@ -508,6 +511,84 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.assertTrue(warden.isDeadOrDying(), "寰宇支配之剑没有终结高生命值目标");
 		helper.assertTrue(sword.getDamageValue() == 0, "寰宇支配之剑攻击后不应产生耐久损耗");
 
+		helper.succeed();
+	}
+
+	@GameTest
+	public void infinityHoeCraftsAndTillsNineByNine(GameTestHelper helper) {
+		ItemStack hoe = new ItemStack(ModItems.INFINITY_HOE);
+		helper.assertTrue(
+				BuiltInRegistries.ITEM.getValue(ModItems.INFINITY_HOE_KEY) == ModItems.INFINITY_HOE,
+				"无尽锄没有注册到预期的 ResourceKey"
+		);
+		helper.assertTrue(hoe.getMaxStackSize() == 1 && !hoe.isDamageableItem(), "无尽锄应当不可堆叠且永不损耗");
+		helper.assertTrue(hoe.getRarity() == Rarity.EPIC, "无尽锄应当是 EPIC 稀有度");
+		helper.assertTrue(hoe.is(ItemTags.HOES), "无尽锄缺少原版锄标签");
+		helper.assertTrue(ModItems.INFINITY_HOE.getDestroySpeed(hoe, Blocks.HAY_BLOCK.defaultBlockState()) == 9999.0F, "无尽锄缺少终局挖掘速度");
+
+		CraftingInput input = infinityHoeInput();
+		assertExtremeRecipe(helper, "infinity_hoe", input, ModItems.INFINITY_HOE);
+		List<ItemStack> wrongStacks = copyStacks(input.items());
+		wrongStacks.set(5, new ItemStack(Items.DIRT));
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(Registries.RECIPE, Avaritia26.id("infinity_hoe"));
+		helper.assertFalse(
+				helper.getLevel().getServer().getRecipeManager()
+						.getRecipeFor(
+								ModRecipes.EXTREME_CRAFTING,
+								CraftingInput.of(input.width(), input.height(), wrongStacks),
+								helper.getLevel()
+						)
+						.filter(candidate -> candidate.id().equals(recipeKey))
+						.isPresent(),
+				"无尽锄材料位置错误时不应匹配配方"
+		);
+
+		BlockPos origin = new BlockPos(10, 1, 10);
+		for (int x = -4; x <= 4; x++) {
+			for (int z = -4; z <= 4; z++) {
+				helper.setBlock(origin.offset(x, 0, z), Blocks.DIRT);
+				helper.setBlock(origin.offset(x, 1, z), Blocks.AIR);
+			}
+		}
+		BlockPos hole = origin.offset(4, 0, 4);
+		helper.setBlock(hole, Blocks.AIR);
+		helper.setBlock(hole.below(), Blocks.STONE);
+		BlockPos covered = origin.offset(-4, 0, -4);
+		helper.setBlock(covered.above(), Blocks.DIRT);
+		helper.setBlock(origin.offset(1, 0, 0), Blocks.COARSE_DIRT);
+
+		Player player = helper.makeMockServerPlayer(GameType.SURVIVAL);
+		player.setItemInHand(InteractionHand.MAIN_HAND, hoe);
+		player.getInventory().add(new ItemStack(Items.DIRT));
+		BlockPos absoluteOrigin = helper.absolutePos(origin);
+		var result = ModItems.INFINITY_HOE.useOn(new UseOnContext(
+				player,
+				InteractionHand.MAIN_HAND,
+				new BlockHitResult(Vec3.atCenterOf(absoluteOrigin), Direction.UP, absoluteOrigin, false)
+		));
+		helper.assertTrue(result.consumesAction(), "无尽锄没有接管合法耕作交互");
+		helper.assertBlockPresent(Blocks.FARMLAND, origin);
+		helper.assertBlockPresent(Blocks.FARMLAND, hole);
+		helper.assertBlockPresent(Blocks.FARMLAND, covered);
+		helper.assertBlockNotPresent(Blocks.DIRT, covered.above());
+		helper.assertBlockPresent(Blocks.DIRT, origin.offset(1, 0, 0));
+		helper.assertFalse(player.getInventory().contains(new ItemStack(Items.DIRT)), "无尽锄补土后应消耗一块泥土");
+		helper.assertTrue(hoe.getDamageValue() == 0, "无尽锄范围耕作后不应产生耐久损耗");
+
+		BlockPos sneakOrigin = new BlockPos(21, 1, 10);
+		helper.setBlock(sneakOrigin, Blocks.DIRT);
+		helper.setBlock(sneakOrigin.above(), Blocks.AIR);
+		helper.setBlock(sneakOrigin.east(), Blocks.DIRT);
+		helper.setBlock(sneakOrigin.east().above(), Blocks.AIR);
+		player.setShiftKeyDown(true);
+		BlockPos absoluteSneakOrigin = helper.absolutePos(sneakOrigin);
+		ModItems.INFINITY_HOE.useOn(new UseOnContext(
+				player,
+				InteractionHand.MAIN_HAND,
+				new BlockHitResult(Vec3.atCenterOf(absoluteSneakOrigin), Direction.UP, absoluteSneakOrigin, false)
+		));
+		helper.assertBlockPresent(Blocks.FARMLAND, sneakOrigin);
+		helper.assertBlockPresent(Blocks.DIRT, sneakOrigin.east());
 		helper.succeed();
 	}
 
@@ -2018,6 +2099,32 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 					case 'X' -> new ItemStack(ModItems.INFINITY_CATALYST);
 					case ' ' -> ItemStack.EMPTY;
 					default -> throw new IllegalArgumentException("未知寰宇支配之剑配方符号: " + symbol);
+				};
+				stacks.add(stack);
+			}
+		}
+		return CraftingInput.of(9, 9, stacks);
+	}
+
+	private static CraftingInput infinityHoeInput() {
+		List<ItemStack> stacks = new java.util.ArrayList<>(81);
+		for (String row : List.of(
+				"     N   ",
+				" IIIIII  ",
+				"IIIIIII  ",
+				"I    II  ",
+				"     N   ",
+				"     N   ",
+				"     N   ",
+				"     N   ",
+				"     N   "
+		)) {
+			for (char symbol : row.toCharArray()) {
+				ItemStack stack = switch (symbol) {
+					case 'I' -> new ItemStack(ModItems.INFINITY_INGOT);
+					case 'N' -> new ItemStack(ModItems.NEUTRON_INGOT);
+					case ' ' -> ItemStack.EMPTY;
+					default -> throw new IllegalArgumentException("未知无尽锄配方符号: " + symbol);
 				};
 				stacks.add(stack);
 			}

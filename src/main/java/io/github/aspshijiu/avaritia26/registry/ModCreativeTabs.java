@@ -21,6 +21,7 @@ public final class ModCreativeTabs {
 			.icon(() -> new ItemStack(ModItems.DIAMOND_LATTICE))
 			.title(Component.translatable("itemGroup.avaritia26.main"))
 			.displayItems((parameters, output) -> {
+				output.accept(ModItems.INFINITY_HOE);
 				output.accept(ModItems.INFINITY_SWORD);
 				output.accept(ModItems.SKULL_FIRE_SWORD);
 				output.accept(ModItems.BLAZE_CUBE);
