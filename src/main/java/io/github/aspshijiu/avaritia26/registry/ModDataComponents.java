@@ -1,13 +1,23 @@
 package io.github.aspshijiu.avaritia26.registry;
 
+import com.mojang.serialization.Codec;
 import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.component.MatterClusterContents;
 import io.github.aspshijiu.avaritia26.singularity.SingularityDefinition;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.codec.ByteBufCodecs;
 
 public final class ModDataComponents {
+	public static final DataComponentType<Boolean> INFINITY_PICKAXE_HAMMER = Registry.register(
+			BuiltInRegistries.DATA_COMPONENT_TYPE,
+			Avaritia26.id("infinity_pickaxe_hammer"),
+			DataComponentType.<Boolean>builder()
+					.persistent(Codec.BOOL)
+					.networkSynchronized(ByteBufCodecs.BOOL)
+					.build()
+	);
 	public static final DataComponentType<SingularityDefinition> SINGULARITY = Registry.register(
 			BuiltInRegistries.DATA_COMPONENT_TYPE,
 			Avaritia26.id("singularity"),

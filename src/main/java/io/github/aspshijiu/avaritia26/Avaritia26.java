@@ -2,6 +2,7 @@ package io.github.aspshijiu.avaritia26;
 
 import io.github.aspshijiu.avaritia26.crafting.ModRecipes;
 import io.github.aspshijiu.avaritia26.event.ModCombatEvents;
+import io.github.aspshijiu.avaritia26.event.ModToolEvents;
 import io.github.aspshijiu.avaritia26.registry.ModBlockEntities;
 import io.github.aspshijiu.avaritia26.registry.ModBlocks;
 import io.github.aspshijiu.avaritia26.registry.ModCreativeTabs;
@@ -26,6 +27,7 @@ public final class Avaritia26 implements ModInitializer {
 		ModDataComponents.initialize();
 		ModItems.initialize();
 		ModCombatEvents.initialize();
+		ModToolEvents.initialize();
 		ModEntityTypes.initialize();
 		ModSounds.initialize();
 		ModBlocks.initialize();

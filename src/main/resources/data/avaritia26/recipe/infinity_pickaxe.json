@@ -1,0 +1,29 @@
+{
+  "type": "avaritia26:extreme_shaped",
+  "category": "equipment",
+  "key": {
+    "C": "avaritia26:crystal_matrix",
+    "I": "avaritia26:infinity_ingot",
+    "N": "avaritia26:neutron_ingot"
+  },
+  "pattern": [
+    " IIIIIII ",
+    "IIIICIIII",
+    "II  N  II",
+    "    N    ",
+    "    N    ",
+    "    N    ",
+    "    N    ",
+    "    N    ",
+    "    N    "
+  ],
+  "result": {
+    "components": {
+      "minecraft:enchantments": {
+        "minecraft:fortune": 10
+      }
+    },
+    "count": 1,
+    "id": "avaritia26:infinity_pickaxe"
+  }
+}

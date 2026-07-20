@@ -6,6 +6,7 @@ import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.item.EndestPearlItem;
 import io.github.aspshijiu.avaritia26.item.EternalSingularityItem;
 import io.github.aspshijiu.avaritia26.item.InfinityHoeItem;
+import io.github.aspshijiu.avaritia26.item.InfinityPickaxeItem;
 import io.github.aspshijiu.avaritia26.item.InfinitySwordItem;
 import io.github.aspshijiu.avaritia26.item.MatterClusterItem;
 import io.github.aspshijiu.avaritia26.item.SingularityItem;
@@ -24,6 +25,18 @@ import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.Weapon;
 
 public final class ModItems {
+	public static final ResourceKey<Item> INFINITY_PICKAXE_KEY = key("infinity_pickaxe");
+	public static final Item INFINITY_PICKAXE = register(
+			INFINITY_PICKAXE_KEY,
+			InfinityPickaxeItem::new,
+			new Item.Properties()
+					.rarity(Rarity.EPIC)
+					.stacksTo(1)
+					.fireResistant()
+					.enchantable(200)
+					.attributes(infinityToolAttributes(5.0, -2.8))
+					.component(DataComponents.WEAPON, new Weapon(0))
+	);
 	public static final ResourceKey<Item> INFINITY_HOE_KEY = key("infinity_hoe");
 	public static final Item INFINITY_HOE = register(
 			INFINITY_HOE_KEY,

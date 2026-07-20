@@ -28,6 +28,7 @@ import io.github.aspshijiu.avaritia26.singularity.SingularityManager;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.gametest.v1.CustomTestMethodInvoker;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
+import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -69,6 +70,8 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -589,6 +592,84 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		));
 		helper.assertBlockPresent(Blocks.FARMLAND, sneakOrigin);
 		helper.assertBlockPresent(Blocks.DIRT, sneakOrigin.east());
+		helper.succeed();
+	}
+
+	@GameTest
+	public void infinityPickaxeCraftsSwitchesAndBreaksClassicVolume(GameTestHelper helper) {
+		ItemStack pickaxe = new ItemStack(ModItems.INFINITY_PICKAXE);
+		helper.assertTrue(
+				BuiltInRegistries.ITEM.getValue(ModItems.INFINITY_PICKAXE_KEY) == ModItems.INFINITY_PICKAXE,
+				"无尽镐没有注册到预期的 ResourceKey"
+		);
+		helper.assertTrue(pickaxe.getMaxStackSize() == 1 && !pickaxe.isDamageableItem(), "无尽镐应当不可堆叠且永不损耗");
+		helper.assertTrue(pickaxe.getRarity() == Rarity.EPIC && pickaxe.is(ItemTags.PICKAXES), "无尽镐稀有度或工具标签错误");
+		helper.assertTrue(ModItems.INFINITY_PICKAXE.getDestroySpeed(pickaxe, Blocks.STONE.defaultBlockState()) == 9999.0F, "无尽镐普通模式速度错误");
+
+		CraftingInput input = infinityPickaxeInput();
+		assertExtremeRecipe(helper, "infinity_pickaxe", input, ModItems.INFINITY_PICKAXE);
+		RecipeHolder<Recipe<CraftingInput>> recipe = helper.getLevel().getServer().getRecipeManager()
+				.getRecipeFor(ModRecipes.EXTREME_CRAFTING, input, helper.getLevel())
+				.orElseThrow(() -> helper.assertionException("未匹配无尽镐配方"));
+		pickaxe = recipe.value().assemble(input);
+		var fortune = helper.getLevel().registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.FORTUNE);
+		helper.assertTrue(EnchantmentHelper.getItemEnchantmentLevel(fortune, pickaxe) == 10, "无尽镐配方产物缺少时运 X");
+		List<ItemStack> wrongStacks = copyStacks(input.items());
+		wrongStacks.set(40, new ItemStack(Items.DIRT));
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(Registries.RECIPE, Avaritia26.id("infinity_pickaxe"));
+		helper.assertFalse(
+				helper.getLevel().getServer().getRecipeManager()
+						.getRecipeFor(ModRecipes.EXTREME_CRAFTING, CraftingInput.of(9, 9, wrongStacks), helper.getLevel())
+						.filter(candidate -> candidate.id().equals(recipeKey))
+						.isPresent(),
+				"无尽镐中心材料错误时不应匹配配方"
+		);
+
+		Player player = helper.makeMockServerPlayer(GameType.SURVIVAL);
+		player.setItemInHand(InteractionHand.MAIN_HAND, pickaxe);
+		player.setShiftKeyDown(true);
+		ModItems.INFINITY_PICKAXE.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+		helper.assertTrue(pickaxe.getOrDefault(ModDataComponents.INFINITY_PICKAXE_HAMMER, false), "无尽镐没有切换到锤模式");
+		helper.assertTrue(ModItems.INFINITY_PICKAXE.getDestroySpeed(pickaxe, Blocks.STONE.defaultBlockState()) == 5.0F, "锤模式速度错误");
+		var pig = helper.spawnWithNoFreeWill(EntityTypes.PIG, new BlockPos(2, 1, 2));
+		pickaxe.postHurtEnemy(pig, player);
+		helper.assertTrue(pig.getDeltaMovement().y >= 2.0, "无尽镐锤模式没有施加强击退");
+
+		BlockPos origin = new BlockPos(16, 10, 16);
+		BlockPos farStone = origin.offset(7, 7, 7);
+		BlockPos farDirt = origin.offset(-8, -8, -8);
+		BlockPos wood = origin.east();
+		BlockPos bedrock = origin.east(2);
+		BlockPos glass = origin.east(3);
+		helper.setBlock(origin, Blocks.STONE);
+		helper.setBlock(farStone, Blocks.STONE);
+		helper.setBlock(farDirt, Blocks.DIRT);
+		helper.setBlock(wood, Blocks.OAK_LOG);
+		helper.setBlock(bedrock, Blocks.BEDROCK);
+		helper.setBlock(glass, Blocks.GLASS);
+		BlockPos absoluteOrigin = helper.absolutePos(origin);
+		player.setPos(absoluteOrigin.getX() + 0.5, absoluteOrigin.getY(), absoluteOrigin.getZ() + 0.5);
+		var result = AttackBlockCallback.EVENT.invoker().interact(
+				player,
+				helper.getLevel(),
+				InteractionHand.MAIN_HAND,
+				absoluteOrigin,
+				Direction.UP
+		);
+		helper.assertTrue(result.consumesAction(), "无尽镐锤模式没有接管方块攻击");
+		helper.assertBlockPresent(Blocks.AIR, origin);
+		helper.assertBlockPresent(Blocks.AIR, farStone);
+		helper.assertBlockPresent(Blocks.AIR, farDirt);
+		helper.assertBlockPresent(Blocks.AIR, glass);
+		helper.assertBlockPresent(Blocks.OAK_LOG, wood);
+		helper.assertBlockPresent(Blocks.BEDROCK, bedrock);
+		List<ItemEntity> clusters = helper.getLevel().getEntitiesOfClass(
+				ItemEntity.class,
+				new AABB(absoluteOrigin).inflate(2.0),
+				entity -> entity.getItem().is(ModItems.MATTER_CLUSTER)
+		);
+		helper.assertTrue(clusters.size() == 1 && MatterClusterItem.getSize(clusters.getFirst().getItem()) == 3, "无尽镐没有把范围掉落压入物质团");
+		helper.assertTrue(pickaxe.getDamageValue() == 0, "无尽镐范围挖掘后不应产生耐久损耗");
 		helper.succeed();
 	}
 
@@ -2125,6 +2206,33 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 					case 'N' -> new ItemStack(ModItems.NEUTRON_INGOT);
 					case ' ' -> ItemStack.EMPTY;
 					default -> throw new IllegalArgumentException("未知无尽锄配方符号: " + symbol);
+				};
+				stacks.add(stack);
+			}
+		}
+		return CraftingInput.of(9, 9, stacks);
+	}
+
+	private static CraftingInput infinityPickaxeInput() {
+		List<ItemStack> stacks = new java.util.ArrayList<>(81);
+		for (String row : List.of(
+				" IIIIIII ",
+				"IIIICIIII",
+				"II  N  II",
+				"    N    ",
+				"    N    ",
+				"    N    ",
+				"    N    ",
+				"    N    ",
+				"    N    "
+		)) {
+			for (char symbol : row.toCharArray()) {
+				ItemStack stack = switch (symbol) {
+					case 'C' -> new ItemStack(ModBlocks.CRYSTAL_MATRIX_ITEM);
+					case 'I' -> new ItemStack(ModItems.INFINITY_INGOT);
+					case 'N' -> new ItemStack(ModItems.NEUTRON_INGOT);
+					case ' ' -> ItemStack.EMPTY;
+					default -> throw new IllegalArgumentException("未知无尽镐配方符号: " + symbol);
 				};
 				stacks.add(stack);
 			}
