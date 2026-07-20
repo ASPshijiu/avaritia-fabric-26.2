@@ -1,5 +1,7 @@
 package io.github.aspshijiu.avaritia26.block.entity;
 
+import io.github.aspshijiu.avaritia26.block.NeutronCollectorBlock;
+import io.github.aspshijiu.avaritia26.component.SideConfiguration;
 import io.github.aspshijiu.avaritia26.inventory.NeutronCollectorMenu;
 import io.github.aspshijiu.avaritia26.registry.ModBlockEntities;
 import net.fabricmc.fabric.api.menu.v1.ExtendedMenuProvider;
@@ -24,12 +26,13 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
 public final class NeutronCollectorBlockEntity extends BlockEntity
-		implements WorldlyContainer, ExtendedMenuProvider<BlockPos> {
+		implements WorldlyContainer, ExtendedMenuProvider<BlockPos>, SideConfigurable {
 	public static final int OUTPUT_SLOT = 0;
 	public static final int PRODUCTION_TICKS = 3600;
 	private static final int[] OUTPUT_SLOTS = {OUTPUT_SLOT};
 
 	private final NonNullList<ItemStack> items = NonNullList.withSize(1, ItemStack.EMPTY);
+	private SideConfiguration sideConfiguration = SideConfiguration.COLLECTOR_DEFAULT;
 	private final ContainerData data = new ContainerData() {
 		@Override
 		public int get(int index) {
@@ -95,6 +98,9 @@ public final class NeutronCollectorBlockEntity extends BlockEntity
 		items.clear();
 		ContainerHelper.loadAllItems(input, items);
 		progress = Math.clamp(input.getIntOr("progress", 0), 0, productionTicks() - 1);
+		sideConfiguration = input.read("side_configuration", SideConfiguration.CODEC)
+				.orElse(SideConfiguration.COLLECTOR_DEFAULT)
+				.outputsOnly();
 	}
 
 	@Override
@@ -102,6 +108,7 @@ public final class NeutronCollectorBlockEntity extends BlockEntity
 		super.saveAdditional(output);
 		ContainerHelper.saveAllItems(output, items);
 		output.putInt("progress", progress);
+		output.store("side_configuration", SideConfiguration.CODEC, sideConfiguration);
 	}
 
 	@Override
@@ -166,7 +173,7 @@ public final class NeutronCollectorBlockEntity extends BlockEntity
 
 	@Override
 	public int[] getSlotsForFace(Direction side) {
-		return OUTPUT_SLOTS;
+		return mode(side).canOutput() ? OUTPUT_SLOTS : new int[0];
 	}
 
 	@Override
@@ -176,7 +183,18 @@ public final class NeutronCollectorBlockEntity extends BlockEntity
 
 	@Override
 	public boolean canTakeItemThroughFace(int slot, ItemStack stack, Direction side) {
-		return slot == OUTPUT_SLOT && stack.is(getTier().output());
+		return slot == OUTPUT_SLOT && mode(side).canOutput() && stack.is(getTier().output());
+	}
+
+	@Override
+	public SideConfiguration getSideConfiguration() {
+		return sideConfiguration;
+	}
+
+	@Override
+	public void setSideConfiguration(SideConfiguration configuration) {
+		sideConfiguration = configuration.outputsOnly();
+		setChanged();
 	}
 
 	@Override
@@ -192,5 +210,10 @@ public final class NeutronCollectorBlockEntity extends BlockEntity
 	@Override
 	public BlockPos getScreenOpeningData(ServerPlayer player) {
 		return worldPosition;
+	}
+
+	private SideConfiguration.Mode mode(Direction absoluteSide) {
+		Direction facing = getBlockState().getValue(NeutronCollectorBlock.FACING);
+		return sideConfiguration.mode(SideConfiguration.relativeSide(absoluteSide, facing));
 	}
 }

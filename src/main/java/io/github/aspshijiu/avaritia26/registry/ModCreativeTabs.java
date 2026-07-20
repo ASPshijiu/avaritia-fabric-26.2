@@ -26,6 +26,7 @@ public final class ModCreativeTabs {
 				output.accept(ModItems.INFINITY_RING);
 				output.accept(ModItems.INFINITY_UMBRELLA);
 				output.accept(ModItems.INFINITY_CLOCK);
+				output.accept(ModItems.SIDE_CONFIG_CARD);
 				output.accept(ModItems.INFINITY_HELMET);
 				output.accept(ModItems.INFINITY_CHESTPLATE);
 				output.accept(ModItems.INFINITY_PANTS);

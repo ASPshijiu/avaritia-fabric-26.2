@@ -19,6 +19,7 @@ import io.github.aspshijiu.avaritia26.item.InfinityUmbrellaItem;
 import io.github.aspshijiu.avaritia26.item.InfinityUpgradeItem;
 import io.github.aspshijiu.avaritia26.item.MatterClusterItem;
 import io.github.aspshijiu.avaritia26.item.NeutronRingItem;
+import io.github.aspshijiu.avaritia26.item.SideConfigurationCardItem;
 import io.github.aspshijiu.avaritia26.item.SingularityItem;
 import io.github.aspshijiu.avaritia26.item.SkullFireSwordItem;
 import io.github.aspshijiu.avaritia26.item.TooltipItem;
@@ -91,6 +92,12 @@ public final class ModItems {
 					.component(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(
 							List.of(0.0F), List.of(), List.of(), List.of()
 					))
+	);
+	public static final ResourceKey<Item> SIDE_CONFIG_CARD_KEY = key("side_config_card");
+	public static final Item SIDE_CONFIG_CARD = register(
+			SIDE_CONFIG_CARD_KEY,
+			SideConfigurationCardItem::new,
+			new Item.Properties().rarity(Rarity.RARE).stacksTo(1)
 	);
 	public static final ResourceKey<Item> INFINITY_HELMET_KEY = key("infinity_helmet");
 	public static final Item INFINITY_HELMET = register(

@@ -1,5 +1,7 @@
 package io.github.aspshijiu.avaritia26.block.entity;
 
+import io.github.aspshijiu.avaritia26.block.NeutronCompressorBlock;
+import io.github.aspshijiu.avaritia26.component.SideConfiguration;
 import io.github.aspshijiu.avaritia26.crafting.CompressorRecipe;
 import io.github.aspshijiu.avaritia26.crafting.ModRecipes;
 import io.github.aspshijiu.avaritia26.inventory.NeutronCompressorMenu;
@@ -32,11 +34,12 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
 public final class NeutronCompressorBlockEntity extends BlockEntity
-		implements WorldlyContainer, ExtendedMenuProvider<BlockPos> {
+		implements WorldlyContainer, ExtendedMenuProvider<BlockPos>, SideConfigurable {
 	public static final int INPUT_SLOT = 0;
 	public static final int OUTPUT_SLOT = 1;
 	private static final int[] INPUT_SLOTS = {INPUT_SLOT};
 	private static final int[] OUTPUT_SLOTS = {OUTPUT_SLOT};
+	private static final int[] MIXED_SLOTS = {INPUT_SLOT, OUTPUT_SLOT};
 
 	private final NonNullList<ItemStack> items = NonNullList.withSize(2, ItemStack.EMPTY);
 	private final ContainerData data = new ContainerData() {
@@ -67,6 +70,7 @@ public final class NeutronCompressorBlockEntity extends BlockEntity
 	private ItemStack materialStack = ItemStack.EMPTY;
 	private int materialCount;
 	private int progress;
+	private SideConfiguration sideConfiguration = SideConfiguration.COMPRESSOR_DEFAULT;
 
 	public NeutronCompressorBlockEntity(BlockPos pos, BlockState state) {
 		super(ModBlockEntities.NEUTRON_COMPRESSOR, pos, state);
@@ -168,6 +172,8 @@ public final class NeutronCompressorBlockEntity extends BlockEntity
 			materialCount = 0;
 			progress = 0;
 		}
+		sideConfiguration = input.read("side_configuration", SideConfiguration.CODEC)
+				.orElse(SideConfiguration.COMPRESSOR_DEFAULT);
 	}
 
 	@Override
@@ -179,6 +185,7 @@ public final class NeutronCompressorBlockEntity extends BlockEntity
 		}
 		output.putInt("material_count", materialCount);
 		output.putInt("progress", progress);
+		output.store("side_configuration", SideConfiguration.CODEC, sideConfiguration);
 	}
 
 	@Override
@@ -244,17 +251,35 @@ public final class NeutronCompressorBlockEntity extends BlockEntity
 
 	@Override
 	public int[] getSlotsForFace(Direction side) {
-		return side == Direction.DOWN ? OUTPUT_SLOTS : INPUT_SLOTS;
+		SideConfiguration.Mode mode = mode(side);
+		if (mode.canInput() && mode.canOutput()) {
+			return MIXED_SLOTS;
+		}
+		if (mode.canInput()) {
+			return INPUT_SLOTS;
+		}
+		return mode.canOutput() ? OUTPUT_SLOTS : new int[0];
 	}
 
 	@Override
 	public boolean canPlaceItemThroughFace(int slot, ItemStack stack, Direction side) {
-		return slot == INPUT_SLOT && side != Direction.DOWN && canAccept(stack);
+		return slot == INPUT_SLOT && mode(side).canInput() && canAccept(stack);
 	}
 
 	@Override
 	public boolean canTakeItemThroughFace(int slot, ItemStack stack, Direction side) {
-		return slot == OUTPUT_SLOT && side == Direction.DOWN;
+		return slot == OUTPUT_SLOT && mode(side).canOutput();
+	}
+
+	@Override
+	public SideConfiguration getSideConfiguration() {
+		return sideConfiguration;
+	}
+
+	@Override
+	public void setSideConfiguration(SideConfiguration configuration) {
+		sideConfiguration = configuration;
+		setChanged();
 	}
 
 	@Override
@@ -326,6 +351,11 @@ public final class NeutronCompressorBlockEntity extends BlockEntity
 		} else {
 			output.grow(result.getCount());
 		}
+	}
+
+	private SideConfiguration.Mode mode(Direction absoluteSide) {
+		Direction facing = getBlockState().getValue(NeutronCompressorBlock.FACING);
+		return sideConfiguration.mode(SideConfiguration.relativeSide(absoluteSide, facing));
 	}
 
 	private record Target(Ingredient ingredient, int inputCount, int timeCost, ItemStack result) {

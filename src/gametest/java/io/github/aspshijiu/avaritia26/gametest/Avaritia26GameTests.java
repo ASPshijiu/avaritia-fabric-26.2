@@ -29,6 +29,7 @@ import io.github.aspshijiu.avaritia26.crafting.InfinityCatalystRecipe;
 import io.github.aspshijiu.avaritia26.crafting.ModRecipes;
 import io.github.aspshijiu.avaritia26.component.InfinityChestContents;
 import io.github.aspshijiu.avaritia26.component.ClockAccelerationData;
+import io.github.aspshijiu.avaritia26.component.SideConfiguration;
 import io.github.aspshijiu.avaritia26.crafting.NoConsumeCatalystShapedRecipe;
 import io.github.aspshijiu.avaritia26.entity.EndestPearlEntity;
 import io.github.aspshijiu.avaritia26.entity.GapingVoidEntity;
@@ -3155,6 +3156,110 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 				new BlockHitResult(Vec3.atCenterOf(absoluteCollectorPos), Direction.UP, absoluteCollectorPos, false)
 		));
 		helper.assertTrue(data.get(absoluteCollectorPos) == 1, "无尽时钟 1x 模式没有解除方块超频");
+		helper.succeed();
+	}
+
+	@GameTest
+	public void sideConfigCardCraftsCopiesPersistsAndClearsConfiguration(GameTestHelper helper) {
+		ItemStack card = new ItemStack(ModItems.SIDE_CONFIG_CARD);
+		helper.assertTrue(BuiltInRegistries.ITEM.getValue(ModItems.SIDE_CONFIG_CARD_KEY) == ModItems.SIDE_CONFIG_CARD,
+				"侧面配置卡物品未注册");
+		helper.assertTrue(BuiltInRegistries.DATA_COMPONENT_TYPE.getValue(Avaritia26.id("side_configuration"))
+				== ModDataComponents.SIDE_CONFIGURATION, "侧面配置组件未注册");
+		helper.assertTrue(card.getMaxStackSize() == 1 && card.getRarity() == Rarity.RARE,
+				"侧面配置卡物品属性错误");
+
+		CraftingInput recipeInput = CraftingInput.of(3, 3, List.of(
+				new ItemStack(Items.IRON_INGOT), new ItemStack(Items.IRON_INGOT), new ItemStack(Items.IRON_INGOT),
+				new ItemStack(Items.IRON_INGOT), new ItemStack(ModItems.DIAMOND_LATTICE), new ItemStack(Items.IRON_INGOT),
+				ItemStack.EMPTY, new ItemStack(Items.GOLD_INGOT), ItemStack.EMPTY
+		));
+		assertCraftingRecipe(helper, "side_config_card", recipeInput, ModItems.SIDE_CONFIG_CARD, 1);
+		List<ItemStack> wrongRecipe = copyStacks(recipeInput.items());
+		wrongRecipe.set(4, new ItemStack(Items.DIAMOND));
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(Registries.RECIPE, Avaritia26.id("side_config_card"));
+		helper.assertFalse(helper.getLevel().getServer().getRecipeManager()
+				.getRecipeFor(RecipeType.CRAFTING, CraftingInput.of(3, 3, wrongRecipe), helper.getLevel())
+				.filter(candidate -> candidate.id().equals(recipeKey)).isPresent(),
+				"侧面配置卡中心材料错误时仍匹配配方");
+
+		BlockPos collectorPos = new BlockPos(9, 1, 9);
+		BlockPos compressorPos = new BlockPos(11, 1, 9);
+		BlockPos clearPos = new BlockPos(13, 1, 9);
+		helper.setBlock(collectorPos, ModBlocks.NEUTRON_COLLECTOR);
+		helper.setBlock(compressorPos, ModBlocks.NEUTRON_COMPRESSOR.defaultBlockState()
+				.setValue(NeutronCompressorBlock.FACING, Direction.EAST));
+		helper.setBlock(clearPos, Blocks.STONE);
+		NeutronCollectorBlockEntity collector = helper.getBlockEntity(collectorPos, NeutronCollectorBlockEntity.class);
+		NeutronCompressorBlockEntity compressor = helper.getBlockEntity(compressorPos, NeutronCompressorBlockEntity.class);
+		ServerPlayer player = (ServerPlayer) helper.makeMockServerPlayer(GameType.SURVIVAL);
+		player.getInventory().setSelectedSlot(0);
+		player.setItemInHand(InteractionHand.MAIN_HAND, card);
+
+		player.setShiftKeyDown(true);
+		InteractionResult readResult = ModItems.SIDE_CONFIG_CARD.useOn(new UseOnContext(
+				player,
+				InteractionHand.MAIN_HAND,
+				new BlockHitResult(Vec3.atCenterOf(helper.absolutePos(collectorPos)), Direction.UP,
+						helper.absolutePos(collectorPos), false)
+		));
+		helper.assertTrue(readResult.consumesAction(), "侧面配置卡没有读取机器配置");
+		SideConfiguration stored = card.get(ModDataComponents.SIDE_CONFIGURATION);
+		helper.assertTrue(stored != null && stored.equals(collector.getSideConfiguration()) && card.hasFoil(),
+				"侧面配置卡没有保存配置或显示附魔光效");
+
+		RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(), helper.getLevel().registryAccess());
+		try {
+			ItemStack.STREAM_CODEC.encode(buffer, card);
+			ItemStack decoded = ItemStack.STREAM_CODEC.decode(buffer);
+			helper.assertTrue(stored.equals(decoded.get(ModDataComponents.SIDE_CONFIGURATION)),
+					"侧面配置卡网络同步丢失配置");
+		} finally {
+			buffer.release();
+		}
+
+		player.setShiftKeyDown(false);
+		InteractionResult applyResult = ModItems.SIDE_CONFIG_CARD.useOn(new UseOnContext(
+				player,
+				InteractionHand.MAIN_HAND,
+				new BlockHitResult(Vec3.atCenterOf(helper.absolutePos(compressorPos)), Direction.UP,
+						helper.absolutePos(compressorPos), false)
+		));
+		helper.assertTrue(applyResult.consumesAction() && compressor.getSideConfiguration().equals(stored),
+				"侧面配置卡没有将保存配置应用到机器");
+
+		SideConfiguration directional = new SideConfiguration(
+				SideConfiguration.Mode.PASSIVE_INPUT,
+				SideConfiguration.Mode.PASSIVE_OUTPUT,
+				SideConfiguration.Mode.OFF,
+				SideConfiguration.Mode.OFF,
+				SideConfiguration.Mode.OFF,
+				SideConfiguration.Mode.OFF
+		);
+		compressor.setSideConfiguration(directional);
+		helper.assertTrue(compressor.getSlotsForFace(Direction.EAST)[0] == NeutronCompressorBlockEntity.INPUT_SLOT,
+				"侧面配置没有按机器朝向映射前侧输入");
+		helper.assertTrue(compressor.getSlotsForFace(Direction.WEST)[0] == NeutronCompressorBlockEntity.OUTPUT_SLOT,
+				"侧面配置没有按机器朝向映射后侧输出");
+		BlockEntity loaded = BlockEntity.loadStatic(
+				helper.absolutePos(compressorPos),
+				helper.getBlockState(compressorPos),
+				compressor.saveWithFullMetadata(helper.getLevel().registryAccess()),
+				helper.getLevel().registryAccess()
+		);
+		helper.assertTrue(loaded instanceof NeutronCompressorBlockEntity loadedCompressor
+				&& loadedCompressor.getSideConfiguration().equals(directional),
+				"机器重载后丢失侧面配置");
+
+		player.setShiftKeyDown(true);
+		InteractionResult clearResult = ModItems.SIDE_CONFIG_CARD.useOn(new UseOnContext(
+				player,
+				InteractionHand.MAIN_HAND,
+				new BlockHitResult(Vec3.atCenterOf(helper.absolutePos(clearPos)), Direction.UP,
+						helper.absolutePos(clearPos), false)
+		));
+		helper.assertTrue(clearResult.consumesAction() && !card.has(ModDataComponents.SIDE_CONFIGURATION)
+				&& !card.hasFoil(), "侧面配置卡没有清除保存配置或附魔光效");
 		helper.succeed();
 	}
 

@@ -78,7 +78,7 @@
 | `infinity_ring` | 无尽指环（上游 WIP） | 实现中 | 不适用 | 不适用 | 通过 | 通过 | 通过 |
 | `infinity_umbrella` | 无尽雨伞 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
 | `infinity_clock` | 无尽时钟 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `side_config_card` | 侧面配置卡 | 未开始 | — | — | — | — | — |
+| `side_config_card` | 侧面配置卡 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
 | `infinity_bucket` | 无尽桶 | 未开始 | — | — | — | — | — |
 | `infinity_crossbow` | 无尽弩 | 未开始 | — | — | — | — | — |
 | `infinity_shield` | 无尽盾 | 未开始 | — | — | — | — | — |

@@ -2,8 +2,9 @@ package io.github.aspshijiu.avaritia26.registry;
 
 import com.mojang.serialization.Codec;
 import io.github.aspshijiu.avaritia26.Avaritia26;
-import io.github.aspshijiu.avaritia26.component.MatterClusterContents;
 import io.github.aspshijiu.avaritia26.component.InfinityChestContents;
+import io.github.aspshijiu.avaritia26.component.MatterClusterContents;
+import io.github.aspshijiu.avaritia26.component.SideConfiguration;
 import io.github.aspshijiu.avaritia26.singularity.SingularityDefinition;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
@@ -42,6 +43,14 @@ public final class ModDataComponents {
 			DataComponentType.<Integer>builder()
 					.persistent(Codec.INT)
 					.networkSynchronized(ByteBufCodecs.INT)
+					.build()
+	);
+	public static final DataComponentType<SideConfiguration> SIDE_CONFIGURATION = Registry.register(
+			BuiltInRegistries.DATA_COMPONENT_TYPE,
+			Avaritia26.id("side_configuration"),
+			DataComponentType.<SideConfiguration>builder()
+					.persistent(SideConfiguration.CODEC)
+					.networkSynchronized(SideConfiguration.STREAM_CODEC)
 					.build()
 	);
 	public static final DataComponentType<SingularityDefinition> SINGULARITY = Registry.register(
