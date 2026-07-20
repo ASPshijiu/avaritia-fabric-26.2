@@ -116,7 +116,7 @@
 | `blaze_cube_block` | 炽骨立方块 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
 | `compressed_chest` | 压缩箱子 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
 | `soul_farmland` | 灵魂耕地 | 未开始 | — | — | — | — | — |
-| `diamond_lattice_block` | 钻石晶格块 | 未开始 | — | — | — | — | — |
+| `diamond_lattice_block` | 钻石晶格块 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
 | `star_fuel_block` | 星辰燃料块 | 未开始 | — | — | — | — | — |
 | `refined_coal_block` | 精炼煤炭块 | 未开始 | — | — | — | — | — |
 | `sculk_crafting_table` | 幽匿工作台 | 未开始 | — | — | — | — | — |

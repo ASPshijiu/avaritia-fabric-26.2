@@ -43,6 +43,7 @@ public final class ModCreativeTabs {
 				output.accept(ModItems.UPGRADE_SMITHING_TEMPLATE);
 				output.accept(ModBlocks.INFINITY_ITEM);
 				output.accept(ModItems.DIAMOND_LATTICE);
+				output.accept(ModBlocks.DIAMOND_LATTICE_BLOCK_ITEM);
 				output.accept(ModItems.CRYSTAL_MATRIX_INGOT);
 				output.accept(ModItems.NEUTRON_PILE);
 				output.accept(ModItems.NEUTRON_NUGGET);

@@ -1,0 +1,32 @@
+{
+	"parent": "minecraft:recipes/root",
+	"criteria": {
+		"has_diamond_lattice": {
+			"trigger": "minecraft:inventory_changed",
+			"conditions": {
+				"items": [
+					{
+						"items": "avaritia26:diamond_lattice"
+					}
+				]
+			}
+		},
+		"has_the_recipe": {
+			"trigger": "minecraft:recipe_unlocked",
+			"conditions": {
+				"recipe": "avaritia26:diamond_lattice_block"
+			}
+		}
+	},
+	"requirements": [
+		[
+			"has_diamond_lattice",
+			"has_the_recipe"
+		]
+	],
+	"rewards": {
+		"recipes": [
+			"avaritia26:diamond_lattice_block"
+		]
+	}
+}

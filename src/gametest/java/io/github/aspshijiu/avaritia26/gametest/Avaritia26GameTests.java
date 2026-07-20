@@ -879,6 +879,79 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	}
 
 	@GameTest
+	public void diamondLatticeBlockResourceChainWorks(GameTestHelper helper) {
+		helper.assertTrue(
+				BuiltInRegistries.BLOCK.getValue(ModBlocks.DIAMOND_LATTICE_BLOCK_KEY)
+						== ModBlocks.DIAMOND_LATTICE_BLOCK,
+				"钻石晶格块没有注册到预期的 ResourceKey"
+		);
+		helper.assertTrue(
+				BuiltInRegistries.ITEM.getValue(ModBlocks.DIAMOND_LATTICE_BLOCK_ITEM_KEY)
+						== ModBlocks.DIAMOND_LATTICE_BLOCK_ITEM,
+				"钻石晶格块物品没有注册到预期的 ResourceKey"
+		);
+		helper.assertTrue(
+				Block.byItem(ModBlocks.DIAMOND_LATTICE_BLOCK_ITEM) == ModBlocks.DIAMOND_LATTICE_BLOCK,
+				"钻石晶格块物品没有关联到方块"
+		);
+		ItemStack blockStack = new ItemStack(ModBlocks.DIAMOND_LATTICE_BLOCK_ITEM);
+		helper.assertTrue(blockStack.getRarity() == Rarity.UNCOMMON, "钻石晶格块应当是 UNCOMMON 稀有度");
+		helper.assertTrue(
+				ModBlocks.DIAMOND_LATTICE_BLOCK.getExplosionResistance() == 100.0F,
+				"钻石晶格块爆炸抗性应当是 100"
+		);
+
+		BlockPos relativePos = new BlockPos(20, 0, 0);
+		helper.setBlock(relativePos, ModBlocks.DIAMOND_LATTICE_BLOCK);
+		helper.assertBlockPresent(ModBlocks.DIAMOND_LATTICE_BLOCK, relativePos);
+		helper.assertTrue(
+				helper.getBlockState(relativePos).getDestroySpeed(helper.getLevel(), helper.absolutePos(relativePos))
+						== 100.0F,
+				"钻石晶格块硬度应当是 100"
+		);
+		List<ItemStack> drops = Block.getDrops(
+				helper.getBlockState(relativePos),
+				helper.getLevel(),
+				helper.absolutePos(relativePos),
+				null
+		);
+		helper.assertTrue(
+				drops.size() == 1 && drops.getFirst().is(ModBlocks.DIAMOND_LATTICE_BLOCK_ITEM),
+				"钻石晶格块应当掉落自身"
+		);
+
+		CraftingInput packInput = filledCraftingInput(ModItems.DIAMOND_LATTICE);
+		assertCraftingRecipe(
+				helper,
+				"diamond_lattice_block",
+				packInput,
+				ModBlocks.DIAMOND_LATTICE_BLOCK_ITEM,
+				1
+		);
+		assertCraftingRecipe(
+				helper,
+				"diamond_lattice_from_block",
+				CraftingInput.of(1, 1, List.of(blockStack)),
+				ModItems.DIAMOND_LATTICE,
+				9
+		);
+		List<ItemStack> wrongStacks = copyStacks(packInput.items());
+		wrongStacks.set(4, new ItemStack(Items.DIAMOND));
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(
+				Registries.RECIPE,
+				Avaritia26.id("diamond_lattice_block")
+		);
+		helper.assertFalse(
+				helper.getLevel().getServer().getRecipeManager()
+						.getRecipeFor(RecipeType.CRAFTING, CraftingInput.of(3, 3, wrongStacks), helper.getLevel())
+						.filter(candidate -> candidate.id().equals(recipeKey))
+						.isPresent(),
+				"钻石晶格块配方不应接受错误材料"
+		);
+		helper.succeed();
+	}
+
+	@GameTest
 	public void skullFireSwordCraftsAndBeheadsSkeletons(GameTestHelper helper) {
 		ItemStack sword = new ItemStack(ModItems.SKULL_FIRE_SWORD);
 		helper.assertTrue(

@@ -54,6 +54,24 @@ public final class ModBlocks {
 					new Item.Properties().setId(BLAZE_CUBE_BLOCK_ITEM_KEY).rarity(Rarity.RARE).fireResistant()
 			)
 	);
+	public static final ResourceKey<Block> DIAMOND_LATTICE_BLOCK_KEY = blockKey("diamond_lattice_block");
+	public static final Block DIAMOND_LATTICE_BLOCK = Registry.register(
+			BuiltInRegistries.BLOCK,
+			DIAMOND_LATTICE_BLOCK_KEY,
+			new Block(BlockBehaviour.Properties.of()
+					.setId(DIAMOND_LATTICE_BLOCK_KEY)
+					.sound(SoundType.GLASS)
+					.strength(100.0F, 100.0F))
+	);
+	public static final ResourceKey<Item> DIAMOND_LATTICE_BLOCK_ITEM_KEY = itemKey("diamond_lattice_block");
+	public static final BlockItem DIAMOND_LATTICE_BLOCK_ITEM = Registry.register(
+			BuiltInRegistries.ITEM,
+			DIAMOND_LATTICE_BLOCK_ITEM_KEY,
+			new BlockItem(
+					DIAMOND_LATTICE_BLOCK,
+					new Item.Properties().setId(DIAMOND_LATTICE_BLOCK_ITEM_KEY).rarity(Rarity.UNCOMMON)
+			)
+	);
 	public static final ResourceKey<Block> NEUTRON_COLLECTOR_KEY = blockKey("neutron_collector");
 	public static final Block NEUTRON_COLLECTOR = Registry.register(
 			BuiltInRegistries.BLOCK,
