@@ -6,6 +6,7 @@ import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.block.entity.CompressedChestBlockEntity;
 import io.github.aspshijiu.avaritia26.block.entity.ExtremeCraftingTableBlockEntity;
 import io.github.aspshijiu.avaritia26.block.entity.InfinityChestBlockEntity;
+import io.github.aspshijiu.avaritia26.block.entity.NetherCraftingTableBlockEntity;
 import io.github.aspshijiu.avaritia26.block.entity.NeutronCollectorBlockEntity;
 import io.github.aspshijiu.avaritia26.block.entity.NeutronCompressorBlockEntity;
 import io.github.aspshijiu.avaritia26.block.entity.SculkCraftingTableBlockEntity;
@@ -48,6 +49,11 @@ public final class ModBlockEntities {
 			BuiltInRegistries.BLOCK_ENTITY_TYPE,
 			Avaritia26.id("sculk_crafting_table"),
 			new BlockEntityType<>(SculkCraftingTableBlockEntity::new, Set.of(ModBlocks.SCULK_CRAFTING_TABLE))
+	);
+	public static final BlockEntityType<NetherCraftingTableBlockEntity> NETHER_CRAFTING_TABLE = Registry.register(
+			BuiltInRegistries.BLOCK_ENTITY_TYPE,
+			Avaritia26.id("nether_crafting_table"),
+			new BlockEntityType<>(NetherCraftingTableBlockEntity::new, Set.of(ModBlocks.NETHER_CRAFTING_TABLE))
 	);
 	public static final BlockEntityType<InfinityChestBlockEntity> INFINITY_CHEST = Registry.register(
 			BuiltInRegistries.BLOCK_ENTITY_TYPE,

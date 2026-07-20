@@ -14,6 +14,7 @@ import io.github.aspshijiu.avaritia26.block.NeutronCompressorBlock;
 import io.github.aspshijiu.avaritia26.block.entity.CompressedChestBlockEntity;
 import io.github.aspshijiu.avaritia26.block.entity.ExtremeCraftingTableBlockEntity;
 import io.github.aspshijiu.avaritia26.block.entity.InfinityChestBlockEntity;
+import io.github.aspshijiu.avaritia26.block.entity.NetherCraftingTableBlockEntity;
 import io.github.aspshijiu.avaritia26.block.entity.NeutronCollectorBlockEntity;
 import io.github.aspshijiu.avaritia26.block.entity.NeutronCollectorTier;
 import io.github.aspshijiu.avaritia26.block.entity.NeutronCompressorTier;
@@ -36,6 +37,7 @@ import io.github.aspshijiu.avaritia26.inventory.CompressedChestMenu;
 import io.github.aspshijiu.avaritia26.inventory.ExtremeCraftingMenu;
 import io.github.aspshijiu.avaritia26.inventory.ExtremeSmithingMenu;
 import io.github.aspshijiu.avaritia26.inventory.InfinityChestMenu;
+import io.github.aspshijiu.avaritia26.inventory.NetherCraftingMenu;
 import io.github.aspshijiu.avaritia26.inventory.NeutronCollectorMenu;
 import io.github.aspshijiu.avaritia26.inventory.NeutronCompressorMenu;
 import io.github.aspshijiu.avaritia26.inventory.SculkCraftingMenu;
@@ -2614,6 +2616,99 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 			);
 			helper.assertTrue(drops.stream().mapToInt(entity -> entity.getItem().getCount()).sum() == 3,
 					"破坏幽匿工作台时没有返还持久输入");
+			helper.succeed();
+		});
+	}
+
+	@GameTest
+	public void netherCraftingTableCraftsPersistsAndUsesFiveByFiveRecipes(GameTestHelper helper) {
+		helper.assertTrue(BuiltInRegistries.BLOCK.getValue(ModBlocks.NETHER_CRAFTING_TABLE_KEY)
+				== ModBlocks.NETHER_CRAFTING_TABLE, "炼狱工作台方块未注册");
+		helper.assertTrue(BuiltInRegistries.ITEM.getValue(ModBlocks.NETHER_CRAFTING_TABLE_ITEM_KEY)
+				== ModBlocks.NETHER_CRAFTING_TABLE_ITEM, "炼狱工作台物品未注册");
+		helper.assertTrue(BuiltInRegistries.BLOCK_ENTITY_TYPE.getValue(Avaritia26.id("nether_crafting_table"))
+				== ModBlockEntities.NETHER_CRAFTING_TABLE, "炼狱工作台方块实体未注册");
+		helper.assertTrue(BuiltInRegistries.MENU.getValue(Avaritia26.id("nether_crafting"))
+				== ModMenus.NETHER_CRAFTING, "炼狱工作台菜单未注册");
+
+		CraftingInput recipeInput = CraftingInput.of(3, 3, List.of(
+				new ItemStack(Blocks.WITHER_SKELETON_SKULL), new ItemStack(Blocks.RESPAWN_ANCHOR), new ItemStack(Blocks.WITHER_SKELETON_SKULL),
+				new ItemStack(Blocks.NETHERRACK), new ItemStack(ModBlocks.DOUBLE_COMPRESSED_CRAFTING_TABLE_ITEM), new ItemStack(Blocks.NETHERRACK),
+				new ItemStack(Items.NETHERITE_INGOT), new ItemStack(Items.NETHER_STAR), new ItemStack(Items.NETHERITE_INGOT)
+		));
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(Registries.RECIPE, Avaritia26.id("nether_crafting_table"));
+		RecipeHolder<Recipe<CraftingInput>> recipe = helper.getLevel().getServer().getRecipeManager()
+				.getRecipeFor(ModRecipes.EXTREME_CRAFTING, recipeInput, helper.getLevel())
+				.filter(candidate -> candidate.id().equals(recipeKey))
+				.orElseThrow(() -> helper.assertionException("正确材料未匹配炼狱工作台配方"));
+		helper.assertTrue(recipe.value().assemble(recipeInput).is(ModBlocks.NETHER_CRAFTING_TABLE_ITEM),
+				"炼狱工作台配方输出错误");
+		List<ItemStack> wrongRecipe = copyStacks(recipeInput.items());
+		wrongRecipe.set(4, new ItemStack(Blocks.CRAFTING_TABLE));
+		helper.assertFalse(helper.getLevel().getServer().getRecipeManager()
+				.getRecipeFor(ModRecipes.EXTREME_CRAFTING, CraftingInput.of(3, 3, wrongRecipe), helper.getLevel())
+				.filter(candidate -> candidate.id().equals(recipeKey)).isPresent(), "炼狱工作台配方错误接受普通工作台");
+
+		BlockPos tablePos = new BlockPos(5, 0, 5);
+		helper.setBlock(tablePos, ModBlocks.NETHER_CRAFTING_TABLE);
+		NetherCraftingTableBlockEntity table = helper.getBlockEntity(tablePos, NetherCraftingTableBlockEntity.class);
+		helper.assertTrue(table.getContainerSize() == 25, "炼狱工作台应持久保存 5×5 输入");
+		BlockState tableState = helper.getBlockState(tablePos);
+		helper.assertTrue(tableState.getLightEmission() == 15, "炼狱工作台亮度错误");
+		helper.assertTrue(tableState.is(BlockTags.MINEABLE_WITH_PICKAXE), "炼狱工作台缺少镐类挖掘标签");
+		helper.assertTrue(tableState.getDestroySpeed(helper.getLevel(), helper.absolutePos(tablePos)) == 50.0F,
+				"炼狱工作台硬度错误");
+		helper.assertTrue(ModBlocks.NETHER_CRAFTING_TABLE.getExplosionResistance() == 1000.0F,
+				"炼狱工作台爆炸抗性错误");
+		helper.assertTrue(new ItemStack(ModBlocks.NETHER_CRAFTING_TABLE_ITEM).getRarity() == Rarity.UNCOMMON,
+				"炼狱工作台稀有度错误");
+
+		CraftingInput fiveByFive = blazeCubeInput();
+		for (int slot = 0; slot < 25; slot++) {
+			table.setItem(slot, fiveByFive.items().get(slot).copy());
+		}
+		Player player = helper.makeMockServerPlayer(GameType.SURVIVAL);
+		BlockPos absoluteTablePos = helper.absolutePos(tablePos);
+		player.setPos(Vec3.atCenterOf(absoluteTablePos));
+		NetherCraftingMenu menu = new NetherCraftingMenu(
+				1,
+				player.getInventory(),
+				table,
+				net.minecraft.world.inventory.ContainerLevelAccess.create(helper.getLevel(), absoluteTablePos)
+		);
+		helper.assertTrue(menu.slots.size() == 62, "炼狱工作台菜单槽位数量错误");
+		helper.assertTrue(menu.slots.getFirst().getItem().is(ModItems.BLAZE_CUBE)
+				&& menu.slots.getFirst().getItem().getCount() == 2, "炼狱工作台没有匹配 5×5 分级配方");
+		ItemStack crafted = menu.quickMoveStack(player, SculkCraftingMenu.RESULT_SLOT);
+		helper.assertTrue(crafted.is(ModItems.BLAZE_CUBE) && crafted.getCount() == 2,
+				"炼狱工作台快速合成输出错误");
+		helper.assertTrue(table.isEmpty(), "炼狱工作台合成后没有正确消耗 5×5 输入");
+		helper.assertTrue(player.getInventory().getNonEquipmentItems().stream()
+				.anyMatch(stack -> stack.is(ModItems.BLAZE_CUBE) && stack.getCount() == 2),
+				"炼狱工作台快速合成没有把产物移入背包");
+
+		table.setItem(0, new ItemStack(Items.NETHER_STAR, 2));
+		table.setItem(24, new ItemStack(Items.NETHERITE_INGOT));
+		BlockEntity loaded = BlockEntity.loadStatic(
+				absoluteTablePos,
+				tableState,
+				table.saveWithFullMetadata(helper.getLevel().registryAccess()),
+				helper.getLevel().registryAccess()
+		);
+		helper.assertTrue(loaded instanceof NetherCraftingTableBlockEntity, "炼狱工作台无法从存档恢复");
+		NetherCraftingTableBlockEntity loadedTable = (NetherCraftingTableBlockEntity) loaded;
+		helper.assertTrue(loadedTable.getItem(0).getCount() == 2
+				&& loadedTable.getItem(24).is(Items.NETHERITE_INGOT), "炼狱工作台首尾槽位存档错误");
+
+		helper.destroyBlock(tablePos);
+		helper.runAfterDelay(1, () -> {
+			List<ItemEntity> drops = helper.getLevel().getEntitiesOfClass(
+					ItemEntity.class,
+					new AABB(absoluteTablePos).inflate(2.0),
+					entity -> entity.getItem().is(Items.NETHER_STAR) || entity.getItem().is(Items.NETHERITE_INGOT)
+			);
+			helper.assertTrue(drops.stream().mapToInt(entity -> entity.getItem().getCount()).sum() == 3,
+					"破坏炼狱工作台时没有返还持久输入");
 			helper.succeed();
 		});
 	}

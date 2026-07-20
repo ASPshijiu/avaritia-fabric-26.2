@@ -20,6 +20,7 @@ import net.minecraft.world.entity.player.StackedItemContents;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.ResultContainer;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -28,20 +29,22 @@ import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
-public final class SculkCraftingMenu extends AbstractContainerMenu {
+public class SculkCraftingMenu extends AbstractContainerMenu {
 	public static final int RESULT_SLOT = 0;
-	public static final int INPUT_SLOT_START = 1;
-	public static final int INPUT_SLOT_END = 10;
-	public static final int PLAYER_SLOT_START = 10;
-	public static final int PLAYER_SLOT_END = 46;
-	private static final int PLAYER_HOTBAR_START = 37;
 
 	private final Player player;
 	private final ContainerLevelAccess access;
 	private final CraftingContainer craftSlots;
 	private final ResultContainer resultSlots = new ResultContainer();
+	private final int gridWidth;
+	private final int inputSlotEnd;
+	private final int playerSlotStart;
+	private final int playerHotbarStart;
+	private final int playerSlotEnd;
+	private final Block validBlock;
 	private RecipeHolder<? extends Recipe<CraftingInput>> currentRecipe;
 	private CraftingInput.Positioned currentInput;
 	private boolean consuming;
@@ -50,7 +53,7 @@ public final class SculkCraftingMenu extends AbstractContainerMenu {
 		this(
 				containerId,
 				inventory,
-				findContainer(inventory, pos),
+				findContainer(inventory, pos, SculkCraftingTableBlockEntity.class, SculkCraftingTableBlockEntity.GRID_SIZE),
 				ContainerLevelAccess.create(inventory.player.level(), pos)
 		);
 	}
@@ -61,35 +64,82 @@ public final class SculkCraftingMenu extends AbstractContainerMenu {
 			Container storage,
 			ContainerLevelAccess access
 	) {
-		super(ModMenus.SCULK_CRAFTING, containerId);
-		checkContainerSize(storage, SculkCraftingTableBlockEntity.GRID_SIZE);
+		this(
+				ModMenus.SCULK_CRAFTING,
+				containerId,
+				inventory,
+				storage,
+				access,
+				3,
+				ModBlocks.SCULK_CRAFTING_TABLE,
+				30,
+				17,
+				124,
+				35,
+				8,
+				84,
+				8,
+				142
+		);
+	}
+
+	protected SculkCraftingMenu(
+			MenuType<?> menuType,
+			int containerId,
+			Inventory inventory,
+			Container storage,
+			ContainerLevelAccess access,
+			int gridWidth,
+			Block validBlock,
+			int gridX,
+			int gridY,
+			int resultX,
+			int resultY,
+			int playerX,
+			int playerY,
+			int hotbarX,
+			int hotbarY
+	) {
+		super(menuType, containerId);
+		checkContainerSize(storage, gridWidth * gridWidth);
 		this.player = inventory.player;
 		this.access = access;
+		this.gridWidth = gridWidth;
+		this.inputSlotEnd = 1 + gridWidth * gridWidth;
+		this.playerSlotStart = inputSlotEnd;
+		this.playerHotbarStart = playerSlotStart + 27;
+		this.playerSlotEnd = playerSlotStart + 36;
+		this.validBlock = validBlock;
 		this.craftSlots = new PersistentCraftingContainer(this, storage);
 
-		addSlot(new SculkResultSlot(this, resultSlots, 124, 35));
-		for (int row = 0; row < 3; row++) {
-			for (int column = 0; column < 3; column++) {
-				addSlot(new Slot(craftSlots, column + row * 3, 30 + column * 18, 17 + row * 18));
+		addSlot(new SculkResultSlot(this, resultSlots, resultX, resultY));
+		for (int row = 0; row < gridWidth; row++) {
+			for (int column = 0; column < gridWidth; column++) {
+				addSlot(new Slot(craftSlots, column + row * gridWidth, gridX + column * 18, gridY + row * 18));
 			}
 		}
 		for (int row = 0; row < 3; row++) {
 			for (int column = 0; column < 9; column++) {
-				addSlot(new Slot(inventory, column + row * 9 + 9, 8 + column * 18, 84 + row * 18));
+				addSlot(new Slot(inventory, column + row * 9 + 9, playerX + column * 18, playerY + row * 18));
 			}
 		}
 		for (int column = 0; column < 9; column++) {
-			addSlot(new Slot(inventory, column, 8 + column * 18, 142));
+			addSlot(new Slot(inventory, column, hotbarX + column * 18, hotbarY));
 		}
 		slotsChanged(craftSlots);
 	}
 
-	private static Container findContainer(Inventory inventory, BlockPos pos) {
+	protected static Container findContainer(
+			Inventory inventory,
+			BlockPos pos,
+			Class<? extends Container> type,
+			int gridSize
+	) {
 		BlockEntity blockEntity = inventory.player.level().getBlockEntity(pos);
-		if (blockEntity instanceof SculkCraftingTableBlockEntity table) {
-			return table;
+		if (type.isInstance(blockEntity)) {
+			return type.cast(blockEntity);
 		}
-		return new SimpleContainer(SculkCraftingTableBlockEntity.GRID_SIZE);
+		return new SimpleContainer(gridSize);
 	}
 
 	@Override
@@ -134,7 +184,7 @@ public final class SculkCraftingMenu extends AbstractContainerMenu {
 			for (int row = 0; row < currentInput.input().height(); row++) {
 				for (int column = 0; column < currentInput.input().width(); column++) {
 					int inputIndex = column + row * currentInput.input().width();
-					int slot = column + currentInput.left() + (row + currentInput.top()) * 3;
+					int slot = column + currentInput.left() + (row + currentInput.top()) * gridWidth;
 					if (!craftSlots.getItem(slot).isEmpty()) {
 						craftSlots.removeItem(slot, 1);
 					}
@@ -179,21 +229,21 @@ public final class SculkCraftingMenu extends AbstractContainerMenu {
 		ItemStack stack = slot.getItem();
 		ItemStack original = stack.copy();
 		if (slotIndex == RESULT_SLOT) {
-			if (!moveItemStackTo(stack, PLAYER_SLOT_START, PLAYER_SLOT_END, true)) {
+			if (!moveItemStackTo(stack, playerSlotStart, playerSlotEnd, true)) {
 				return ItemStack.EMPTY;
 			}
 			slot.onQuickCraft(stack, original);
-		} else if (slotIndex >= PLAYER_SLOT_START) {
-			if (!moveItemStackTo(stack, INPUT_SLOT_START, INPUT_SLOT_END, false)) {
-				if (slotIndex < PLAYER_HOTBAR_START) {
-					if (!moveItemStackTo(stack, PLAYER_HOTBAR_START, PLAYER_SLOT_END, false)) {
+		} else if (slotIndex >= playerSlotStart) {
+			if (!moveItemStackTo(stack, 1, inputSlotEnd, false)) {
+				if (slotIndex < playerHotbarStart) {
+					if (!moveItemStackTo(stack, playerHotbarStart, playerSlotEnd, false)) {
 						return ItemStack.EMPTY;
 					}
-				} else if (!moveItemStackTo(stack, PLAYER_SLOT_START, PLAYER_HOTBAR_START, false)) {
+				} else if (!moveItemStackTo(stack, playerSlotStart, playerHotbarStart, false)) {
 					return ItemStack.EMPTY;
 				}
 			}
-		} else if (!moveItemStackTo(stack, PLAYER_SLOT_START, PLAYER_SLOT_END, false)) {
+		} else if (!moveItemStackTo(stack, playerSlotStart, playerSlotEnd, false)) {
 			return ItemStack.EMPTY;
 		}
 
@@ -214,7 +264,7 @@ public final class SculkCraftingMenu extends AbstractContainerMenu {
 
 	@Override
 	public boolean stillValid(Player player) {
-		return stillValid(access, player, ModBlocks.SCULK_CRAFTING_TABLE);
+		return stillValid(access, player, validBlock);
 	}
 
 	@Override
@@ -284,12 +334,12 @@ public final class SculkCraftingMenu extends AbstractContainerMenu {
 
 		@Override
 		public int getWidth() {
-			return 3;
+			return menu.gridWidth;
 		}
 
 		@Override
 		public int getHeight() {
-			return 3;
+			return menu.gridWidth;
 		}
 
 		@Override

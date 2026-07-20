@@ -5,6 +5,7 @@ import io.github.aspshijiu.avaritia26.block.CompressedChestBlock;
 import io.github.aspshijiu.avaritia26.block.ExtremeCraftingTableBlock;
 import io.github.aspshijiu.avaritia26.block.ExtremeSmithingTableBlock;
 import io.github.aspshijiu.avaritia26.block.InfinityChestBlock;
+import io.github.aspshijiu.avaritia26.block.NetherCraftingTableBlock;
 import io.github.aspshijiu.avaritia26.block.NeutronCollectorBlock;
 import io.github.aspshijiu.avaritia26.block.NeutronCompressorBlock;
 import io.github.aspshijiu.avaritia26.block.SculkCraftingTableBlock;
@@ -403,6 +404,27 @@ public final class ModBlocks {
 			new BlockItem(
 					SCULK_CRAFTING_TABLE,
 					new Item.Properties().setId(SCULK_CRAFTING_TABLE_ITEM_KEY)
+			)
+	);
+	public static final ResourceKey<Block> NETHER_CRAFTING_TABLE_KEY = blockKey("nether_crafting_table");
+	public static final Block NETHER_CRAFTING_TABLE = Registry.register(
+			BuiltInRegistries.BLOCK,
+			NETHER_CRAFTING_TABLE_KEY,
+			new NetherCraftingTableBlock(BlockBehaviour.Properties.of()
+					.setId(NETHER_CRAFTING_TABLE_KEY)
+					.mapColor(MapColor.METAL)
+					.sound(SoundType.NETHERRACK)
+					.strength(50.0F, 1000.0F)
+					.lightLevel(state -> 15)
+					.requiresCorrectToolForDrops())
+	);
+	public static final ResourceKey<Item> NETHER_CRAFTING_TABLE_ITEM_KEY = itemKey("nether_crafting_table");
+	public static final BlockItem NETHER_CRAFTING_TABLE_ITEM = Registry.register(
+			BuiltInRegistries.ITEM,
+			NETHER_CRAFTING_TABLE_ITEM_KEY,
+			new BlockItem(
+					NETHER_CRAFTING_TABLE,
+					new Item.Properties().setId(NETHER_CRAFTING_TABLE_ITEM_KEY).rarity(Rarity.UNCOMMON)
 			)
 	);
 	public static final ResourceKey<Block> EXTREME_CRAFTING_TABLE_KEY = blockKey("extreme_crafting_table");

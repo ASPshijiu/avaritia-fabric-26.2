@@ -5,6 +5,7 @@ import io.github.aspshijiu.avaritia26.inventory.CompressedChestMenu;
 import io.github.aspshijiu.avaritia26.inventory.ExtremeCraftingMenu;
 import io.github.aspshijiu.avaritia26.inventory.ExtremeSmithingMenu;
 import io.github.aspshijiu.avaritia26.inventory.InfinityChestMenu;
+import io.github.aspshijiu.avaritia26.inventory.NetherCraftingMenu;
 import io.github.aspshijiu.avaritia26.inventory.NeutronCollectorMenu;
 import io.github.aspshijiu.avaritia26.inventory.NeutronCompressorMenu;
 import io.github.aspshijiu.avaritia26.inventory.SculkCraftingMenu;
@@ -38,6 +39,11 @@ public final class ModMenus {
 			BuiltInRegistries.MENU,
 			Avaritia26.id("sculk_crafting"),
 			new ExtendedMenuType<>(SculkCraftingMenu::new, BlockPos.STREAM_CODEC)
+	);
+	public static final ExtendedMenuType<NetherCraftingMenu, BlockPos> NETHER_CRAFTING = Registry.register(
+			BuiltInRegistries.MENU,
+			Avaritia26.id("nether_crafting"),
+			new ExtendedMenuType<>(NetherCraftingMenu::new, BlockPos.STREAM_CODEC)
 	);
 	public static final ExtendedMenuType<ExtremeSmithingMenu, BlockPos> EXTREME_SMITHING = Registry.register(
 			BuiltInRegistries.MENU,

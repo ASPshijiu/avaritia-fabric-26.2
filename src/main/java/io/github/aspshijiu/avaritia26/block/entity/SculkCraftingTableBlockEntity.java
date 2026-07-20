@@ -15,18 +15,29 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
-public final class SculkCraftingTableBlockEntity extends BlockEntity implements Container, ExtendedMenuProvider<BlockPos> {
+public class SculkCraftingTableBlockEntity extends BlockEntity implements Container, ExtendedMenuProvider<BlockPos> {
 	public static final int GRID_WIDTH = 3;
 	public static final int GRID_SIZE = GRID_WIDTH * GRID_WIDTH;
 
-	private final NonNullList<ItemStack> items = NonNullList.withSize(GRID_SIZE, ItemStack.EMPTY);
+	private final NonNullList<ItemStack> items;
 
 	public SculkCraftingTableBlockEntity(BlockPos pos, BlockState state) {
-		super(ModBlockEntities.SCULK_CRAFTING_TABLE, pos, state);
+		this(ModBlockEntities.SCULK_CRAFTING_TABLE, GRID_SIZE, pos, state);
+	}
+
+	protected SculkCraftingTableBlockEntity(
+			BlockEntityType<?> type,
+			int gridSize,
+			BlockPos pos,
+			BlockState state
+	) {
+		super(type, pos, state);
+		items = NonNullList.withSize(gridSize, ItemStack.EMPTY);
 	}
 
 	@Override

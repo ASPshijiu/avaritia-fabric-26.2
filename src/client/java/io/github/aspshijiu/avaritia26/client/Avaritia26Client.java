@@ -5,6 +5,7 @@ import io.github.aspshijiu.avaritia26.client.screen.CompressedChestScreen;
 import io.github.aspshijiu.avaritia26.client.screen.ExtremeCraftingScreen;
 import io.github.aspshijiu.avaritia26.client.screen.ExtremeSmithingScreen;
 import io.github.aspshijiu.avaritia26.client.screen.InfinityChestScreen;
+import io.github.aspshijiu.avaritia26.client.screen.NetherCraftingScreen;
 import io.github.aspshijiu.avaritia26.client.screen.NeutronCollectorScreen;
 import io.github.aspshijiu.avaritia26.client.screen.NeutronCompressorScreen;
 import io.github.aspshijiu.avaritia26.client.screen.SculkCraftingScreen;
@@ -24,6 +25,7 @@ public final class Avaritia26Client implements ClientModInitializer {
 		MenuScreens.register(ModMenus.COMPRESSED_CHEST, CompressedChestScreen::new);
 		MenuScreens.register(ModMenus.EXTREME_CRAFTING, ExtremeCraftingScreen::new);
 		MenuScreens.register(ModMenus.SCULK_CRAFTING, SculkCraftingScreen::new);
+		MenuScreens.register(ModMenus.NETHER_CRAFTING, NetherCraftingScreen::new);
 		MenuScreens.register(ModMenus.EXTREME_SMITHING, ExtremeSmithingScreen::new);
 		MenuScreens.register(ModMenus.INFINITY_CHEST, InfinityChestScreen::new);
 		MenuScreens.register(ModMenus.NEUTRON_COLLECTOR, NeutronCollectorScreen::new);
