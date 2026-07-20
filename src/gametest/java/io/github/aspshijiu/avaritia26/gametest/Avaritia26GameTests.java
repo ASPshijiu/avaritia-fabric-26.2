@@ -4,8 +4,10 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import io.github.aspshijiu.avaritia26.Avaritia26;
+import io.github.aspshijiu.avaritia26.block.entity.ExtremeCraftingTableBlockEntity;
 import io.github.aspshijiu.avaritia26.crafting.ExtremeShapedRecipe;
 import io.github.aspshijiu.avaritia26.crafting.ModRecipes;
+import io.github.aspshijiu.avaritia26.registry.ModBlockEntities;
 import io.github.aspshijiu.avaritia26.registry.ModBlocks;
 import io.github.aspshijiu.avaritia26.registry.ModItems;
 import net.fabricmc.fabric.api.gametest.v1.CustomTestMethodInvoker;
@@ -34,6 +36,7 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CraftingTableBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	@GameTest
@@ -288,6 +291,57 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 				.getRecipeFor(ModRecipes.EXTREME_CRAFTING, extraInput, helper.getLevel())
 				.isPresent();
 		helper.assertFalse(extraMatches, "9x9 有序配方不应接受额外材料");
+		helper.succeed();
+	}
+
+	@GameTest
+	public void extremeCraftingTableStoresAndDropsGrid(GameTestHelper helper) {
+		helper.assertTrue(
+				BuiltInRegistries.BLOCK_ENTITY_TYPE.getValue(Avaritia26.id("extreme_crafting_table"))
+						== ModBlockEntities.EXTREME_CRAFTING_TABLE,
+				"终极工作台方块实体未正确注册"
+		);
+		BlockPos relativePos = new BlockPos(5, 0, 0);
+		helper.setBlock(relativePos, ModBlocks.EXTREME_CRAFTING_TABLE);
+		helper.assertBlockPresent(ModBlocks.EXTREME_CRAFTING_TABLE, relativePos);
+		ExtremeCraftingTableBlockEntity blockEntity = helper.getBlockEntity(
+				relativePos,
+				ExtremeCraftingTableBlockEntity.class
+		);
+		helper.assertTrue(blockEntity.getContainerSize() == 81, "终极工作台必须保存 81 个输入槽");
+		blockEntity.setItem(0, new ItemStack(Items.DIAMOND, 5));
+		blockEntity.setItem(80, new ItemStack(Items.NETHERITE_SCRAP, 2));
+
+		BlockEntity loaded = BlockEntity.loadStatic(
+				helper.absolutePos(relativePos),
+				helper.getBlockState(relativePos),
+				blockEntity.saveWithFullMetadata(helper.getLevel().registryAccess()),
+				helper.getLevel().registryAccess()
+		);
+		helper.assertTrue(loaded instanceof ExtremeCraftingTableBlockEntity, "终极工作台方块实体无法从存档恢复");
+		ExtremeCraftingTableBlockEntity loadedTable = (ExtremeCraftingTableBlockEntity) loaded;
+		helper.assertTrue(
+				loadedTable.getItem(0).is(Items.DIAMOND) && loadedTable.getItem(0).getCount() == 5,
+				"终极工作台第一个槽位存档错误"
+		);
+		helper.assertTrue(
+				loadedTable.getItem(80).is(Items.NETHERITE_SCRAP) && loadedTable.getItem(80).getCount() == 2,
+				"终极工作台最后一个槽位存档错误"
+		);
+
+		List<ItemStack> drops = Block.getDrops(
+				helper.getBlockState(relativePos),
+				helper.getLevel(),
+				helper.absolutePos(relativePos),
+				blockEntity
+		);
+		helper.assertTrue(
+				drops.size() == 1 && drops.getFirst().is(ModBlocks.EXTREME_CRAFTING_TABLE_ITEM),
+				"终极工作台应当掉落自身"
+		);
+		helper.destroyBlock(relativePos);
+		helper.assertItemEntityPresent(Items.DIAMOND, relativePos, 2.0);
+		helper.assertItemEntityPresent(Items.NETHERITE_SCRAP, relativePos, 2.0);
 		helper.succeed();
 	}
 

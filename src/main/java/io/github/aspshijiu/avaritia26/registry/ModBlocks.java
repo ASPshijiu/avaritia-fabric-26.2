@@ -1,6 +1,7 @@
 package io.github.aspshijiu.avaritia26.registry;
 
 import io.github.aspshijiu.avaritia26.Avaritia26;
+import io.github.aspshijiu.avaritia26.block.ExtremeCraftingTableBlock;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
@@ -97,6 +98,27 @@ public final class ModBlocks {
 					DOUBLE_COMPRESSED_CRAFTING_TABLE,
 					new Item.Properties().setId(DOUBLE_COMPRESSED_CRAFTING_TABLE_ITEM_KEY)
 							.rarity(Rarity.UNCOMMON)
+			)
+	);
+	public static final ResourceKey<Block> EXTREME_CRAFTING_TABLE_KEY = blockKey("extreme_crafting_table");
+	public static final Block EXTREME_CRAFTING_TABLE = Registry.register(
+			BuiltInRegistries.BLOCK,
+			EXTREME_CRAFTING_TABLE_KEY,
+			new ExtremeCraftingTableBlock(BlockBehaviour.Properties.of()
+					.setId(EXTREME_CRAFTING_TABLE_KEY)
+					.mapColor(MapColor.METAL)
+					.sound(SoundType.GLASS)
+					.strength(100.0F, 2000.0F)
+					.lightLevel(state -> 11)
+					.requiresCorrectToolForDrops())
+	);
+	public static final ResourceKey<Item> EXTREME_CRAFTING_TABLE_ITEM_KEY = itemKey("extreme_crafting_table");
+	public static final BlockItem EXTREME_CRAFTING_TABLE_ITEM = Registry.register(
+			BuiltInRegistries.ITEM,
+			EXTREME_CRAFTING_TABLE_ITEM_KEY,
+			new BlockItem(
+					EXTREME_CRAFTING_TABLE,
+					new Item.Properties().setId(EXTREME_CRAFTING_TABLE_ITEM_KEY).rarity(Rarity.EPIC).fireResistant()
 			)
 	);
 
