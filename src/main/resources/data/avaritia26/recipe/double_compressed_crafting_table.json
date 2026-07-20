@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {"t": "avaritia26:compressed_crafting_table"},
+  "pattern": ["ttt", "ttt", "ttt"],
+  "result": {"count": 1, "id": "avaritia26:double_compressed_crafting_table"}
+}

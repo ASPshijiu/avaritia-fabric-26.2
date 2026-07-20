@@ -1,0 +1,6 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": ["avaritia26:double_compressed_crafting_table"],
+  "result": {"count": 9, "id": "avaritia26:compressed_crafting_table"}
+}

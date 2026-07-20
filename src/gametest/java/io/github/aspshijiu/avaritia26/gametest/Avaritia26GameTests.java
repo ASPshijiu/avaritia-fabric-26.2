@@ -227,6 +227,39 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	}
 
 	@GameTest
+	public void compressedCraftingTableRecipesWork(GameTestHelper helper) {
+		assertCraftingRecipe(
+				helper,
+				"compressed_crafting_table",
+				filledCraftingInput(Items.CRAFTING_TABLE),
+				ModBlocks.COMPRESSED_CRAFTING_TABLE_ITEM,
+				1
+		);
+		assertCraftingRecipe(
+				helper,
+				"crafting_table_from_compressed",
+				CraftingInput.of(1, 1, List.of(new ItemStack(ModBlocks.COMPRESSED_CRAFTING_TABLE_ITEM))),
+				Items.CRAFTING_TABLE,
+				9
+		);
+		assertCraftingRecipe(
+				helper,
+				"double_compressed_crafting_table",
+				filledCraftingInput(ModBlocks.COMPRESSED_CRAFTING_TABLE_ITEM),
+				ModBlocks.DOUBLE_COMPRESSED_CRAFTING_TABLE_ITEM,
+				1
+		);
+		assertCraftingRecipe(
+				helper,
+				"compressed_crafting_table_from_double",
+				CraftingInput.of(1, 1, List.of(new ItemStack(ModBlocks.DOUBLE_COMPRESSED_CRAFTING_TABLE_ITEM))),
+				ModBlocks.COMPRESSED_CRAFTING_TABLE_ITEM,
+				9
+		);
+		helper.succeed();
+	}
+
+	@GameTest
 	public void diamondLatticeNormalRecipeWorks(GameTestHelper helper) {
 		CraftingInput input = CraftingInput.of(3, 3, List.of(
 				new ItemStack(Items.DIAMOND), new ItemStack(Items.DIAMOND), new ItemStack(Items.DIAMOND),
