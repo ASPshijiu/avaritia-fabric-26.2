@@ -41,6 +41,7 @@
 	"item.avaritia26.infinity_helmet": "无尽头盔",
 	"item.avaritia26.infinity_ingot": "无尽之锭",
 	"item.avaritia26.infinity_nugget": "无尽之泪",
+	"item.avaritia26.infinity_upgrade": "无尽升级组件",
 	"item.avaritia26.infinity_hoe": "无尽锄",
 	"item.avaritia26.infinity_pickaxe": "无尽镐",
 	"item.avaritia26.infinity_pants": "无尽护腿",
@@ -79,6 +80,7 @@
 	"tooltip.avaritia26.matter_cluster.more": "……以及另外 %s 组物品",
 	"tooltip.avaritia26.refined_coal": "热量爆炸！",
 	"tooltip.avaritia26.infinity_nugget": "圣灵的眼泪……",
+	"tooltip.avaritia26.infinity_upgrade": "加速升级！",
 	"tooltip.avaritia26.enhancement_core": "补全之路！",
 	"tooltip.avaritia26.skull_fire_sword": "斩骷髅首级，后烧至焦黑。",
 	"tooltip.avaritia26.star_fuel": "致密恒星的遗骸……"

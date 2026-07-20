@@ -10,6 +10,7 @@ import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.block.CompressedChestBlock;
 import io.github.aspshijiu.avaritia26.block.InfinityChestBlock;
 import io.github.aspshijiu.avaritia26.block.NeutronCollectorBlock;
+import io.github.aspshijiu.avaritia26.block.NeutronCompressorBlock;
 import io.github.aspshijiu.avaritia26.block.entity.CompressedChestBlockEntity;
 import io.github.aspshijiu.avaritia26.block.entity.ExtremeCraftingTableBlockEntity;
 import io.github.aspshijiu.avaritia26.block.entity.InfinityChestBlockEntity;
@@ -68,6 +69,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -104,6 +106,7 @@ import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.item.enchantment.Repairable;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -2286,6 +2289,126 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	}
 
 	@GameTest
+	public void infinityUpgradeCraftsRepairsAndPreservesMachines(GameTestHelper helper) {
+		ItemStack upgrade = new ItemStack(ModItems.INFINITY_UPGRADE);
+		helper.assertTrue(BuiltInRegistries.ITEM.getValue(ModItems.INFINITY_UPGRADE_KEY) == ModItems.INFINITY_UPGRADE,
+				"无尽升级组件未注册");
+		helper.assertTrue(upgrade.getRarity() == Rarity.EPIC, "无尽升级组件稀有度错误");
+		helper.assertTrue(upgrade.getMaxStackSize() == 1 && upgrade.getMaxDamage() == 16, "无尽升级组件耐久错误");
+		helper.assertTrue(upgrade.has(DataComponents.DAMAGE_RESISTANT), "无尽升级组件应当防火");
+		helper.assertFalse(upgrade.hasFoil(), "无尽升级组件不应自带附魔光效");
+		Repairable repairable = upgrade.get(DataComponents.REPAIRABLE);
+		helper.assertTrue(repairable != null && repairable.isValidRepairItem(new ItemStack(ModItems.STAR_FUEL)),
+				"无尽升级组件不能用星辰燃料修复");
+		helper.assertFalse(repairable != null && repairable.isValidRepairItem(new ItemStack(ModItems.REFINED_COAL)),
+				"无尽升级组件错误接受精炼煤炭修复");
+		List<Component> tooltip = new java.util.ArrayList<>();
+		ModItems.INFINITY_UPGRADE.appendHoverText(
+				upgrade, Item.TooltipContext.of(helper.getLevel()), TooltipDisplay.DEFAULT, tooltip::add, TooltipFlag.NORMAL
+		);
+		helper.assertTrue(tooltip.size() == 1 && tooltip.getFirst().getStyle().isItalic(), "无尽升级组件缺少斜体说明");
+
+		CraftingInput recipeInput = infinityUpgradeInput();
+		assertExtremeRecipe(helper, "infinity_upgrade", recipeInput, ModItems.INFINITY_UPGRADE);
+		ItemStack recipeResult = helper.getLevel().getServer().getRecipeManager()
+				.getRecipeFor(ModRecipes.EXTREME_CRAFTING, recipeInput, helper.getLevel())
+				.orElseThrow(() -> helper.assertionException("无尽升级组件配方未加载"))
+				.value().assemble(recipeInput);
+		helper.assertTrue(recipeResult.getCount() == 1, "无尽升级组件配方应当产出一个耐久物品");
+		List<ItemStack> wrongRecipe = copyStacks(recipeInput.items());
+		wrongRecipe.set(40, new ItemStack(Items.DIRT));
+		assertExtremeRecipeDoesNotMatch(helper, "infinity_upgrade", CraftingInput.of(9, 9, wrongRecipe));
+
+		Player player = helper.makeMockServerPlayer(GameType.SURVIVAL);
+		player.setItemInHand(InteractionHand.MAIN_HAND, upgrade);
+		BlockPos collectorPos = new BlockPos(2, 0, 0);
+		helper.setBlock(
+				collectorPos,
+				ModBlocks.NEUTRON_COLLECTOR.defaultBlockState().setValue(NeutronCollectorBlock.FACING, Direction.EAST)
+		);
+		NeutronCollectorBlockEntity collector = helper.getBlockEntity(collectorPos, NeutronCollectorBlockEntity.class);
+		for (int tick = 0; tick < 100; tick++) {
+			NeutronCollectorBlockEntity.serverTick(
+					helper.getLevel(), helper.absolutePos(collectorPos), helper.getBlockState(collectorPos), collector
+			);
+		}
+		collector.setItem(0, new ItemStack(ModItems.NEUTRON_PILE, 3));
+		player.setShiftKeyDown(false);
+		helper.assertFalse(useUpgrade(helper, player, collectorPos).consumesAction(), "未潜行时无尽升级组件不应生效");
+		helper.assertBlockPresent(ModBlocks.NEUTRON_COLLECTOR, collectorPos);
+		helper.assertTrue(upgrade.getDamageValue() == 0, "未潜行使用错误消耗耐久");
+
+		player.setShiftKeyDown(true);
+		helper.assertTrue(useUpgrade(helper, player, collectorPos).consumesAction(), "无尽升级组件没有升级中子收集器");
+		helper.assertBlockPresent(ModBlocks.DENSE_NEUTRON_COLLECTOR, collectorPos);
+		NeutronCollectorBlockEntity upgradedCollector = helper.getBlockEntity(collectorPos, NeutronCollectorBlockEntity.class);
+		helper.assertTrue(upgradedCollector == collector, "升级中子收集器时错误替换了方块实体");
+		helper.assertTrue(upgradedCollector.getProgress() == 100, "升级中子收集器丢失进度");
+		helper.assertTrue(upgradedCollector.getItem(0).is(ModItems.NEUTRON_PILE)
+				&& upgradedCollector.getItem(0).getCount() == 3, "升级中子收集器丢失产物");
+		helper.assertTrue(helper.getBlockState(collectorPos).getValue(NeutronCollectorBlock.FACING) == Direction.EAST,
+				"升级中子收集器丢失朝向");
+		upgradedCollector.setItem(0, ItemStack.EMPTY);
+		useUpgrade(helper, player, collectorPos);
+		useUpgrade(helper, player, collectorPos);
+		helper.assertBlockPresent(ModBlocks.DENSEST_NEUTRON_COLLECTOR, collectorPos);
+		helper.assertTrue(helper.getBlockEntity(collectorPos, NeutronCollectorBlockEntity.class) == collector,
+				"连续升级中子收集器没有保留方块实体");
+		helper.assertTrue(upgrade.getDamageValue() == 3, "收集器三级升级耐久消耗错误");
+		for (int tick = 100; tick < 200; tick++) {
+			NeutronCollectorBlockEntity.serverTick(
+					helper.getLevel(), helper.absolutePos(collectorPos), helper.getBlockState(collectorPos), collector
+			);
+		}
+		helper.assertTrue(collector.getItem(0).is(ModBlocks.NEUTRON_ITEM), "最致密收集器没有继承进度并产出中子块");
+		helper.assertFalse(useUpgrade(helper, player, collectorPos).consumesAction(), "最致密收集器不应继续升级");
+		helper.assertTrue(upgrade.getDamageValue() == 3, "对最高级收集器使用错误消耗耐久");
+
+		BlockPos compressorPos = new BlockPos(5, 0, 0);
+		helper.setBlock(
+				compressorPos,
+				ModBlocks.NEUTRON_COMPRESSOR.defaultBlockState().setValue(NeutronCompressorBlock.FACING, Direction.WEST)
+		);
+		NeutronCompressorBlockEntity compressor = helper.getBlockEntity(compressorPos, NeutronCompressorBlockEntity.class);
+		feedCompressor(helper, compressorPos, compressor, Items.OBSIDIAN, 128);
+		compressor.setItem(NeutronCompressorBlockEntity.OUTPUT_SLOT, new ItemStack(Items.DIRT, 7));
+		useUpgrade(helper, player, compressorPos);
+		useUpgrade(helper, player, compressorPos);
+		useUpgrade(helper, player, compressorPos);
+		helper.assertBlockPresent(ModBlocks.DENSEST_NEUTRON_COMPRESSOR, compressorPos);
+		NeutronCompressorBlockEntity upgradedCompressor = helper.getBlockEntity(
+				compressorPos, NeutronCompressorBlockEntity.class
+		);
+		helper.assertTrue(upgradedCompressor == compressor, "升级中子压缩机时错误替换了方块实体");
+		helper.assertTrue(compressor.getMaterialCount() == 128, "升级中子压缩机丢失缓存材料");
+		helper.assertTrue(compressor.getItem(NeutronCompressorBlockEntity.OUTPUT_SLOT).is(Items.DIRT)
+				&& compressor.getItem(NeutronCompressorBlockEntity.OUTPUT_SLOT).getCount() == 7,
+				"升级中子压缩机丢失输出槽物品");
+		helper.assertTrue(helper.getBlockState(compressorPos).getValue(NeutronCompressorBlock.FACING) == Direction.WEST,
+				"升级中子压缩机丢失朝向");
+		helper.assertTrue(upgrade.getDamageValue() == 6, "两类机器共六次升级耐久消耗错误");
+		compressor.setItem(NeutronCompressorBlockEntity.OUTPUT_SLOT, ItemStack.EMPTY);
+		feedCompressor(helper, compressorPos, compressor, Items.OBSIDIAN, 372);
+		tickUntilOutput(helper, compressorPos, compressor, 29);
+		helper.assertTrue(compressor.getItem(NeutronCompressorBlockEntity.OUTPUT_SLOT).getCount() == 2,
+				"最致密压缩机没有继承缓存并双倍产出");
+		List<ItemEntity> upgradeDrops = helper.getLevel().getEntitiesOfClass(
+				ItemEntity.class,
+				new AABB(helper.absolutePos(compressorPos)).inflate(2.0),
+				entity -> entity.getItem().is(Items.OBSIDIAN) || entity.getItem().is(Items.DIRT)
+		);
+		helper.assertTrue(upgradeDrops.isEmpty(), "升级机器时错误掉落了方块实体内容");
+
+		BlockPos breakingPos = new BlockPos(8, 0, 0);
+		helper.setBlock(breakingPos, ModBlocks.NEUTRON_COLLECTOR);
+		upgrade.setDamageValue(15);
+		useUpgrade(helper, player, breakingPos);
+		helper.assertTrue(upgrade.isEmpty(), "无尽升级组件第十六次使用后没有损坏");
+		helper.assertBlockPresent(ModBlocks.DENSE_NEUTRON_COLLECTOR, breakingPos);
+		helper.succeed();
+	}
+
+	@GameTest
 	public void everyBuiltInSingularityCompresses(GameTestHelper helper) {
 		BlockPos relativePos = new BlockPos(13, 0, 0);
 		helper.setBlock(relativePos, ModBlocks.NEUTRON_COMPRESSOR);
@@ -3584,6 +3707,16 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		}
 	}
 
+	private static InteractionResult useUpgrade(GameTestHelper helper, Player player, BlockPos relativePos) {
+		BlockPos absolutePos = helper.absolutePos(relativePos);
+		player.setPos(Vec3.atCenterOf(absolutePos));
+		return ModItems.INFINITY_UPGRADE.useOn(new UseOnContext(
+				player,
+				InteractionHand.MAIN_HAND,
+				new BlockHitResult(Vec3.atCenterOf(absolutePos), Direction.UP, absolutePos, false)
+		));
+	}
+
 	private static void tickUntilOutput(
 			GameTestHelper helper,
 			BlockPos relativePos,
@@ -3638,6 +3771,30 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 			}
 		}
 		return CraftingInput.of(9, 9, stacks);
+	}
+
+	private static CraftingInput infinityUpgradeInput() {
+		return extremeInput(List.of(
+				" aaadaaa ",
+				"baeegeea ",
+				"baegggea ",
+				"bdiegeid ",
+				"bdfehefdc",
+				" diegeidc",
+				" aedgdeac",
+				" aeegeeac",
+				" aaadaaa "
+		), Map.of(
+				'a', new ItemStack(ModBlocks.NEUTRON_ITEM),
+				'b', new ItemStack(ModBlocks.BLAZE_CUBE_BLOCK_ITEM),
+				'c', new ItemStack(ModItems.CRYSTAL_MATRIX_INGOT),
+				'd', new ItemStack(ModItems.NEUTRON_INGOT),
+				'e', new ItemStack(ModItems.NEUTRON_GEAR),
+				'f', new ItemStack(ModItems.INFINITY_CATALYST),
+				'g', new ItemStack(ModItems.STAR_FUEL),
+				'h', new ItemStack(ModItems.ETERNAL_SINGULARITY),
+				'i', new ItemStack(ModItems.NEUTRON_NUGGET)
+		));
 	}
 
 	private static CraftingInput enhancementCoreInput() {

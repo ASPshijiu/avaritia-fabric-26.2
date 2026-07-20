@@ -1,0 +1,26 @@
+{
+  "type": "avaritia26:extreme_shaped",
+  "key": {
+    "a": "avaritia26:neutron",
+    "b": "avaritia26:blaze_cube_block",
+    "c": "avaritia26:crystal_matrix_ingot",
+    "d": "avaritia26:neutron_ingot",
+    "e": "avaritia26:neutron_gear",
+    "f": "avaritia26:infinity_catalyst",
+    "g": "avaritia26:star_fuel",
+    "h": "avaritia26:eternal_singularity",
+    "i": "avaritia26:neutron_nugget"
+  },
+  "pattern": [
+    " aaadaaa ",
+    "baeegeea ",
+    "baegggea ",
+    "bdiegeid ",
+    "bdfehefdc",
+    " diegeidc",
+    " aedgdeac",
+    " aeegeeac",
+    " aaadaaa "
+  ],
+  "result": { "count": 1, "id": "avaritia26:infinity_upgrade" }
+}

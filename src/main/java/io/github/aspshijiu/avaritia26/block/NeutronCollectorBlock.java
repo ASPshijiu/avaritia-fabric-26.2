@@ -39,6 +39,11 @@ public final class NeutronCollectorBlock extends BaseEntityBlock {
 	}
 
 	@Override
+	protected boolean shouldChangedStateKeepBlockEntity(BlockState oldState) {
+		return oldState.getBlock() instanceof NeutronCollectorBlock;
+	}
+
+	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
 		return new NeutronCollectorBlockEntity(pos, state);
 	}

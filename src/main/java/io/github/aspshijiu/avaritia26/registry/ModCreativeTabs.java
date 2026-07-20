@@ -51,6 +51,7 @@ public final class ModCreativeTabs {
 				output.accept(ModItems.NEUTRON_GEAR);
 				output.accept(ModItems.RECORD_FRAGMENT);
 				output.accept(ModItems.STAR_FUEL);
+				output.accept(ModItems.INFINITY_UPGRADE);
 				output.accept(ModBlocks.STAR_FUEL_BLOCK_ITEM);
 				output.accept(ModItems.REFINED_COAL);
 				output.accept(ModBlocks.REFINED_COAL_BLOCK_ITEM);

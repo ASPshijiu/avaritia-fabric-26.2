@@ -13,6 +13,7 @@ import io.github.aspshijiu.avaritia26.item.InfinityHoeItem;
 import io.github.aspshijiu.avaritia26.item.InfinityPickaxeItem;
 import io.github.aspshijiu.avaritia26.item.InfinityShovelItem;
 import io.github.aspshijiu.avaritia26.item.InfinitySwordItem;
+import io.github.aspshijiu.avaritia26.item.InfinityUpgradeItem;
 import io.github.aspshijiu.avaritia26.item.MatterClusterItem;
 import io.github.aspshijiu.avaritia26.item.SingularityItem;
 import io.github.aspshijiu.avaritia26.item.SkullFireSwordItem;
@@ -234,6 +235,16 @@ public final class ModItems {
 			STAR_FUEL_KEY,
 			properties -> new TooltipItem(properties, "tooltip.avaritia26.star_fuel"),
 			new Item.Properties().rarity(Rarity.RARE).stacksTo(16)
+	);
+	public static final ResourceKey<Item> INFINITY_UPGRADE_KEY = key("infinity_upgrade");
+	public static final Item INFINITY_UPGRADE = register(
+			INFINITY_UPGRADE_KEY,
+			InfinityUpgradeItem::new,
+			new Item.Properties()
+					.rarity(Rarity.EPIC)
+					.durability(16)
+					.fireResistant()
+					.repairable(STAR_FUEL)
 	);
 	public static final ResourceKey<Item> REFINED_COAL_KEY = key("refined_coal");
 	public static final Item REFINED_COAL = register(

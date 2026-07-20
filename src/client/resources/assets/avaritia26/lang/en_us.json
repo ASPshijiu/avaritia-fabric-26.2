@@ -41,6 +41,7 @@
 	"item.avaritia26.infinity_helmet": "Infinity Helmet",
 	"item.avaritia26.infinity_ingot": "Infinity Ingot",
 	"item.avaritia26.infinity_nugget": "Infinity Nugget",
+	"item.avaritia26.infinity_upgrade": "Infinity Upgrade",
 	"item.avaritia26.infinity_hoe": "Infinity Hoe",
 	"item.avaritia26.infinity_pickaxe": "Infinity Pickaxe",
 	"item.avaritia26.infinity_pants": "Infinity Pants",
@@ -79,6 +80,7 @@
 	"tooltip.avaritia26.matter_cluster.more": "...and %s more stacks",
 	"tooltip.avaritia26.refined_coal": "Heat explosion!",
 	"tooltip.avaritia26.infinity_nugget": "Angel's tears...",
+	"tooltip.avaritia26.infinity_upgrade": "Accelerate upgrade!",
 	"tooltip.avaritia26.enhancement_core": "The road to completion!",
 	"tooltip.avaritia26.skull_fire_sword": "Beheads skeletons and scorches them black.",
 	"tooltip.avaritia26.star_fuel": "A fuel for the stars."
