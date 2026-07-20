@@ -1,0 +1,24 @@
+{
+  "type": "avaritia26:extreme_shaped",
+  "category": "equipment",
+  "key": {
+    "I": "avaritia26:infinity_ingot",
+    "W": "#minecraft:wool",
+    "X": "avaritia26:crystal_matrix"
+  },
+  "pattern": [
+    "   II    ",
+    "  I W    ",
+    " I  W    ",
+    "I   W    ",
+    "X   W    ",
+    "I   W    ",
+    " I  W    ",
+    "  I W    ",
+    "   II    "
+  ],
+  "result": {
+    "count": 1,
+    "id": "avaritia26:infinity_bow"
+  }
+}

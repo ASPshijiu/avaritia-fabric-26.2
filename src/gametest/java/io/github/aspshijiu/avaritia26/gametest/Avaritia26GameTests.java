@@ -13,6 +13,8 @@ import io.github.aspshijiu.avaritia26.block.entity.NeutronCompressorBlockEntity;
 import io.github.aspshijiu.avaritia26.crafting.ModRecipes;
 import io.github.aspshijiu.avaritia26.entity.EndestPearlEntity;
 import io.github.aspshijiu.avaritia26.entity.GapingVoidEntity;
+import io.github.aspshijiu.avaritia26.entity.HeavenArrowEntity;
+import io.github.aspshijiu.avaritia26.entity.HeavenSubArrowEntity;
 import io.github.aspshijiu.avaritia26.inventory.ExtremeCraftingMenu;
 import io.github.aspshijiu.avaritia26.inventory.NeutronCollectorMenu;
 import io.github.aspshijiu.avaritia26.inventory.NeutronCompressorMenu;
@@ -51,6 +53,7 @@ import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.CraftingMenu;
@@ -846,6 +849,80 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		);
 		helper.assertTrue(clusters.size() == 1 && MatterClusterItem.getSize(clusters.getFirst().getItem()) >= 2, "自然荒芜之斧没有把范围掉落压入物质团");
 		helper.assertTrue(axe.getDamageValue() == 0, "自然荒芜之斧使用后不应产生耐久损耗");
+		helper.succeed();
+	}
+
+	@GameTest
+	public void infinityBowCraftsAutoFiresAndCreatesHeavenBarrage(GameTestHelper helper) {
+		ItemStack bow = new ItemStack(ModItems.INFINITY_BOW);
+		helper.assertTrue(
+				BuiltInRegistries.ITEM.getValue(ModItems.INFINITY_BOW_KEY) == ModItems.INFINITY_BOW,
+				"天堂陨落长弓没有注册到预期的 ResourceKey"
+		);
+		helper.assertTrue(
+				BuiltInRegistries.ENTITY_TYPE.getValue(ModEntityTypes.HEAVEN_ARROW_KEY) == ModEntityTypes.HEAVEN_ARROW
+						&& BuiltInRegistries.ENTITY_TYPE.getValue(ModEntityTypes.HEAVEN_SUB_ARROW_KEY) == ModEntityTypes.HEAVEN_SUB_ARROW,
+				"天堂箭实体没有注册到预期的 ResourceKey"
+		);
+		helper.assertTrue(bow.getMaxStackSize() == 1 && !bow.isDamageableItem(), "天堂陨落长弓应当不可堆叠且永不损耗");
+		helper.assertTrue(bow.getRarity() == Rarity.EPIC && bow.is(ItemTags.BOW_ENCHANTABLE), "天堂陨落长弓稀有度或弓附魔标签错误");
+		helper.assertTrue(ModItems.INFINITY_BOW.getUseDuration(bow, null) == 13, "天堂陨落长弓蓄力时长应当是 13 tick");
+		helper.assertTrue(ModItems.INFINITY_BOW.getUseAnimation(bow) == net.minecraft.world.item.ItemUseAnimation.BOW, "天堂陨落长弓缺少拉弓动作");
+
+		CraftingInput input = infinityBowInput();
+		assertExtremeRecipe(helper, "infinity_bow", input, ModItems.INFINITY_BOW);
+		List<ItemStack> wrongStacks = copyStacks(input.items());
+		wrongStacks.set(20, new ItemStack(Items.DIRT));
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(Registries.RECIPE, Avaritia26.id("infinity_bow"));
+		helper.assertFalse(
+				helper.getLevel().getServer().getRecipeManager()
+						.getRecipeFor(ModRecipes.EXTREME_CRAFTING, CraftingInput.of(input.width(), input.height(), wrongStacks), helper.getLevel())
+						.filter(candidate -> candidate.id().equals(recipeKey))
+						.isPresent(),
+				"天堂陨落长弓弓身材料错误时不应匹配配方"
+		);
+
+		Player player = helper.makeMockServerPlayer(GameType.SURVIVAL);
+		player.setItemInHand(InteractionHand.MAIN_HAND, bow);
+		helper.assertTrue(player.getInventory().countItem(Items.ARROW) == 0, "天堂陨落长弓测试不应预置弹药");
+		var useResult = ModItems.INFINITY_BOW.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+		helper.assertTrue(useResult.consumesAction() && player.isUsingItem(), "天堂陨落长弓没有在无弹药时开始蓄力");
+		helper.assertFalse(ModItems.INFINITY_BOW.releaseUsing(bow, helper.getLevel(), player, 7), "提前松开天堂陨落长弓不应发射");
+		helper.assertTrue(helper.getLevel().getEntitiesOfClass(HeavenArrowEntity.class, player.getBoundingBox().inflate(8.0)).isEmpty(), "提前松弦不应生成天堂箭");
+
+		ModItems.INFINITY_BOW.onUseTick(helper.getLevel(), player, bow, 1);
+		List<HeavenArrowEntity> primaryArrows = helper.getLevel().getEntitiesOfClass(
+				HeavenArrowEntity.class,
+				player.getBoundingBox().inflate(8.0)
+		);
+		helper.assertTrue(primaryArrows.size() == 1, "满蓄力没有生成且仅生成一支天堂箭");
+		HeavenArrowEntity primaryArrow = primaryArrows.getFirst();
+		helper.assertTrue(primaryArrow.getOwner() == player, "天堂箭没有保留射手");
+		helper.assertTrue(primaryArrow.pickup == AbstractArrow.Pickup.CREATIVE_ONLY && primaryArrow.isCritArrow(), "天堂箭回收或暴击状态错误");
+		helper.assertTrue(primaryArrow.getDeltaMovement().length() > 2.9, "天堂箭初速度不足");
+		helper.assertTrue(player.getInventory().countItem(Items.ARROW) == 0 && bow.getDamageValue() == 0, "天堂陨落长弓不应消耗箭或耐久");
+
+		BlockPos impactPos = helper.absolutePos(new BlockPos(12, 5, 12));
+		primaryArrow.createBarrage(helper.getLevel(), impactPos);
+		List<HeavenSubArrowEntity> subArrows = helper.getLevel().getEntitiesOfClass(
+				HeavenSubArrowEntity.class,
+				new AABB(impactPos).inflate(8.0, 30.0, 8.0)
+		);
+		helper.assertTrue(subArrows.size() == 10, "天堂箭落地后应当生成 10 支天降子箭");
+		helper.assertTrue(
+				subArrows.stream().allMatch(arrow -> arrow.getOwner() == player
+						&& arrow.pickup == AbstractArrow.Pickup.CREATIVE_ONLY
+						&& arrow.isCritArrow()
+						&& arrow.getDeltaMovement().y < -0.15),
+				"天降子箭的射手、回收、暴击或下落速度错误"
+		);
+
+		var target = helper.spawnWithNoFreeWill(EntityTypes.PIG, new BlockPos(30, 5, 30));
+		primaryArrow.setCritArrow(false);
+		primaryArrow.setPos(target.getX() - 1.0, target.getY() + target.getBbHeight() * 0.5, target.getZ());
+		primaryArrow.setDeltaMovement(3.0, 0.0, 0.0);
+		primaryArrow.tick();
+		helper.assertTrue(target.isDeadOrDying(), "天堂箭 20 点基础伤害没有击杀普通目标");
 		helper.succeed();
 	}
 
@@ -2462,6 +2539,33 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 					case 'N' -> new ItemStack(ModItems.NEUTRON_INGOT);
 					case ' ' -> ItemStack.EMPTY;
 					default -> throw new IllegalArgumentException("未知自然荒芜之斧配方符号: " + symbol);
+				};
+				stacks.add(stack);
+			}
+		}
+		return CraftingInput.of(9, 9, stacks);
+	}
+
+	private static CraftingInput infinityBowInput() {
+		List<ItemStack> stacks = new java.util.ArrayList<>(81);
+		for (String row : List.of(
+				"   II    ",
+				"  I W    ",
+				" I  W    ",
+				"I   W    ",
+				"X   W    ",
+				"I   W    ",
+				" I  W    ",
+				"  I W    ",
+				"   II    "
+		)) {
+			for (char symbol : row.toCharArray()) {
+				ItemStack stack = switch (symbol) {
+					case 'I' -> new ItemStack(ModItems.INFINITY_INGOT);
+					case 'W' -> new ItemStack(Items.WOOL.white());
+					case 'X' -> new ItemStack(ModBlocks.CRYSTAL_MATRIX_ITEM);
+					case ' ' -> ItemStack.EMPTY;
+					default -> throw new IllegalArgumentException("未知天堂陨落长弓配方符号: " + symbol);
 				};
 				stacks.add(stack);
 			}

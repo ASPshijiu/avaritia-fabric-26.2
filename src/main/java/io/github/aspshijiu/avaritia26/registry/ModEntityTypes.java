@@ -3,6 +3,8 @@ package io.github.aspshijiu.avaritia26.registry;
 import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.entity.EndestPearlEntity;
 import io.github.aspshijiu.avaritia26.entity.GapingVoidEntity;
+import io.github.aspshijiu.avaritia26.entity.HeavenArrowEntity;
+import io.github.aspshijiu.avaritia26.entity.HeavenSubArrowEntity;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -11,6 +13,26 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 
 public final class ModEntityTypes {
+	public static final ResourceKey<EntityType<?>> HEAVEN_ARROW_KEY = key("heaven_arrow");
+	public static final EntityType<HeavenArrowEntity> HEAVEN_ARROW = Registry.register(
+			BuiltInRegistries.ENTITY_TYPE,
+			HEAVEN_ARROW_KEY,
+			EntityType.Builder.<HeavenArrowEntity>of(HeavenArrowEntity::new, MobCategory.MISC)
+					.sized(0.5F, 0.5F)
+					.clientTrackingRange(4)
+					.updateInterval(1)
+					.build(HEAVEN_ARROW_KEY)
+	);
+	public static final ResourceKey<EntityType<?>> HEAVEN_SUB_ARROW_KEY = key("heaven_sub_arrow");
+	public static final EntityType<HeavenSubArrowEntity> HEAVEN_SUB_ARROW = Registry.register(
+			BuiltInRegistries.ENTITY_TYPE,
+			HEAVEN_SUB_ARROW_KEY,
+			EntityType.Builder.<HeavenSubArrowEntity>of(HeavenSubArrowEntity::new, MobCategory.MISC)
+					.sized(0.5F, 0.5F)
+					.clientTrackingRange(4)
+					.updateInterval(2)
+					.build(HEAVEN_SUB_ARROW_KEY)
+	);
 	public static final ResourceKey<EntityType<?>> ENDEST_PEARL_KEY = key("endest_pearl");
 	public static final EntityType<EndestPearlEntity> ENDEST_PEARL = Registry.register(
 			BuiltInRegistries.ENTITY_TYPE,

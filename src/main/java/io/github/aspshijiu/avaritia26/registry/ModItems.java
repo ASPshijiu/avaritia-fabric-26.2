@@ -6,6 +6,7 @@ import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.item.EndestPearlItem;
 import io.github.aspshijiu.avaritia26.item.EternalSingularityItem;
 import io.github.aspshijiu.avaritia26.item.InfinityAxeItem;
+import io.github.aspshijiu.avaritia26.item.InfinityBowItem;
 import io.github.aspshijiu.avaritia26.item.InfinityHoeItem;
 import io.github.aspshijiu.avaritia26.item.InfinityPickaxeItem;
 import io.github.aspshijiu.avaritia26.item.InfinityShovelItem;
@@ -27,6 +28,16 @@ import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.Weapon;
 
 public final class ModItems {
+	public static final ResourceKey<Item> INFINITY_BOW_KEY = key("infinity_bow");
+	public static final Item INFINITY_BOW = register(
+			INFINITY_BOW_KEY,
+			InfinityBowItem::new,
+			new Item.Properties()
+					.rarity(Rarity.EPIC)
+					.stacksTo(1)
+					.fireResistant()
+					.enchantable(1)
+	);
 	public static final ResourceKey<Item> INFINITY_AXE_KEY = key("infinity_axe");
 	public static final Item INFINITY_AXE = register(
 			INFINITY_AXE_KEY,

@@ -1,0 +1,35 @@
+{
+  "model": {
+    "type": "minecraft:condition",
+    "on_false": {
+      "type": "minecraft:model",
+      "model": "avaritia26:item/infinity_bow"
+    },
+    "on_true": {
+      "type": "minecraft:range_dispatch",
+      "entries": [
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "avaritia26:item/infinity_bow_pulling_1"
+          },
+          "threshold": 0.33333334
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "avaritia26:item/infinity_bow_pulling_2"
+          },
+          "threshold": 0.6666667
+        }
+      ],
+      "fallback": {
+        "type": "minecraft:model",
+        "model": "avaritia26:item/infinity_bow_pulling_0"
+      },
+      "property": "minecraft:use_duration",
+      "scale": 0.07692308
+    },
+    "property": "minecraft:using_item"
+  }
+}
