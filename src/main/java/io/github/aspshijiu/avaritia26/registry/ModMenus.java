@@ -6,6 +6,7 @@ import io.github.aspshijiu.avaritia26.inventory.EndCraftingMenu;
 import io.github.aspshijiu.avaritia26.inventory.ExtremeCraftingMenu;
 import io.github.aspshijiu.avaritia26.inventory.ExtremeSmithingMenu;
 import io.github.aspshijiu.avaritia26.inventory.InfinityChestMenu;
+import io.github.aspshijiu.avaritia26.inventory.InfinityClockMenu;
 import io.github.aspshijiu.avaritia26.inventory.NetherCraftingMenu;
 import io.github.aspshijiu.avaritia26.inventory.NeutronCollectorMenu;
 import io.github.aspshijiu.avaritia26.inventory.NeutronCompressorMenu;
@@ -37,6 +38,11 @@ public final class ModMenus {
 			BuiltInRegistries.MENU,
 			Avaritia26.id("neutron_ring"),
 			new ExtendedMenuType<>(NeutronRingMenu::new, ByteBufCodecs.VAR_INT.cast())
+	);
+	public static final ExtendedMenuType<InfinityClockMenu, Integer> INFINITY_CLOCK = Registry.register(
+			BuiltInRegistries.MENU,
+			Avaritia26.id("infinity_clock"),
+			new ExtendedMenuType<>(InfinityClockMenu::new, ByteBufCodecs.VAR_INT.cast())
 	);
 	public static final ExtendedMenuType<ExtremeCraftingMenu, BlockPos> EXTREME_CRAFTING = Registry.register(
 			BuiltInRegistries.MENU,

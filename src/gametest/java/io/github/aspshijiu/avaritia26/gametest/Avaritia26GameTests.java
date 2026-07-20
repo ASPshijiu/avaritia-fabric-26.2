@@ -28,6 +28,7 @@ import io.github.aspshijiu.avaritia26.crafting.FullMatterClusterRecipe;
 import io.github.aspshijiu.avaritia26.crafting.InfinityCatalystRecipe;
 import io.github.aspshijiu.avaritia26.crafting.ModRecipes;
 import io.github.aspshijiu.avaritia26.component.InfinityChestContents;
+import io.github.aspshijiu.avaritia26.component.ClockAccelerationData;
 import io.github.aspshijiu.avaritia26.crafting.NoConsumeCatalystShapedRecipe;
 import io.github.aspshijiu.avaritia26.entity.EndestPearlEntity;
 import io.github.aspshijiu.avaritia26.entity.GapingVoidEntity;
@@ -36,11 +37,13 @@ import io.github.aspshijiu.avaritia26.entity.HeavenSubArrowEntity;
 import io.github.aspshijiu.avaritia26.entity.UmbrellaProjectileEntity;
 import io.github.aspshijiu.avaritia26.event.ModArmorEvents;
 import io.github.aspshijiu.avaritia26.event.ModCombatEvents;
+import io.github.aspshijiu.avaritia26.event.ModClockEvents;
 import io.github.aspshijiu.avaritia26.inventory.CompressedChestMenu;
 import io.github.aspshijiu.avaritia26.inventory.EndCraftingMenu;
 import io.github.aspshijiu.avaritia26.inventory.ExtremeCraftingMenu;
 import io.github.aspshijiu.avaritia26.inventory.ExtremeSmithingMenu;
 import io.github.aspshijiu.avaritia26.inventory.InfinityChestMenu;
+import io.github.aspshijiu.avaritia26.inventory.InfinityClockMenu;
 import io.github.aspshijiu.avaritia26.inventory.NetherCraftingMenu;
 import io.github.aspshijiu.avaritia26.inventory.NeutronCollectorMenu;
 import io.github.aspshijiu.avaritia26.inventory.NeutronCompressorMenu;
@@ -49,6 +52,7 @@ import io.github.aspshijiu.avaritia26.inventory.SculkCraftingMenu;
 import io.github.aspshijiu.avaritia26.item.MatterClusterItem;
 import io.github.aspshijiu.avaritia26.item.NeutronRingItem;
 import io.github.aspshijiu.avaritia26.item.InfinityArmorItem;
+import io.github.aspshijiu.avaritia26.item.InfinityClockItem;
 import io.github.aspshijiu.avaritia26.item.InfinityUmbrellaItem;
 import io.github.aspshijiu.avaritia26.item.SingularityItem;
 import io.github.aspshijiu.avaritia26.registry.ModBlockEntities;
@@ -57,6 +61,7 @@ import io.github.aspshijiu.avaritia26.registry.ModDataComponents;
 import io.github.aspshijiu.avaritia26.registry.ModEntityTypes;
 import io.github.aspshijiu.avaritia26.registry.ModItems;
 import io.github.aspshijiu.avaritia26.registry.ModMenus;
+import io.github.aspshijiu.avaritia26.network.SetTimePayload;
 import io.github.aspshijiu.avaritia26.registry.ModArmorMaterials;
 import io.github.aspshijiu.avaritia26.singularity.SingularityDefinition;
 import io.github.aspshijiu.avaritia26.singularity.SingularityManager;
@@ -3063,6 +3068,93 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		player.getInventory().setItem(9, umbrella);
 		ModItems.INFINITY_UMBRELLA.inventoryTick(umbrella, helper.getLevel(), player, null);
 		helper.assertFalse(player.hasEffect(MobEffects.SLOW_FALLING), "收起无尽雨伞后缓降没有移除");
+		helper.succeed();
+	}
+
+	@GameTest
+	public void infinityClockSmithsSetsTimeAndAcceleratesBlocks(GameTestHelper helper) {
+		ItemStack clock = new ItemStack(ModItems.INFINITY_CLOCK);
+		helper.assertTrue(BuiltInRegistries.ITEM.getValue(ModItems.INFINITY_CLOCK_KEY) == ModItems.INFINITY_CLOCK,
+				"无尽时钟物品未注册");
+		helper.assertTrue(BuiltInRegistries.DATA_COMPONENT_TYPE.getValue(Avaritia26.id("infinity_clock_overclock"))
+				== ModDataComponents.INFINITY_CLOCK_OVERCLOCK, "无尽时钟模式组件未注册");
+		helper.assertTrue(BuiltInRegistries.DATA_COMPONENT_TYPE.getValue(Avaritia26.id("infinity_clock_multiplier"))
+				== ModDataComponents.INFINITY_CLOCK_MULTIPLIER, "无尽时钟倍率组件未注册");
+		helper.assertTrue(BuiltInRegistries.MENU.getValue(Avaritia26.id("infinity_clock")) == ModMenus.INFINITY_CLOCK,
+				"无尽时钟菜单未注册");
+		helper.assertTrue(clock.getMaxStackSize() == 1 && clock.getRarity() == Rarity.EPIC
+				&& clock.has(DataComponents.DAMAGE_RESISTANT), "无尽时钟物品属性错误");
+
+		ExtremeSmithingInput smithingInput = new ExtremeSmithingInput(
+				new ItemStack(ModItems.UPGRADE_SMITHING_TEMPLATE),
+				new ItemStack(Items.CLOCK),
+				new ItemStack(Items.ENCHANTED_GOLDEN_APPLE),
+				new ItemStack(ModItems.ENHANCEMENT_CORE),
+				new ItemStack(ModItems.ETERNAL_SINGULARITY)
+		);
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(Registries.RECIPE, Avaritia26.id("infinity_clock"));
+		RecipeHolder<ExtremeSmithingRecipe> recipe = helper.getLevel().getServer().getRecipeManager()
+				.getRecipeFor(ModRecipes.EXTREME_SMITHING, smithingInput, helper.getLevel())
+				.filter(candidate -> candidate.id().equals(recipeKey))
+				.orElseThrow(() -> helper.assertionException("正确材料未匹配无尽时钟锻造配方"));
+		helper.assertTrue(recipe.value().assemble(smithingInput).is(ModItems.INFINITY_CLOCK),
+				"无尽时钟锻造配方输出错误");
+
+		ServerPlayer player = (ServerPlayer) helper.makeMockServerPlayer(GameType.SURVIVAL);
+		player.getInventory().setSelectedSlot(0);
+		player.setItemInHand(InteractionHand.MAIN_HAND, clock);
+		player.setShiftKeyDown(true);
+		helper.assertTrue(ModItems.INFINITY_CLOCK.use(helper.getLevel(), player, InteractionHand.MAIN_HAND)
+				.consumesAction(), "无尽时钟没有切换到超频模式");
+		helper.assertTrue(InfinityClockItem.isOverclock(clock)
+				&& clock.get(DataComponents.CUSTOM_MODEL_DATA).getFloat(0) == 1.0F,
+				"无尽时钟超频状态或模型状态没有持久保存");
+		player.setShiftKeyDown(false);
+		for (int expected : List.of(4, 16, 64, 256, 512, 1)) {
+			ModItems.INFINITY_CLOCK.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+			helper.assertTrue(InfinityClockItem.getMultiplier(clock) == expected,
+					"无尽时钟倍率循环错误，预期 " + expected + "x");
+		}
+
+		InfinityClockMenu menu = new InfinityClockMenu(1, player.getInventory(), 0);
+		helper.assertTrue(menu.slots.size() == 36, "无尽时钟界面没有映射完整玩家背包");
+		helper.assertFalse(menu.slots.get(27).mayPickup(player), "无尽时钟界面没有锁定正在使用的时钟");
+
+		var worldClock = helper.getLevel().dimensionType().defaultClock()
+				.orElseThrow(() -> helper.assertionException("测试维度没有默认世界时钟"));
+		long originalTime = helper.getLevel().clockManager().getTotalTicks(worldClock);
+		SetTimePayload.setTime(helper.getLevel().getServer(), 6000);
+		helper.assertTrue(Math.floorMod(helper.getLevel().clockManager().getTotalTicks(worldClock), 24000L) == 6000L,
+				"无尽时钟没有设置到正午");
+		helper.getLevel().clockManager().setTotalTicks(worldClock, originalTime);
+
+		BlockPos collectorPos = new BlockPos(14, 1, 5);
+		helper.setBlock(collectorPos, ModBlocks.NEUTRON_COLLECTOR);
+		NeutronCollectorBlockEntity collector = helper.getBlockEntity(collectorPos, NeutronCollectorBlockEntity.class);
+		InfinityClockItem.setOverclock(clock, true);
+		clock.set(ModDataComponents.INFINITY_CLOCK_MULTIPLIER, 4);
+		BlockPos absoluteCollectorPos = helper.absolutePos(collectorPos);
+		player.setPos(Vec3.atCenterOf(absoluteCollectorPos));
+		InteractionResult accelerationResult = ModItems.INFINITY_CLOCK.useOn(new UseOnContext(
+				player,
+				InteractionHand.MAIN_HAND,
+				new BlockHitResult(Vec3.atCenterOf(absoluteCollectorPos), Direction.UP, absoluteCollectorPos, false)
+		));
+		helper.assertTrue(accelerationResult.consumesAction(), "无尽时钟没有接管方块超频交互");
+		ClockAccelerationData data = helper.getLevel().getDataStorage().computeIfAbsent(ClockAccelerationData.TYPE);
+		helper.assertTrue(data.get(absoluteCollectorPos) == 4, "无尽时钟没有持久保存 4x 超频位置");
+		int previousProgress = collector.getProgress();
+		ModClockEvents.tickAcceleratedBlocks(helper.getLevel());
+		helper.assertTrue(collector.getProgress() >= previousProgress + 4,
+				"无尽时钟没有额外驱动方块实体 tick");
+
+		clock.set(ModDataComponents.INFINITY_CLOCK_MULTIPLIER, 1);
+		ModItems.INFINITY_CLOCK.useOn(new UseOnContext(
+				player,
+				InteractionHand.MAIN_HAND,
+				new BlockHitResult(Vec3.atCenterOf(absoluteCollectorPos), Direction.UP, absoluteCollectorPos, false)
+		));
+		helper.assertTrue(data.get(absoluteCollectorPos) == 1, "无尽时钟 1x 模式没有解除方块超频");
 		helper.succeed();
 	}
 

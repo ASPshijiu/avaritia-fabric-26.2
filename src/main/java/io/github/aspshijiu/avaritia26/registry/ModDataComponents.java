@@ -28,6 +28,22 @@ public final class ModDataComponents {
 					.networkSynchronized(ByteBufCodecs.BOOL)
 					.build()
 	);
+	public static final DataComponentType<Boolean> INFINITY_CLOCK_OVERCLOCK = Registry.register(
+			BuiltInRegistries.DATA_COMPONENT_TYPE,
+			Avaritia26.id("infinity_clock_overclock"),
+			DataComponentType.<Boolean>builder()
+					.persistent(Codec.BOOL)
+					.networkSynchronized(ByteBufCodecs.BOOL)
+					.build()
+	);
+	public static final DataComponentType<Integer> INFINITY_CLOCK_MULTIPLIER = Registry.register(
+			BuiltInRegistries.DATA_COMPONENT_TYPE,
+			Avaritia26.id("infinity_clock_multiplier"),
+			DataComponentType.<Integer>builder()
+					.persistent(Codec.INT)
+					.networkSynchronized(ByteBufCodecs.INT)
+					.build()
+	);
 	public static final DataComponentType<SingularityDefinition> SINGULARITY = Registry.register(
 			BuiltInRegistries.DATA_COMPONENT_TYPE,
 			Avaritia26.id("singularity"),

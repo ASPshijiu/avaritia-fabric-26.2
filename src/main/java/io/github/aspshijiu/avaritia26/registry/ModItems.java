@@ -9,6 +9,7 @@ import io.github.aspshijiu.avaritia26.item.EternalSingularityItem;
 import io.github.aspshijiu.avaritia26.item.InfinityAxeItem;
 import io.github.aspshijiu.avaritia26.item.InfinityArmorItem;
 import io.github.aspshijiu.avaritia26.item.InfinityBowItem;
+import io.github.aspshijiu.avaritia26.item.InfinityClockItem;
 import io.github.aspshijiu.avaritia26.item.InfinityHoeItem;
 import io.github.aspshijiu.avaritia26.item.InfinityPickaxeItem;
 import io.github.aspshijiu.avaritia26.item.InfinityShovelItem;
@@ -73,6 +74,20 @@ public final class ModItems {
 					.rarity(Rarity.EPIC)
 					.stacksTo(1)
 					.fireResistant()
+					.component(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(
+							List.of(0.0F), List.of(), List.of(), List.of()
+					))
+	);
+	public static final ResourceKey<Item> INFINITY_CLOCK_KEY = key("infinity_clock");
+	public static final Item INFINITY_CLOCK = register(
+			INFINITY_CLOCK_KEY,
+			InfinityClockItem::new,
+			new Item.Properties()
+					.rarity(Rarity.EPIC)
+					.stacksTo(1)
+					.fireResistant()
+					.component(ModDataComponents.INFINITY_CLOCK_OVERCLOCK, false)
+					.component(ModDataComponents.INFINITY_CLOCK_MULTIPLIER, 1)
 					.component(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(
 							List.of(0.0F), List.of(), List.of(), List.of()
 					))
