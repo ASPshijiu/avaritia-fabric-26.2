@@ -1,6 +1,7 @@
 package io.github.aspshijiu.avaritia26.client;
 
 import io.github.aspshijiu.avaritia26.client.render.HeavenArrowRenderer;
+import io.github.aspshijiu.avaritia26.client.screen.CompressedChestScreen;
 import io.github.aspshijiu.avaritia26.client.screen.ExtremeCraftingScreen;
 import io.github.aspshijiu.avaritia26.client.screen.NeutronCollectorScreen;
 import io.github.aspshijiu.avaritia26.client.screen.NeutronCompressorScreen;
@@ -17,6 +18,7 @@ import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 public final class Avaritia26Client implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
+		MenuScreens.register(ModMenus.COMPRESSED_CHEST, CompressedChestScreen::new);
 		MenuScreens.register(ModMenus.EXTREME_CRAFTING, ExtremeCraftingScreen::new);
 		MenuScreens.register(ModMenus.NEUTRON_COLLECTOR, NeutronCollectorScreen::new);
 		MenuScreens.register(ModMenus.NEUTRON_COMPRESSOR, NeutronCompressorScreen::new);

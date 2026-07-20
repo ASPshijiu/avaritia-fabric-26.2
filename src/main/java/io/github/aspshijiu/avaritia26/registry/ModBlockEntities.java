@@ -3,6 +3,7 @@ package io.github.aspshijiu.avaritia26.registry;
 import java.util.Set;
 
 import io.github.aspshijiu.avaritia26.Avaritia26;
+import io.github.aspshijiu.avaritia26.block.entity.CompressedChestBlockEntity;
 import io.github.aspshijiu.avaritia26.block.entity.ExtremeCraftingTableBlockEntity;
 import io.github.aspshijiu.avaritia26.block.entity.NeutronCollectorBlockEntity;
 import io.github.aspshijiu.avaritia26.block.entity.NeutronCompressorBlockEntity;
@@ -11,6 +12,11 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
 public final class ModBlockEntities {
+	public static final BlockEntityType<CompressedChestBlockEntity> COMPRESSED_CHEST = Registry.register(
+			BuiltInRegistries.BLOCK_ENTITY_TYPE,
+			Avaritia26.id("compressed_chest"),
+			new BlockEntityType<>(CompressedChestBlockEntity::new, Set.of(ModBlocks.COMPRESSED_CHEST))
+	);
 	public static final BlockEntityType<NeutronCollectorBlockEntity> NEUTRON_COLLECTOR = Registry.register(
 			BuiltInRegistries.BLOCK_ENTITY_TYPE,
 			Avaritia26.id("neutron_collector"),

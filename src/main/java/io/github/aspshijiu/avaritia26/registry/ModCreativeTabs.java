@@ -58,6 +58,7 @@ public final class ModCreativeTabs {
 				output.accept(ModBlocks.COMPRESSED_CRAFTING_TABLE_ITEM);
 				output.accept(ModBlocks.DOUBLE_COMPRESSED_CRAFTING_TABLE_ITEM);
 				output.accept(ModBlocks.EXTREME_CRAFTING_TABLE_ITEM);
+				output.accept(ModBlocks.COMPRESSED_CHEST_ITEM);
 			})
 			.build();
 

@@ -7,7 +7,9 @@ import java.util.UUID;
 
 import com.mojang.serialization.JsonOps;
 import io.github.aspshijiu.avaritia26.Avaritia26;
+import io.github.aspshijiu.avaritia26.block.CompressedChestBlock;
 import io.github.aspshijiu.avaritia26.block.NeutronCollectorBlock;
+import io.github.aspshijiu.avaritia26.block.entity.CompressedChestBlockEntity;
 import io.github.aspshijiu.avaritia26.block.entity.ExtremeCraftingTableBlockEntity;
 import io.github.aspshijiu.avaritia26.block.entity.NeutronCollectorBlockEntity;
 import io.github.aspshijiu.avaritia26.block.entity.NeutronCompressorBlockEntity;
@@ -17,6 +19,7 @@ import io.github.aspshijiu.avaritia26.entity.GapingVoidEntity;
 import io.github.aspshijiu.avaritia26.entity.HeavenArrowEntity;
 import io.github.aspshijiu.avaritia26.entity.HeavenSubArrowEntity;
 import io.github.aspshijiu.avaritia26.event.ModArmorEvents;
+import io.github.aspshijiu.avaritia26.inventory.CompressedChestMenu;
 import io.github.aspshijiu.avaritia26.inventory.ExtremeCraftingMenu;
 import io.github.aspshijiu.avaritia26.inventory.NeutronCollectorMenu;
 import io.github.aspshijiu.avaritia26.inventory.NeutronCompressorMenu;
@@ -128,6 +131,53 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 						.isPresent(),
 				"中子齿轮中心材料错误时不应匹配配方"
 		);
+		helper.succeed();
+	}
+
+	@GameTest
+	public void compressedChestCraftsStoresAndPreservesContents(GameTestHelper helper) {
+		helper.assertTrue(BuiltInRegistries.BLOCK.getValue(ModBlocks.COMPRESSED_CHEST_KEY) == ModBlocks.COMPRESSED_CHEST, "压缩箱子方块注册错误");
+		helper.assertTrue(BuiltInRegistries.ITEM.getValue(ModBlocks.COMPRESSED_CHEST_ITEM_KEY) == ModBlocks.COMPRESSED_CHEST_ITEM, "压缩箱子物品注册错误");
+		CraftingInput input = CraftingInput.of(3, 3, List.of(
+				new ItemStack(Items.CHEST), new ItemStack(Items.CHEST), new ItemStack(Items.CHEST),
+				new ItemStack(Items.CHEST), new ItemStack(ModItems.NEUTRON_GEAR), new ItemStack(Items.CHEST),
+				new ItemStack(Items.CHEST), new ItemStack(Items.CHEST), new ItemStack(Items.CHEST)
+		));
+		assertCraftingRecipe(helper, "compressed_chest", input, ModBlocks.COMPRESSED_CHEST_ITEM, 1);
+		List<ItemStack> wrongStacks = copyStacks(input.items());
+		wrongStacks.set(4, new ItemStack(Items.DIRT));
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(Registries.RECIPE, Avaritia26.id("compressed_chest"));
+		helper.assertFalse(
+				helper.getLevel().getServer().getRecipeManager()
+						.getRecipeFor(RecipeType.CRAFTING, CraftingInput.of(3, 3, wrongStacks), helper.getLevel())
+						.filter(recipe -> recipe.id().equals(recipeKey)).isPresent(),
+				"压缩箱子中心材料错误时不应匹配配方"
+		);
+
+		BlockPos pos = new BlockPos(5, 0, 5);
+		helper.setBlock(pos, ModBlocks.COMPRESSED_CHEST);
+		CompressedChestBlockEntity chest = helper.getBlockEntity(pos, CompressedChestBlockEntity.class);
+		helper.assertTrue(chest.getContainerSize() == 243, "压缩箱子容量应为 243 槽");
+		chest.setItem(0, new ItemStack(Items.DIAMOND, 32));
+		chest.setItem(242, new ItemStack(Items.NETHERITE_INGOT, 7));
+		BlockEntity loaded = BlockEntity.loadStatic(
+				helper.absolutePos(pos), helper.getBlockState(pos), chest.saveWithFullMetadata(helper.getLevel().registryAccess()), helper.getLevel().registryAccess()
+		);
+		helper.assertTrue(loaded instanceof CompressedChestBlockEntity, "压缩箱子无法从存档恢复");
+		CompressedChestBlockEntity loadedChest = (CompressedChestBlockEntity) loaded;
+		helper.assertTrue(loadedChest.getItem(0).getCount() == 32 && loadedChest.getItem(242).getCount() == 7, "压缩箱子首尾槽位存档错误");
+
+		ItemStack clone = ((CompressedChestBlock) ModBlocks.COMPRESSED_CHEST).getCloneItemStack(
+				helper.getLevel(), helper.absolutePos(pos), helper.getBlockState(pos), true
+		);
+		CompressedChestBlockEntity restored = new CompressedChestBlockEntity(helper.absolutePos(pos), helper.getBlockState(pos));
+		restored.applyComponentsFromItemStack(clone);
+		helper.assertTrue(restored.getItem(0).getCount() == 32 && restored.getItem(242).getCount() == 7, "压缩箱子物品没有保留全部内容");
+
+		Player player = helper.makeMockServerPlayer(GameType.SURVIVAL);
+		CompressedChestMenu menu = new CompressedChestMenu(1, player.getInventory(), chest);
+		helper.assertTrue(menu.slots.size() == 279, "压缩箱子菜单应包含 243 个箱子槽和 36 个玩家槽");
+		menu.removed(player);
 		helper.succeed();
 	}
 

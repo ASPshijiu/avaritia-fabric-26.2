@@ -1,6 +1,7 @@
 package io.github.aspshijiu.avaritia26.registry;
 
 import io.github.aspshijiu.avaritia26.Avaritia26;
+import io.github.aspshijiu.avaritia26.block.CompressedChestBlock;
 import io.github.aspshijiu.avaritia26.block.ExtremeCraftingTableBlock;
 import io.github.aspshijiu.avaritia26.block.NeutronCollectorBlock;
 import io.github.aspshijiu.avaritia26.block.NeutronCompressorBlock;
@@ -18,6 +19,19 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 
 public final class ModBlocks {
+	public static final ResourceKey<Block> COMPRESSED_CHEST_KEY = blockKey("compressed_chest");
+	public static final Block COMPRESSED_CHEST = Registry.register(
+			BuiltInRegistries.BLOCK,
+			COMPRESSED_CHEST_KEY,
+			new CompressedChestBlock(BlockBehaviour.Properties.of()
+					.setId(COMPRESSED_CHEST_KEY).mapColor(MapColor.WOOD).sound(SoundType.WOOD).strength(2.5F))
+	);
+	public static final ResourceKey<Item> COMPRESSED_CHEST_ITEM_KEY = itemKey("compressed_chest");
+	public static final BlockItem COMPRESSED_CHEST_ITEM = Registry.register(
+			BuiltInRegistries.ITEM,
+			COMPRESSED_CHEST_ITEM_KEY,
+			new BlockItem(COMPRESSED_CHEST, new Item.Properties().setId(COMPRESSED_CHEST_ITEM_KEY).rarity(Rarity.RARE))
+	);
 	public static final ResourceKey<Block> BLAZE_CUBE_BLOCK_KEY = blockKey("blaze_cube_block");
 	public static final Block BLAZE_CUBE_BLOCK = Registry.register(
 			BuiltInRegistries.BLOCK,
