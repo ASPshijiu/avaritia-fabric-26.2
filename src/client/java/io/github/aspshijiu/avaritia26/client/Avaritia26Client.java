@@ -1,5 +1,6 @@
 package io.github.aspshijiu.avaritia26.client;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import io.github.aspshijiu.avaritia26.client.render.HeavenArrowRenderer;
 import io.github.aspshijiu.avaritia26.client.screen.CompressedChestScreen;
 import io.github.aspshijiu.avaritia26.client.screen.EndCraftingScreen;
@@ -9,18 +10,32 @@ import io.github.aspshijiu.avaritia26.client.screen.InfinityChestScreen;
 import io.github.aspshijiu.avaritia26.client.screen.NetherCraftingScreen;
 import io.github.aspshijiu.avaritia26.client.screen.NeutronCollectorScreen;
 import io.github.aspshijiu.avaritia26.client.screen.NeutronCompressorScreen;
+import io.github.aspshijiu.avaritia26.client.screen.NeutronRingScreen;
 import io.github.aspshijiu.avaritia26.client.screen.SculkCraftingScreen;
 import io.github.aspshijiu.avaritia26.entity.EndestPearlEntity;
 import io.github.aspshijiu.avaritia26.entity.GapingVoidEntity;
+import io.github.aspshijiu.avaritia26.network.OpenNeutronRingPayload;
 import io.github.aspshijiu.avaritia26.registry.ModEntityTypes;
 import io.github.aspshijiu.avaritia26.registry.ModMenus;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.entity.NoopRenderer;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
+import org.lwjgl.glfw.GLFW;
 
 public final class Avaritia26Client implements ClientModInitializer {
+	public static final KeyMapping OPEN_NEUTRON_RING = KeyMappingHelper.registerKeyMapping(new KeyMapping(
+			"key.avaritia26.neutron_ring",
+			InputConstants.Type.KEYSYM,
+			GLFW.GLFW_KEY_N,
+			KeyMapping.Category.INVENTORY
+	));
+
 	@Override
 	public void onInitializeClient() {
 		MenuScreens.register(ModMenus.COMPRESSED_CHEST, CompressedChestScreen::new);
@@ -32,6 +47,12 @@ public final class Avaritia26Client implements ClientModInitializer {
 		MenuScreens.register(ModMenus.INFINITY_CHEST, InfinityChestScreen::new);
 		MenuScreens.register(ModMenus.NEUTRON_COLLECTOR, NeutronCollectorScreen::new);
 		MenuScreens.register(ModMenus.NEUTRON_COMPRESSOR, NeutronCompressorScreen::new);
+		MenuScreens.register(ModMenus.NEUTRON_RING, NeutronRingScreen::new);
+		ClientTickEvents.END_CLIENT_TICK.register(client -> {
+			while (OPEN_NEUTRON_RING.consumeClick() && client.player != null) {
+				ClientPlayNetworking.send(OpenNeutronRingPayload.INSTANCE);
+			}
+		});
 		EntityRendererRegistry.register(ModEntityTypes.ENDEST_PEARL, ThrownItemRenderer<EndestPearlEntity>::new);
 		EntityRendererRegistry.register(ModEntityTypes.GAPING_VOID, NoopRenderer<GapingVoidEntity>::new);
 		EntityRendererRegistry.register(ModEntityTypes.HEAVEN_ARROW, context -> new HeavenArrowRenderer<>(context));

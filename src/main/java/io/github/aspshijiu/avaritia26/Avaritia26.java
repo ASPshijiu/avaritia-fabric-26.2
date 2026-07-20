@@ -4,6 +4,7 @@ import io.github.aspshijiu.avaritia26.crafting.ModRecipes;
 import io.github.aspshijiu.avaritia26.event.ModCombatEvents;
 import io.github.aspshijiu.avaritia26.event.ModArmorEvents;
 import io.github.aspshijiu.avaritia26.event.ModToolEvents;
+import io.github.aspshijiu.avaritia26.network.OpenNeutronRingPayload;
 import io.github.aspshijiu.avaritia26.registry.ModBlockEntities;
 import io.github.aspshijiu.avaritia26.registry.ModBlocks;
 import io.github.aspshijiu.avaritia26.registry.ModCreativeTabs;
@@ -30,6 +31,7 @@ public final class Avaritia26 implements ModInitializer {
 		ModArmorEvents.initialize();
 		ModCombatEvents.initialize();
 		ModToolEvents.initialize();
+		OpenNeutronRingPayload.initialize();
 		ModEntityTypes.initialize();
 		ModSounds.initialize();
 		ModBlocks.initialize();

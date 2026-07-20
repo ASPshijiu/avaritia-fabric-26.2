@@ -15,6 +15,7 @@ import io.github.aspshijiu.avaritia26.item.InfinityShovelItem;
 import io.github.aspshijiu.avaritia26.item.InfinitySwordItem;
 import io.github.aspshijiu.avaritia26.item.InfinityUpgradeItem;
 import io.github.aspshijiu.avaritia26.item.MatterClusterItem;
+import io.github.aspshijiu.avaritia26.item.NeutronRingItem;
 import io.github.aspshijiu.avaritia26.item.SingularityItem;
 import io.github.aspshijiu.avaritia26.item.SkullFireSwordItem;
 import io.github.aspshijiu.avaritia26.item.TooltipItem;
@@ -33,11 +34,22 @@ import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.SmithingTemplateItem;
 import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.item.component.Weapon;
 import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.item.equipment.Equippable;
 
 public final class ModItems {
+	public static final ResourceKey<Item> NEUTRON_RING_KEY = key("neutron_ring");
+	public static final Item NEUTRON_RING = register(
+			NEUTRON_RING_KEY,
+			NeutronRingItem::new,
+			new Item.Properties()
+					.rarity(Rarity.EPIC)
+					.stacksTo(1)
+					.fireResistant()
+					.component(ModDataComponents.NEUTRON_RING_INVENTORY, ItemContainerContents.EMPTY)
+	);
 	public static final ResourceKey<Item> INFINITY_HELMET_KEY = key("infinity_helmet");
 	public static final Item INFINITY_HELMET = register(
 			INFINITY_HELMET_KEY,

@@ -9,11 +9,13 @@ import io.github.aspshijiu.avaritia26.inventory.InfinityChestMenu;
 import io.github.aspshijiu.avaritia26.inventory.NetherCraftingMenu;
 import io.github.aspshijiu.avaritia26.inventory.NeutronCollectorMenu;
 import io.github.aspshijiu.avaritia26.inventory.NeutronCompressorMenu;
+import io.github.aspshijiu.avaritia26.inventory.NeutronRingMenu;
 import io.github.aspshijiu.avaritia26.inventory.SculkCraftingMenu;
 import net.fabricmc.fabric.api.menu.v1.ExtendedMenuType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.codec.ByteBufCodecs;
 
 public final class ModMenus {
 	public static final ExtendedMenuType<CompressedChestMenu, BlockPos> COMPRESSED_CHEST = Registry.register(
@@ -30,6 +32,11 @@ public final class ModMenus {
 			BuiltInRegistries.MENU,
 			Avaritia26.id("neutron_compressor"),
 			new ExtendedMenuType<>(NeutronCompressorMenu::new, BlockPos.STREAM_CODEC)
+	);
+	public static final ExtendedMenuType<NeutronRingMenu, Integer> NEUTRON_RING = Registry.register(
+			BuiltInRegistries.MENU,
+			Avaritia26.id("neutron_ring"),
+			new ExtendedMenuType<>(NeutronRingMenu::new, ByteBufCodecs.VAR_INT.cast())
 	);
 	public static final ExtendedMenuType<ExtremeCraftingMenu, BlockPos> EXTREME_CRAFTING = Registry.register(
 			BuiltInRegistries.MENU,

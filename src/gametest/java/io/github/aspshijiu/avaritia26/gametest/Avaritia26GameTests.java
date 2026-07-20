@@ -42,8 +42,10 @@ import io.github.aspshijiu.avaritia26.inventory.InfinityChestMenu;
 import io.github.aspshijiu.avaritia26.inventory.NetherCraftingMenu;
 import io.github.aspshijiu.avaritia26.inventory.NeutronCollectorMenu;
 import io.github.aspshijiu.avaritia26.inventory.NeutronCompressorMenu;
+import io.github.aspshijiu.avaritia26.inventory.NeutronRingMenu;
 import io.github.aspshijiu.avaritia26.inventory.SculkCraftingMenu;
 import io.github.aspshijiu.avaritia26.item.MatterClusterItem;
+import io.github.aspshijiu.avaritia26.item.NeutronRingItem;
 import io.github.aspshijiu.avaritia26.item.InfinityArmorItem;
 import io.github.aspshijiu.avaritia26.item.SingularityItem;
 import io.github.aspshijiu.avaritia26.registry.ModBlockEntities;
@@ -2813,6 +2815,60 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	}
 
 	@GameTest
+	public void neutronRingCraftsStoresItemsAndRejectsNesting(GameTestHelper helper) {
+		helper.assertTrue(BuiltInRegistries.ITEM.getValue(ModItems.NEUTRON_RING_KEY) == ModItems.NEUTRON_RING,
+				"中子指环物品未注册");
+		helper.assertTrue(BuiltInRegistries.DATA_COMPONENT_TYPE.getValue(Avaritia26.id("neutron_ring_inventory"))
+				== ModDataComponents.NEUTRON_RING_INVENTORY, "中子指环存储组件未注册");
+		helper.assertTrue(BuiltInRegistries.MENU.getValue(Avaritia26.id("neutron_ring")) == ModMenus.NEUTRON_RING,
+				"中子指环菜单未注册");
+
+		ItemStack ring = new ItemStack(ModItems.NEUTRON_RING);
+		helper.assertTrue(ring.getMaxStackSize() == 1, "中子指环必须只能单件堆叠");
+		helper.assertTrue(ring.getRarity() == Rarity.EPIC, "中子指环稀有度错误");
+		helper.assertTrue(ring.has(DataComponents.DAMAGE_RESISTANT), "中子指环缺少防火属性");
+
+		CraftingInput recipeInput = neutronRingInput();
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(Registries.RECIPE, Avaritia26.id("neutron_ring"));
+		RecipeHolder<Recipe<CraftingInput>> recipe = helper.getLevel().getServer().getRecipeManager()
+				.getRecipeFor(ModRecipes.EXTREME_CRAFTING, recipeInput, helper.getLevel())
+				.filter(candidate -> candidate.id().equals(recipeKey))
+				.orElseThrow(() -> helper.assertionException("正确材料未匹配中子指环配方"));
+		helper.assertTrue(recipe.value().assemble(recipeInput).is(ModItems.NEUTRON_RING), "中子指环配方输出错误");
+		List<ItemStack> wrongRecipe = copyStacks(recipeInput.items());
+		wrongRecipe.set(24, new ItemStack(Items.NETHER_STAR));
+		helper.assertFalse(helper.getLevel().getServer().getRecipeManager()
+				.getRecipeFor(ModRecipes.EXTREME_CRAFTING, CraftingInput.of(7, 7, wrongRecipe), helper.getLevel())
+				.filter(candidate -> candidate.id().equals(recipeKey)).isPresent(), "中子指环配方错误接受其他中心材料");
+
+		Player player = helper.makeMockServerPlayer(GameType.SURVIVAL);
+		player.getInventory().setSelectedSlot(0);
+		player.getInventory().setItem(0, ring);
+		player.getInventory().setItem(9, new ItemStack(Items.DIAMOND, 32));
+		helper.assertTrue(NeutronRingItem.findRingSlot(player) == 0, "按键打开逻辑没有找到背包中的中子指环");
+		NeutronRingMenu menu = new NeutronRingMenu(1, player.getInventory(), 0);
+		helper.assertTrue(menu.slots.size() == 117, "中子指环菜单应包含 81 个存储槽与 36 个背包槽");
+		helper.assertFalse(menu.slots.getFirst().mayPlace(ring.copy()), "中子指环不应允许嵌套存储自身");
+		helper.assertFalse(menu.slots.get(108).mayPickup(player), "打开菜单时不应允许取走正在使用的中子指环");
+
+		ItemStack moved = menu.quickMoveStack(player, 81);
+		helper.assertTrue(moved.is(Items.DIAMOND) && moved.getCount() == 32, "中子指环快速存入输出错误");
+		helper.assertTrue(player.getInventory().getItem(9).isEmpty(), "快速存入后背包材料没有清空");
+		ItemContainerContents stored = ring.get(ModDataComponents.NEUTRON_RING_INVENTORY);
+		helper.assertTrue(stored != null && stored.nonEmptyItemCopyStream()
+				.anyMatch(stack -> stack.is(Items.DIAMOND) && stack.getCount() == 32), "中子指环没有持久保存物品");
+
+		NeutronRingMenu reopened = new NeutronRingMenu(2, player.getInventory(), 0);
+		helper.assertTrue(reopened.slots.getFirst().getItem().is(Items.DIAMOND)
+				&& reopened.slots.getFirst().getItem().getCount() == 32, "重新打开中子指环后存储内容丢失");
+		ItemStack extracted = reopened.quickMoveStack(player, 0);
+		helper.assertTrue(extracted.is(Items.DIAMOND) && extracted.getCount() == 32, "中子指环快速取出错误");
+		helper.assertTrue(ring.getOrDefault(ModDataComponents.NEUTRON_RING_INVENTORY, ItemContainerContents.EMPTY)
+				.nonEmptyItemCopyStream().findAny().isEmpty(), "中子指环取出后组件内容未清空");
+		helper.succeed();
+	}
+
+	@GameTest
 	public void everyBuiltInSingularityCompresses(GameTestHelper helper) {
 		BlockPos relativePos = new BlockPos(13, 0, 0);
 		helper.setBlock(relativePos, ModBlocks.NEUTRON_COMPRESSOR);
@@ -4658,6 +4714,32 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 					default -> throw new IllegalArgumentException("未知终极工作台配方符号: " + symbol);
 				};
 				stacks.add(new ItemStack(item));
+			}
+		}
+		return CraftingInput.of(7, 7, stacks);
+	}
+
+	private static CraftingInput neutronRingInput() {
+		String[] pattern = {
+				"  aaa  ",
+				" cbbbc ",
+				"ab d ba",
+				"abdedba",
+				"ab d ba",
+				" cbbbc ",
+				"  aaa  "
+		};
+		List<ItemStack> stacks = new java.util.ArrayList<>(49);
+		for (String row : pattern) {
+			for (char symbol : row.toCharArray()) {
+				stacks.add(switch (symbol) {
+					case 'a' -> new ItemStack(ModItems.NEUTRON_INGOT);
+					case 'b' -> new ItemStack(ModItems.CRYSTAL_MATRIX_INGOT);
+					case 'c' -> new ItemStack(ModBlocks.DIAMOND_LATTICE_BLOCK_ITEM);
+					case 'd' -> new ItemStack(ModItems.ENDEST_PEARL);
+					case 'e' -> new ItemStack(ModItems.INFINITY_CATALYST);
+					default -> ItemStack.EMPTY;
+				});
 			}
 		}
 		return CraftingInput.of(7, 7, stacks);

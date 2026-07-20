@@ -9,6 +9,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.world.item.component.ItemContainerContents;
 
 public final class ModDataComponents {
 	public static final DataComponentType<Boolean> INFINITY_PICKAXE_HAMMER = Registry.register(
@@ -49,6 +50,14 @@ public final class ModDataComponents {
 			DataComponentType.<InfinityChestContents>builder()
 					.persistent(InfinityChestContents.CODEC)
 					.networkSynchronized(InfinityChestContents.STREAM_CODEC)
+					.build()
+	);
+	public static final DataComponentType<ItemContainerContents> NEUTRON_RING_INVENTORY = Registry.register(
+			BuiltInRegistries.DATA_COMPONENT_TYPE,
+			Avaritia26.id("neutron_ring_inventory"),
+			DataComponentType.<ItemContainerContents>builder()
+					.persistent(ItemContainerContents.CODEC)
+					.networkSynchronized(ItemContainerContents.STREAM_CODEC)
 					.build()
 	);
 
