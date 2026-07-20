@@ -7,12 +7,14 @@ import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.registry.ModItems;
 import net.fabricmc.fabric.api.gametest.v1.CustomTestMethodInvoker;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Recipe;
@@ -29,34 +31,42 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 
 	@GameTest
 	public void diamondLatticeIsRegistered(GameTestHelper helper) {
+		ItemStack stack = new ItemStack(ModItems.DIAMOND_LATTICE);
 		helper.assertTrue(
 				BuiltInRegistries.ITEM.getValue(ModItems.DIAMOND_LATTICE_KEY) == ModItems.DIAMOND_LATTICE,
 				"钻石晶格没有注册到预期的 ResourceKey"
 		);
 		helper.assertTrue(
-				new ItemStack(ModItems.DIAMOND_LATTICE).is(ModItems.DIAMOND_LATTICE),
+				stack.is(ModItems.DIAMOND_LATTICE),
 				"钻石晶格 ItemStack 未指向注册物品"
 		);
 		helper.assertTrue(
 				ModItems.DIAMOND_LATTICE.getDefaultMaxStackSize() == 64,
 				"钻石晶格应当可以堆叠 64 个"
 		);
+		helper.assertTrue(stack.getRarity() == Rarity.UNCOMMON, "钻石晶格应当是 UNCOMMON 稀有度");
 		helper.succeed();
 	}
 
 	@GameTest
 	public void crystalMatrixIngotIsRegistered(GameTestHelper helper) {
+		ItemStack stack = new ItemStack(ModItems.CRYSTAL_MATRIX_INGOT);
 		helper.assertTrue(
 				BuiltInRegistries.ITEM.getValue(ModItems.CRYSTAL_MATRIX_INGOT_KEY) == ModItems.CRYSTAL_MATRIX_INGOT,
 				"晶态矩阵锭没有注册到预期的 ResourceKey"
 		);
 		helper.assertTrue(
-				new ItemStack(ModItems.CRYSTAL_MATRIX_INGOT).is(ModItems.CRYSTAL_MATRIX_INGOT),
+				stack.is(ModItems.CRYSTAL_MATRIX_INGOT),
 				"晶态矩阵锭 ItemStack 未指向注册物品"
 		);
 		helper.assertTrue(
 				ModItems.CRYSTAL_MATRIX_INGOT.getDefaultMaxStackSize() == 64,
 				"晶态矩阵锭应当可以堆叠 64 个"
+		);
+		helper.assertTrue(stack.getRarity() == Rarity.RARE, "晶态矩阵锭应当是 RARE 稀有度");
+		helper.assertTrue(
+				stack.has(DataComponents.DAMAGE_RESISTANT),
+				"晶态矩阵锭应当具有防火伤害抗性组件"
 		);
 		helper.succeed();
 	}

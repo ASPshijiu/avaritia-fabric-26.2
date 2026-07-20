@@ -7,15 +7,20 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Rarity;
 
 public final class ModItems {
 	public static final ResourceKey<Item> DIAMOND_LATTICE_KEY = key("diamond_lattice");
-	public static final Item DIAMOND_LATTICE = register(DIAMOND_LATTICE_KEY, Item::new, new Item.Properties());
+	public static final Item DIAMOND_LATTICE = register(
+			DIAMOND_LATTICE_KEY,
+			Item::new,
+			new Item.Properties().rarity(Rarity.UNCOMMON)
+	);
 	public static final ResourceKey<Item> CRYSTAL_MATRIX_INGOT_KEY = key("crystal_matrix_ingot");
 	public static final Item CRYSTAL_MATRIX_INGOT = register(
 			CRYSTAL_MATRIX_INGOT_KEY,
 			Item::new,
-			new Item.Properties()
+			new Item.Properties().rarity(Rarity.RARE).fireResistant()
 	);
 
 	private ModItems() {
