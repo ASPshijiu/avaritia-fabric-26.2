@@ -16,7 +16,7 @@
 | `infinity_catalyst` | 无尽催化剂 | 实现中 | 实现中 | 不适用 | 实现中 | — | — |
 | `infinity_ingot` | 无尽锭 | 实现中 | 实现中 | 不适用 | 实现中 | — | — |
 | `singularity` | 奇点（数据驱动） | 实现中 | 实现中 | 不适用 | 实现中 | — | — |
-| `eternal_singularity` | 无尽奇点 | 未开始 | — | — | — | — | — |
+| `eternal_singularity` | 永恒奇点 | 实现中 | 实现中 | 不适用 | 实现中 | — | — |
 | `record_fragment` | 唱片碎片 | 实现中 | 实现中 | 不适用 | 实现中 | — | — |
 | `endest_pearl` | 终望珍珠 | 实现中 | 实现中 | 实现中 | 实现中 | — | — |
 | `matter_cluster` | 物质团 | 实现中 | 实现中 | 实现中 | 实现中 | — | — |

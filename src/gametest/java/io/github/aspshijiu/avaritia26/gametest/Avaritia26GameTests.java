@@ -258,6 +258,85 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	}
 
 	@GameTest
+	public void eternalSingularityDynamicallyCombinesEverySingularity(GameTestHelper helper) {
+		ItemStack eternal = new ItemStack(ModItems.ETERNAL_SINGULARITY);
+		helper.assertTrue(
+				BuiltInRegistries.ITEM.getValue(ModItems.ETERNAL_SINGULARITY_KEY) == ModItems.ETERNAL_SINGULARITY,
+				"永恒奇点没有注册到预期的 ResourceKey"
+		);
+		helper.assertTrue(ModItems.ETERNAL_SINGULARITY.getDefaultMaxStackSize() == 8, "永恒奇点应当堆叠 8 个");
+		helper.assertTrue(eternal.getRarity() == Rarity.RARE, "永恒奇点应当是 RARE 稀有度");
+		helper.assertTrue(eternal.has(DataComponents.DAMAGE_RESISTANT), "永恒奇点应当具有防火伤害抗性组件");
+		helper.assertTrue(ModItems.ETERNAL_SINGULARITY.isFoil(eternal), "永恒奇点应当始终显示附魔光效");
+		helper.assertTrue(
+				BuiltInRegistries.RECIPE_SERIALIZER.getValue(Avaritia26.id("eternal_singularity"))
+						== ModRecipes.ETERNAL_SINGULARITY_SERIALIZER,
+				"永恒奇点动态配方序列化器未注册"
+		);
+
+		List<SingularityDefinition> definitions = SingularityManager.values().stream()
+				.filter(SingularityDefinition::recipeEnabled)
+				.toList();
+		helper.assertTrue(definitions.size() == 14, "永恒奇点测试应当动态读取 14 个内置奇点");
+		List<ItemStack> singularities = definitions.stream()
+				.map(SingularityItem::createStack)
+				.collect(java.util.stream.Collectors.toCollection(java.util.ArrayList::new));
+		CraftingInput input = CraftingInput.of(7, 2, singularities);
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(
+				Registries.RECIPE,
+				Avaritia26.id("eternal_singularity")
+		);
+		RecipeHolder<Recipe<CraftingInput>> recipe = helper.getLevel().getServer().getRecipeManager()
+				.getRecipeFor(ModRecipes.EXTREME_CRAFTING, input, helper.getLevel())
+				.orElseThrow(() -> helper.assertionException("全部奇点未匹配永恒奇点配方"));
+		helper.assertTrue(recipe.id().equals(recipeKey), "永恒奇点材料匹配到了错误配方");
+		ItemStack result = recipe.value().assemble(input);
+		helper.assertTrue(result.is(ModItems.ETERNAL_SINGULARITY) && result.getCount() == 1, "永恒奇点输出错误");
+
+		List<ItemStack> missing = copyStacks(singularities);
+		missing.removeLast();
+		missing.add(ItemStack.EMPTY);
+		helper.assertFalse(
+				recipe.value().matches(CraftingInput.of(7, 2, missing), helper.getLevel()),
+				"缺少奇点不应匹配永恒奇点配方"
+		);
+
+		List<ItemStack> duplicate = copyStacks(singularities);
+		duplicate.set(duplicate.size() - 1, duplicate.getFirst().copy());
+		helper.assertFalse(
+				recipe.value().matches(CraftingInput.of(7, 2, duplicate), helper.getLevel()),
+				"重复奇点不应匹配永恒奇点配方"
+		);
+
+		List<ItemStack> tamperedStacks = copyStacks(singularities);
+		SingularityDefinition original = definitions.getFirst();
+		SingularityDefinition tampered = new SingularityDefinition(
+				original.name(),
+				original.displayName(),
+				original.overlayColor() ^ 0x00FFFFFF,
+				original.underlayColor(),
+				original.count(),
+				original.timeCost(),
+				original.ingredient(),
+				original.enabled(),
+				original.recipeEnabled()
+		);
+		tamperedStacks.set(0, SingularityItem.createStack(tampered));
+		helper.assertFalse(
+				recipe.value().matches(CraftingInput.of(7, 2, tamperedStacks), helper.getLevel()),
+				"失效奇点快照不应匹配永恒奇点配方"
+		);
+
+		List<ItemStack> extra = copyStacks(singularities);
+		extra.add(new ItemStack(Items.DIRT));
+		helper.assertFalse(
+				recipe.value().matches(CraftingInput.of(5, 3, extra), helper.getLevel()),
+				"额外材料不应匹配永恒奇点配方"
+		);
+		helper.succeed();
+	}
+
+	@GameTest
 	public void neutronCompressorCraftsAndProcessesAllTargets(GameTestHelper helper) {
 		assertExtremeRecipe(
 				helper,

@@ -54,6 +54,11 @@ public final class ModRecipes {
 			Avaritia26.id("infinity_catalyst"),
 			new RecipeSerializer<>(InfinityCatalystRecipe.CODEC, InfinityCatalystRecipe.STREAM_CODEC)
 	);
+	public static final RecipeSerializer<EternalSingularityRecipe> ETERNAL_SINGULARITY_SERIALIZER = Registry.register(
+			BuiltInRegistries.RECIPE_SERIALIZER,
+			Avaritia26.id("eternal_singularity"),
+			new RecipeSerializer<>(EternalSingularityRecipe.CODEC, EternalSingularityRecipe.STREAM_CODEC)
+	);
 
 	private ModRecipes() {
 	}

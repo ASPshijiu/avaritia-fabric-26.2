@@ -4,6 +4,7 @@ import java.util.function.Function;
 
 import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.item.EndestPearlItem;
+import io.github.aspshijiu.avaritia26.item.EternalSingularityItem;
 import io.github.aspshijiu.avaritia26.item.MatterClusterItem;
 import io.github.aspshijiu.avaritia26.item.SingularityItem;
 import net.minecraft.core.Registry;
@@ -13,6 +14,12 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
 
 public final class ModItems {
+	public static final ResourceKey<Item> ETERNAL_SINGULARITY_KEY = key("eternal_singularity");
+	public static final Item ETERNAL_SINGULARITY = register(
+			ETERNAL_SINGULARITY_KEY,
+			EternalSingularityItem::new,
+			new Item.Properties().rarity(Rarity.RARE).stacksTo(8).fireResistant()
+	);
 	public static final ResourceKey<Item> INFINITY_CATALYST_KEY = key("infinity_catalyst");
 	public static final Item INFINITY_CATALYST = register(
 			INFINITY_CATALYST_KEY,
