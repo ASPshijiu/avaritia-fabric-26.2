@@ -48,7 +48,7 @@
 ## 许可证规则
 
 - Re:Avaritia 明确声明代码为 MIT，素材为 CC BY-NC-SA 4.0；两者必须分别记录和分发许可证。
-- 当前仓库尚未复制任何 Re:Avaritia 代码或素材。
+- 当前仓库没有复制 Re:Avaritia 代码；已复用的素材逐项记录在 `ASSETS.md`。
 - 以后每次复制或改写上游文件时，必须在本文件追加“文件来源清单”，记录目标文件、上游文件、commit 和许可证。
 - 若导入 Re:Avaritia 素材，本项目包含这些素材的分发必须保持非商业，并提供署名与 CC BY-NC-SA 4.0 许可证文本。
 - AvaritiaNeo 只允许做黑盒行为对照，不从发布 JAR 反编译粘贴代码。
@@ -56,4 +56,5 @@
 
 ## 文件来源清单
 
-当前为空；所有已提交源码、配置和文档均为本项目新写，Gradle Wrapper 来自 Fabric 官方 26.2 CC0 模板。
+- `src/client/resources/assets/avaritia26/textures/item/diamond_lattice.png` ← Re:Avaritia `src/main/resources/assets/avaritia/textures/item/resource/crystal/diamond_lattice.png`，commit `c331b7f4838667e6200b24c99dc45459e0b9dafb`，CC BY-NC-SA 4.0，像素未修改。
+- 其余已提交源码、配置和文档均为本项目新写；Gradle Wrapper 来自 Fabric 官方 26.2 CC0 模板。

@@ -12,7 +12,10 @@
 		"sources": "https://github.com/ASPshijiu/avaritia-fabric-26.2",
 		"issues": "https://github.com/ASPshijiu/avaritia-fabric-26.2/issues"
 	},
-	"license": "MIT",
+	"license": [
+		"MIT",
+		"CC-BY-NC-SA-4.0"
+	],
 	"environment": "*",
 	"entrypoints": {
 		"main": [

@@ -5,6 +5,6 @@ This is an unofficial community project inspired by Avaritia and informed by
 publicly available Avaritia ports. It is not endorsed by or affiliated with
 the original Avaritia authors or the Re:Avaritia maintainers.
 
-No third-party Avaritia code or assets are included at this revision. See
-UPSTREAM_SOURCES.md for the fixed behavioral references and the rules that
-must be followed before any upstream file is reused.
+Re:Avaritia-derived assets are licensed separately under CC BY-NC-SA 4.0.
+See ASSETS.md for per-file attribution and UPSTREAM_SOURCES.md for fixed
+behavioral references. All newly written project code remains MIT licensed.
