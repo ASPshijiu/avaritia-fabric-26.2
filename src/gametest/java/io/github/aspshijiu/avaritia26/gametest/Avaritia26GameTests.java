@@ -177,6 +177,25 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	}
 
 	@GameTest
+	public void neutronStorageRecipesWork(GameTestHelper helper) {
+		assertCraftingRecipe(
+				helper,
+				"neutron",
+				filledCraftingInput(ModItems.NEUTRON_INGOT),
+				ModBlocks.NEUTRON_ITEM,
+				1
+		);
+		assertCraftingRecipe(
+				helper,
+				"neutron_ingot_from_block",
+				CraftingInput.of(1, 1, List.of(new ItemStack(ModBlocks.NEUTRON_ITEM))),
+				ModItems.NEUTRON_INGOT,
+				9
+		);
+		helper.succeed();
+	}
+
+	@GameTest
 	public void diamondLatticeNormalRecipeWorks(GameTestHelper helper) {
 		CraftingInput input = CraftingInput.of(3, 3, List.of(
 				new ItemStack(Items.DIAMOND), new ItemStack(Items.DIAMOND), new ItemStack(Items.DIAMOND),
