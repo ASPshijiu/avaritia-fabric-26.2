@@ -33,6 +33,7 @@ public final class ModCreativeTabs {
 				output.accept(ModItems.INFINITY_TRIDENT);
 				output.accept(ModItems.INFINITY_MACE);
 				output.accept(ModItems.CRYSTAL_SWORD);
+				output.accept(ModItems.CRYSTAL_HOE);
 				output.accept(ModItems.INFINITY_HELMET);
 				output.accept(ModItems.INFINITY_CHESTPLATE);
 				output.accept(ModItems.INFINITY_PANTS);

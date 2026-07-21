@@ -160,6 +160,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BubbleColumnBlock;
 import net.minecraft.world.level.block.CraftingTableBlock;
 import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.world.level.block.FarmlandBlock;
 import net.minecraft.world.level.block.MagmaBlock;
 import net.minecraft.world.level.block.NetherWartBlock;
 import net.minecraft.world.level.block.SugarCaneBlock;
@@ -3731,6 +3732,72 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	}
 
 	@GameTest
+	public void crystalHoeCraftsTillsThreeByThreeAndGrowsCrops(GameTestHelper helper) {
+		ItemStack hoe = new ItemStack(ModItems.CRYSTAL_HOE);
+		helper.assertTrue(BuiltInRegistries.ITEM.getValue(ModItems.CRYSTAL_HOE_KEY)
+				== ModItems.CRYSTAL_HOE, "晶态矩阵锄物品未注册");
+		helper.assertTrue(hoe.getMaxStackSize() == 1 && hoe.getRarity() == Rarity.EPIC
+				&& hoe.has(DataComponents.DAMAGE_RESISTANT) && hoe.getMaxDamage() == 8888,
+				"晶态矩阵锄物品属性或耐久错误");
+		helper.assertTrue(hoe.is(ItemTags.HOES), "晶态矩阵锄缺少原版锄标签");
+		helper.assertFalse(ModItems.CRYSTAL_HOE.isFoil(hoe), "晶态矩阵锄不应显示附魔光效");
+		var modifiers = hoe.get(DataComponents.ATTRIBUTE_MODIFIERS);
+		helper.assertTrue(modifiers != null
+				&& modifiers.compute(Attributes.ATTACK_DAMAGE, 1.0, EquipmentSlot.MAINHAND) == 51.0
+				&& modifiers.compute(Attributes.ATTACK_SPEED, 4.0, EquipmentSlot.MAINHAND) == 29.0,
+				"晶态矩阵锄没有保留上游五十点伤害与二十五点攻速增幅");
+		helper.assertTrue(ModItems.CRYSTAL_HOE.getDestroySpeed(hoe, Blocks.HAY_BLOCK.defaultBlockState()) == 50.0F,
+				"晶态矩阵锄挖掘速度错误");
+		Repairable repairable = hoe.get(DataComponents.REPAIRABLE);
+		helper.assertTrue(repairable != null
+				&& repairable.isValidRepairItem(new ItemStack(ModItems.CRYSTAL_MATRIX_INGOT)),
+				"晶态矩阵锄不能用晶态矩阵锭修复");
+
+		CraftingInput input = crystalHoeInput();
+		assertExtremeRecipe(helper, "crystal_hoe", input, ModItems.CRYSTAL_HOE);
+		List<ItemStack> wrongStacks = copyStacks(input.items());
+		wrongStacks.set(24, new ItemStack(Items.DIRT));
+		assertExtremeRecipeDoesNotMatch(helper, "crystal_hoe",
+				CraftingInput.of(input.width(), input.height(), wrongStacks));
+
+		Player player = helper.makeMockServerPlayer(GameType.SURVIVAL);
+		player.setItemInHand(InteractionHand.MAIN_HAND, hoe);
+		BlockPos center = new BlockPos(5, 1, 5);
+		for (BlockPos pos : BlockPos.betweenClosed(center.offset(-1, 0, -1), center.offset(1, 0, 1))) {
+			helper.setBlock(pos, Blocks.DIRT);
+		}
+		InteractionResult tillResult = ModItems.CRYSTAL_HOE.useOn(new UseOnContext(
+				player,
+				InteractionHand.MAIN_HAND,
+				new BlockHitResult(Vec3.atCenterOf(helper.absolutePos(center)), Direction.UP,
+						helper.absolutePos(center), false)
+		));
+		helper.assertTrue(tillResult.consumesAction(), "晶态矩阵锄没有响应耕地使用");
+		for (BlockPos pos : BlockPos.betweenClosed(center.offset(-1, 0, -1), center.offset(1, 0, 1))) {
+			BlockState farmland = helper.getBlockState(pos);
+			helper.assertTrue(farmland.is(Blocks.FARMLAND)
+					&& farmland.getValue(FarmlandBlock.MOISTURE) == FarmlandBlock.MAX_MOISTURE,
+					"晶态矩阵锄没有生成 3×3 满湿度耕地");
+		}
+
+		BlockPos cropPos = new BlockPos(10, 2, 5);
+		helper.setBlock(cropPos.below(), Blocks.FARMLAND);
+		helper.setBlock(cropPos, Blocks.WHEAT);
+		int ageBefore = helper.getBlockState(cropPos).getValue(CropBlock.AGE);
+		InteractionResult growResult = ModItems.CRYSTAL_HOE.useOn(new UseOnContext(
+				player,
+				InteractionHand.MAIN_HAND,
+				new BlockHitResult(Vec3.atCenterOf(helper.absolutePos(cropPos)), Direction.UP,
+						helper.absolutePos(cropPos), false)
+		));
+		int ageAfter = helper.getBlockState(cropPos).getValue(CropBlock.AGE);
+		helper.assertTrue(growResult.consumesAction() && ageAfter > ageBefore,
+				"晶态矩阵锄没有直接催熟可骨粉作物");
+		helper.assertTrue(hoe.getDamageValue() == 0, "晶态矩阵锄范围耕作或催熟不应额外损耗耐久");
+		helper.succeed();
+	}
+
+	@GameTest
 	public void everyBuiltInSingularityCompresses(GameTestHelper helper) {
 		BlockPos relativePos = new BlockPos(13, 0, 0);
 		helper.setBlock(relativePos, ModBlocks.NEUTRON_COMPRESSOR);
@@ -5617,6 +5684,25 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 				Map.of(
 						'A', new ItemStack(ModBlocks.CRYSTAL_MATRIX_ITEM),
 						'B', new ItemStack(ModBlocks.NEUTRON_ITEM),
+						'C', new ItemStack(ModItems.CRYSTAL_MATRIX_INGOT)
+				)
+		);
+	}
+
+	private static CraftingInput crystalHoeInput() {
+		return extremeInput(
+				List.of(
+						"CAAAAA ",
+						" CCCA A",
+						"     AA",
+						"   B CA",
+						"  B   C",
+						" B     ",
+						"A      "
+				),
+				Map.of(
+						'A', new ItemStack(ModBlocks.CRYSTAL_MATRIX_ITEM),
+						'B', new ItemStack(ModItems.NEUTRON_INGOT),
 						'C', new ItemStack(ModItems.CRYSTAL_MATRIX_INGOT)
 				)
 		);

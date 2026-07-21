@@ -7,6 +7,7 @@ import java.util.function.Function;
 import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.item.EndestPearlItem;
 import io.github.aspshijiu.avaritia26.item.CrystalSwordItem;
+import io.github.aspshijiu.avaritia26.item.CrystalHoeItem;
 import io.github.aspshijiu.avaritia26.item.EternalSingularityItem;
 import io.github.aspshijiu.avaritia26.item.InfinityAxeItem;
 import io.github.aspshijiu.avaritia26.item.InfinityArmorItem;
@@ -180,6 +181,16 @@ public final class ModItems {
 					.fireResistant()
 					.sword(CRYSTAL_TOOL_MATERIAL, 0.0F, 25.0F)
 					.component(ModDataComponents.CRYSTAL_BLADE_SLASH, false)
+	);
+	public static final ResourceKey<Item> CRYSTAL_HOE_KEY = key("crystal_hoe");
+	public static final Item CRYSTAL_HOE = register(
+			CRYSTAL_HOE_KEY,
+			CrystalHoeItem::new,
+			new Item.Properties()
+					.rarity(Rarity.EPIC)
+					.stacksTo(1)
+					.fireResistant()
+					.hoe(CRYSTAL_TOOL_MATERIAL, 0.0F, 25.0F)
 	);
 	public static final ResourceKey<Item> INFINITY_HELMET_KEY = key("infinity_helmet");
 	public static final Item INFINITY_HELMET = register(
