@@ -27,4 +27,4 @@
 
 ## 许可证
 
-当前仓库中新编写的代码采用 [MIT](LICENSE) 许可证。尚未导入任何第三方素材；后续若依法复用第三方代码或素材，将在来源和许可证清单中逐项记录。
+当前仓库中新编写的代码采用 [MIT](LICENSE) 许可证。来自 Re:Avaritia 的纹理与声音素材采用 CC BY-NC-SA 4.0，构建产物仅可用于非商业用途；逐项署名、修改说明和许可证链接见 [ASSETS.md](ASSETS.md)，固定行为参考见 [UPSTREAM_SOURCES.md](UPSTREAM_SOURCES.md)。

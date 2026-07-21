@@ -106,4 +106,9 @@
 - `CompressedChestBlock.java`、`CompressedChestBlockEntity.java`、`CompressedChestMenu.java` 与压缩箱子配方依据固定 Re:Avaritia 的 243 槽、内容随方块物品保存、27×9 菜单和八箱子包围中子齿轮配方语义重新实现；方块实体、菜单同步和静态模型改用 Minecraft/Fabric 26.2 原生 API。
 - `ExtremeSmithingTableBlock.java`、`ExtremeSmithingMenu.java`、`ExtremeSmithingRecipe.java` 与终焉锻造台 9×9 配方依据固定 Re:Avaritia 的五输入槽、模板/基底/三追加材料、基底组件继承和一次消耗语义重新实现；追加材料按无序三元素集合逐一匹配，修正固定上游允许三份重复材料的缺陷，菜单与配方同步改用 Minecraft/Fabric 26.2 原生 API。
 - `InfinityChestBlock.java`、`InfinityChestBlockEntity.java`、`InfinityChestMenu.java` 与 `InfinityChestContents.java` 依据固定 Re:Avaritia 的 300 槽、每槽 `Integer.MAX_VALUE` 上限、方块物品携带内容和强化锻造配方语义重新实现；全部 300 槽改为 30×10 可见布局，修正固定上游仅显示 243 槽的问题，并使用 26.2 原生槽位点击/快捷移动逻辑代替旧版整套鼠标协议重写。
+- 高阶中子收集器/压缩机、灵魂耕地、幽匿/下界/末地工作台、中子指环和无尽升级组件相关源码与配方依据固定 Re:Avaritia 同名方块、方块实体、菜单、物品及配方的行为重新实现；注册、持久化、传输和屏幕均使用 Minecraft/Fabric 26.2 API，不复制 NeoForge 平台层。
+- `InfinityTotemItem`、`InfinityUmbrellaItem`、`InfinityClockItem`、`SideConfigCardItem`、`InfinityBucketItem`、`InfinityCrossbowItem`、`InfinityShieldItem`、`InfinityTridentItem`、`InfinityMaceItem` 及其实体、组件、菜单与配方依据固定 Re:Avaritia 同名内容的行为重新实现；客户端输入均由服务端菜单或 payload 校验。
+- 晶态矩阵与烈焰工具套装、弓箭和投射物相关源码与配方依据固定 Re:Avaritia 同名内容的攻击属性、模式、范围操作、弹道和强化锻造语义重新实现；方块权限、掉落与实体同步改用 Fabric/Minecraft 26.2 API。
+- `NeutronHorseArmorItem`、无尽鞘翅、终焉之砧与贪婪蛋糕相关源码和配方依据固定 Re:Avaritia 同名内容的属性、穿戴、修复/超限附魔、食用增益与强化锻造语义重新实现；分别适配 26.2 装备组件、菜单、下落方块和交互 API，并修正上游终焉之砧生存模式不可取出结果及蛋糕缺少支撑校验的问题。
+- 13 种科技奇点依据固定 Re:Avaritia `ModSingularities` 与生成 JSON 的通用锭标签、颜色和条件启用语义适配为 Fabric `tags_populated` 资源条件；仅在对应 `c:ingots/*` 标签存在时参与压缩与终局动态配方。
 - 其余已提交源码、配置和文档均为本项目新写；Gradle Wrapper 来自 Fabric 官方 26.2 CC0 模板。

@@ -61,6 +61,15 @@ jar {
 	from("LICENSE") {
 		rename { "${it}_${inputs.properties.archivesName}" }
 	}
+	from("NOTICE") {
+		into "META-INF"
+	}
+	from("ASSETS.md") {
+		into "META-INF"
+	}
+	from("UPSTREAM_SOURCES.md") {
+		into "META-INF"
+	}
 }
 
 publishing {
