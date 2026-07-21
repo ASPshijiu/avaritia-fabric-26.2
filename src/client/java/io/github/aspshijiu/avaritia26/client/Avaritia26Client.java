@@ -28,6 +28,7 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.entity.NoopRenderer;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
+import net.minecraft.client.renderer.entity.ThrownTridentRenderer;
 import org.lwjgl.glfw.GLFW;
 
 public final class Avaritia26Client implements ClientModInitializer {
@@ -60,6 +61,7 @@ public final class Avaritia26Client implements ClientModInitializer {
 		EntityRendererRegistry.register(ModEntityTypes.GAPING_VOID, NoopRenderer<GapingVoidEntity>::new);
 		EntityRendererRegistry.register(ModEntityTypes.HEAVEN_ARROW, context -> new HeavenArrowRenderer<>(context));
 		EntityRendererRegistry.register(ModEntityTypes.HEAVEN_SUB_ARROW, context -> new HeavenArrowRenderer<>(context));
+		EntityRendererRegistry.register(ModEntityTypes.INFINITY_THROWN_TRIDENT, ThrownTridentRenderer::new);
 		EntityRendererRegistry.register(ModEntityTypes.UMBRELLA_SUN_PROJECTILE,
 				ThrownItemRenderer<UmbrellaProjectileEntity>::new);
 		EntityRendererRegistry.register(ModEntityTypes.UMBRELLA_RAIN_PROJECTILE,

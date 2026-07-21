@@ -1,0 +1,24 @@
+{
+	"type": "avaritia26:extreme_shaped",
+	"category": "equipment",
+	"key": {
+		"A": "avaritia26:crystal_matrix",
+		"C": "avaritia26:crystal_matrix_ingot",
+		"I": "avaritia26:infinity_ingot",
+		"N": "avaritia26:neutron_ingot",
+		"P": "minecraft:heart_of_the_sea",
+		"X": "avaritia26:infinity_catalyst"
+	},
+	"pattern": [
+		"     I  I",
+		"    I  I ",
+		"   CAAI  ",
+		"    AXA I",
+		"    PAAI ",
+		"   N  C  ",
+		"  N      ",
+		" C       ",
+		"A        "
+	],
+	"result": {"count": 1, "id": "avaritia26:infinity_trident"}
+}

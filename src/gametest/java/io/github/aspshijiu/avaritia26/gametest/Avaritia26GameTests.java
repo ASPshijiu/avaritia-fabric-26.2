@@ -36,6 +36,7 @@ import io.github.aspshijiu.avaritia26.entity.EndestPearlEntity;
 import io.github.aspshijiu.avaritia26.entity.GapingVoidEntity;
 import io.github.aspshijiu.avaritia26.entity.HeavenArrowEntity;
 import io.github.aspshijiu.avaritia26.entity.HeavenSubArrowEntity;
+import io.github.aspshijiu.avaritia26.entity.InfinityThrownTridentEntity;
 import io.github.aspshijiu.avaritia26.entity.UmbrellaProjectileEntity;
 import io.github.aspshijiu.avaritia26.event.ModArmorEvents;
 import io.github.aspshijiu.avaritia26.event.ModCombatEvents;
@@ -57,6 +58,7 @@ import io.github.aspshijiu.avaritia26.item.InfinityArmorItem;
 import io.github.aspshijiu.avaritia26.item.InfinityBucketItem;
 import io.github.aspshijiu.avaritia26.item.InfinityClockItem;
 import io.github.aspshijiu.avaritia26.item.InfinityCrossbowItem;
+import io.github.aspshijiu.avaritia26.item.InfinityTridentItem;
 import io.github.aspshijiu.avaritia26.item.InfinityUmbrellaItem;
 import io.github.aspshijiu.avaritia26.item.SingularityItem;
 import io.github.aspshijiu.avaritia26.registry.ModBlockEntities;
@@ -3536,6 +3538,81 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	}
 
 	@GameTest
+	public void infinityTridentCraftsSwitchesModesStrikesAndReturns(GameTestHelper helper) {
+		ItemStack trident = new ItemStack(ModItems.INFINITY_TRIDENT);
+		helper.assertTrue(BuiltInRegistries.ITEM.getValue(ModItems.INFINITY_TRIDENT_KEY)
+				== ModItems.INFINITY_TRIDENT, "无尽三叉戟物品未注册");
+		helper.assertTrue(BuiltInRegistries.ENTITY_TYPE.getValue(Avaritia26.id("infinity_thrown_trident"))
+				== ModEntityTypes.INFINITY_THROWN_TRIDENT, "无尽三叉戟投掷实体未注册");
+		helper.assertTrue(trident.getMaxStackSize() == 1 && trident.getRarity() == Rarity.EPIC
+				&& trident.has(DataComponents.DAMAGE_RESISTANT) && !trident.isDamageableItem(),
+				"无尽三叉戟物品属性错误");
+		var modifiers = trident.get(DataComponents.ATTRIBUTE_MODIFIERS);
+		helper.assertTrue(modifiers != null
+				&& modifiers.compute(Attributes.ATTACK_DAMAGE, 1.0, EquipmentSlot.MAINHAND) == 101.0
+				&& modifiers.compute(Attributes.ATTACK_SPEED, 4.0, EquipmentSlot.MAINHAND) == 104.0,
+				"无尽三叉戟没有保留上游百点攻击与攻速增幅");
+		List<Component> tooltip = new java.util.ArrayList<>();
+		ModItems.INFINITY_TRIDENT.appendHoverText(
+				trident, Item.TooltipContext.of(helper.getLevel()), TooltipDisplay.DEFAULT,
+				tooltip::add, TooltipFlag.NORMAL
+		);
+		helper.assertTrue(tooltip.size() == 1, "无尽三叉戟缺少当前模式说明");
+
+		CraftingInput input = infinityTridentInput();
+		assertExtremeRecipe(helper, "infinity_trident", input, ModItems.INFINITY_TRIDENT);
+		List<ItemStack> wrongStacks = copyStacks(input.items());
+		wrongStacks.set(31, new ItemStack(Items.DIRT));
+		assertExtremeRecipeDoesNotMatch(helper, "infinity_trident",
+				CraftingInput.of(input.width(), input.height(), wrongStacks));
+
+		Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+		player.getInventory().setSelectedSlot(0);
+		player.setItemInHand(InteractionHand.MAIN_HAND, trident);
+		player.setPos(Vec3.atCenterOf(helper.absolutePos(new BlockPos(10, 2, 10))));
+		player.setShiftKeyDown(true);
+		ModItems.INFINITY_TRIDENT.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+		player.setShiftKeyDown(false);
+		helper.assertTrue(InfinityTridentItem.getMode(trident) == InfinityTridentItem.RIPTIDE,
+				"无尽三叉戟没有切换到激流模式");
+		ModItems.INFINITY_TRIDENT.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+		ModItems.INFINITY_TRIDENT.releaseUsing(trident, helper.getLevel(), player,
+				ModItems.INFINITY_TRIDENT.getUseDuration(trident, player) - 10);
+		helper.assertTrue(player.getDeltaMovement().length() >= 4.4 && player.getMainHandItem() == trident,
+				"无尽三叉戟激流五级推进或物品保留错误");
+
+		player.setShiftKeyDown(true);
+		ModItems.INFINITY_TRIDENT.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+		player.setShiftKeyDown(false);
+		helper.assertTrue(InfinityTridentItem.getMode(trident) == InfinityTridentItem.LOYALTY,
+				"无尽三叉戟没有切回忠诚模式");
+		ModItems.INFINITY_TRIDENT.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+		ModItems.INFINITY_TRIDENT.releaseUsing(trident, helper.getLevel(), player,
+				ModItems.INFINITY_TRIDENT.getUseDuration(trident, player) - 10);
+		List<InfinityThrownTridentEntity> projectiles = helper.getLevel().getEntitiesOfClass(
+				InfinityThrownTridentEntity.class, player.getBoundingBox().inflate(16.0));
+		helper.assertTrue(projectiles.size() == 1 && player.getMainHandItem().isEmpty(),
+				"无尽三叉戟忠诚模式没有投出实体或移除手持物品");
+
+		InfinityThrownTridentEntity projectile = projectiles.getFirst();
+		var warden = helper.spawnWithNoFreeWill(EntityTypes.WARDEN, new BlockPos(14, 2, 10));
+		int lightningBefore = helper.getLevel().getEntitiesOfClass(
+				LightningBolt.class, warden.getBoundingBox().inflate(8.0)).size();
+		projectile.applyEntityImpact(warden);
+		int lightningAfter = helper.getLevel().getEntitiesOfClass(
+				LightningBolt.class, warden.getBoundingBox().inflate(8.0)).size();
+		helper.assertTrue(warden.isDeadOrDying(), "无尽三叉戟投射物没有造成无限伤害");
+		helper.assertTrue(lightningAfter - lightningBefore == 2, "无尽三叉戟命中没有召唤两道闪电");
+
+		projectile.setPos(player.getEyePosition());
+		projectile.tick();
+		helper.assertTrue(projectile.isRemoved()
+				&& player.getInventory().contains(new ItemStack(ModItems.INFINITY_TRIDENT)),
+				"无尽三叉戟命中后没有忠诚返还给投掷者");
+		helper.succeed();
+	}
+
+	@GameTest
 	public void everyBuiltInSingularityCompresses(GameTestHelper helper) {
 		BlockPos relativePos = new BlockPos(13, 0, 0);
 		helper.setBlock(relativePos, ModBlocks.NEUTRON_COMPRESSOR);
@@ -5356,6 +5433,30 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 						'M', new ItemStack(ModBlocks.NEUTRON_ITEM),
 						'N', new ItemStack(ModItems.NEUTRON_INGOT),
 						'S', new ItemStack(Items.SHIELD),
+						'X', new ItemStack(ModItems.INFINITY_CATALYST)
+				)
+		);
+	}
+
+	private static CraftingInput infinityTridentInput() {
+		return extremeInput(
+				List.of(
+						"     I  I",
+						"    I  I ",
+						"   CAAI  ",
+						"    AXA I",
+						"    PAAI ",
+						"   N  C  ",
+						"  N      ",
+						" C       ",
+						"A        "
+				),
+				Map.of(
+						'A', new ItemStack(ModBlocks.CRYSTAL_MATRIX_ITEM),
+						'C', new ItemStack(ModItems.CRYSTAL_MATRIX_INGOT),
+						'I', new ItemStack(ModItems.INFINITY_INGOT),
+						'N', new ItemStack(ModItems.NEUTRON_INGOT),
+						'P', new ItemStack(Items.HEART_OF_THE_SEA),
 						'X', new ItemStack(ModItems.INFINITY_CATALYST)
 				)
 		);

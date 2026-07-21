@@ -5,6 +5,7 @@ import io.github.aspshijiu.avaritia26.entity.EndestPearlEntity;
 import io.github.aspshijiu.avaritia26.entity.GapingVoidEntity;
 import io.github.aspshijiu.avaritia26.entity.HeavenArrowEntity;
 import io.github.aspshijiu.avaritia26.entity.HeavenSubArrowEntity;
+import io.github.aspshijiu.avaritia26.entity.InfinityThrownTridentEntity;
 import io.github.aspshijiu.avaritia26.entity.UmbrellaProjectileEntity;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -43,6 +44,16 @@ public final class ModEntityTypes {
 					.clientTrackingRange(4)
 					.updateInterval(10)
 					.build(ENDEST_PEARL_KEY)
+	);
+	public static final ResourceKey<EntityType<?>> INFINITY_THROWN_TRIDENT_KEY = key("infinity_thrown_trident");
+	public static final EntityType<InfinityThrownTridentEntity> INFINITY_THROWN_TRIDENT = Registry.register(
+			BuiltInRegistries.ENTITY_TYPE,
+			INFINITY_THROWN_TRIDENT_KEY,
+			EntityType.Builder.<InfinityThrownTridentEntity>of(InfinityThrownTridentEntity::new, MobCategory.MISC)
+					.sized(0.5F, 0.5F)
+					.clientTrackingRange(4)
+					.updateInterval(20)
+					.build(INFINITY_THROWN_TRIDENT_KEY)
 	);
 	public static final ResourceKey<EntityType<?>> GAPING_VOID_KEY = key("gaping_void");
 	public static final EntityType<GapingVoidEntity> GAPING_VOID = Registry.register(

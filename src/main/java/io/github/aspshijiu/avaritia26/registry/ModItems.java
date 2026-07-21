@@ -16,6 +16,7 @@ import io.github.aspshijiu.avaritia26.item.InfinityCrossbowItem;
 import io.github.aspshijiu.avaritia26.item.InfinityHoeItem;
 import io.github.aspshijiu.avaritia26.item.InfinityPickaxeItem;
 import io.github.aspshijiu.avaritia26.item.InfinityShovelItem;
+import io.github.aspshijiu.avaritia26.item.InfinityTridentItem;
 import io.github.aspshijiu.avaritia26.item.InfinitySwordItem;
 import io.github.aspshijiu.avaritia26.item.InfinityTotemItem;
 import io.github.aspshijiu.avaritia26.item.InfinityUmbrellaItem;
@@ -43,6 +44,7 @@ import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.item.SmithingTemplateItem;
 import net.minecraft.world.item.ToolMaterial;
+import net.minecraft.world.item.TridentItem;
 import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.ItemContainerContents;
@@ -130,6 +132,19 @@ public final class ModItems {
 			INFINITY_SHIELD_KEY,
 			ShieldItem::new,
 			infinityShieldProperties()
+	);
+	public static final ResourceKey<Item> INFINITY_TRIDENT_KEY = key("infinity_trident");
+	public static final Item INFINITY_TRIDENT = register(
+			INFINITY_TRIDENT_KEY,
+			InfinityTridentItem::new,
+			new Item.Properties()
+					.rarity(Rarity.EPIC)
+					.stacksTo(1)
+					.fireResistant()
+					.attributes(infinityToolAttributes(100.0, 100.0))
+					.component(DataComponents.TOOL, TridentItem.createToolProperties())
+					.component(DataComponents.WEAPON, new Weapon(0))
+					.component(ModDataComponents.INFINITY_TRIDENT_MODE, InfinityTridentItem.LOYALTY)
 	);
 	public static final ResourceKey<Item> INFINITY_HELMET_KEY = key("infinity_helmet");
 	public static final Item INFINITY_HELMET = register(

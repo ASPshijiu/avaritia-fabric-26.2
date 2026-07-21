@@ -54,6 +54,14 @@ public final class ModDataComponents {
 					.networkSynchronized(ByteBufCodecs.BOOL)
 					.build()
 	);
+	public static final DataComponentType<Integer> INFINITY_TRIDENT_MODE = Registry.register(
+			BuiltInRegistries.DATA_COMPONENT_TYPE,
+			Avaritia26.id("infinity_trident_mode"),
+			DataComponentType.<Integer>builder()
+					.persistent(Codec.INT)
+					.networkSynchronized(ByteBufCodecs.INT)
+					.build()
+	);
 	public static final DataComponentType<SideConfiguration> SIDE_CONFIGURATION = Registry.register(
 			BuiltInRegistries.DATA_COMPONENT_TYPE,
 			Avaritia26.id("side_configuration"),

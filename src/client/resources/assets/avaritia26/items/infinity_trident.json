@@ -1,0 +1,30 @@
+{
+	"model": {
+		"type": "minecraft:select",
+		"property": "minecraft:display_context",
+		"cases": [{
+			"when": ["gui", "ground", "fixed", "on_shelf"],
+			"model": {"type": "minecraft:model", "model": "avaritia26:item/infinity_trident"}
+		}],
+		"fallback": {
+			"type": "minecraft:condition",
+			"property": "minecraft:using_item",
+			"on_false": {
+				"type": "minecraft:special",
+				"base": "avaritia26:item/infinity_trident_in_hand",
+				"model": {"type": "minecraft:trident"}
+			},
+			"on_true": {
+				"type": "minecraft:special",
+				"base": "avaritia26:item/infinity_trident_throwing",
+				"model": {"type": "minecraft:trident"}
+			},
+			"transformation": {
+				"left_rotation": [0.0, 0.0, 0.0, 1.0],
+				"right_rotation": [0.0, 0.0, 0.0, 1.0],
+				"scale": [1.0, -1.0, -1.0],
+				"translation": [0.0, 0.0, 0.0]
+			}
+		}
+	}
+}
