@@ -1,0 +1,13 @@
+{
+  "type": "avaritia26:extreme_shaped",
+  "category": "equipment",
+  "key": {
+    "A": "minecraft:bone_block",
+    "B": "avaritia26:blaze_cube",
+    "C": "avaritia26:diamond_lattice",
+    "D": "minecraft:blaze_powder",
+    "E": "minecraft:soul_soil"
+  },
+  "pattern": [" ABBA", "ACDDC", "BD E ", "BDE  ", "AC   "],
+  "result": {"count": 1, "id": "avaritia26:blaze_bow"}
+}

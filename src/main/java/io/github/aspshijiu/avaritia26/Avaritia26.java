@@ -14,6 +14,7 @@ import io.github.aspshijiu.avaritia26.registry.ModDataComponents;
 import io.github.aspshijiu.avaritia26.registry.ModEntityTypes;
 import io.github.aspshijiu.avaritia26.registry.ModItems;
 import io.github.aspshijiu.avaritia26.registry.ModMenus;
+import io.github.aspshijiu.avaritia26.registry.ModMobEffects;
 import io.github.aspshijiu.avaritia26.registry.ModSounds;
 import io.github.aspshijiu.avaritia26.singularity.SingularityManager;
 import io.github.aspshijiu.avaritia26.transfer.InfinityBucketStorage;
@@ -30,6 +31,7 @@ public final class Avaritia26 implements ModInitializer {
 	public void onInitialize() {
 		ModRecipes.initialize();
 		ModDataComponents.initialize();
+		ModMobEffects.initialize();
 		ModItems.initialize();
 		InfinityBucketStorage.initialize();
 		ModArmorEvents.initialize();

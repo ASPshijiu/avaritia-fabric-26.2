@@ -35,6 +35,8 @@ import io.github.aspshijiu.avaritia26.crafting.NoConsumeCatalystShapedRecipe;
 import io.github.aspshijiu.avaritia26.entity.EndestPearlEntity;
 import io.github.aspshijiu.avaritia26.entity.BladeSlashEntity;
 import io.github.aspshijiu.avaritia26.entity.BlazeFireballEntity;
+import io.github.aspshijiu.avaritia26.entity.BurningArrowEntity;
+import io.github.aspshijiu.avaritia26.entity.BurningBallEntity;
 import io.github.aspshijiu.avaritia26.entity.GapingVoidEntity;
 import io.github.aspshijiu.avaritia26.entity.HeavenArrowEntity;
 import io.github.aspshijiu.avaritia26.entity.HeavenSubArrowEntity;
@@ -57,6 +59,7 @@ import io.github.aspshijiu.avaritia26.inventory.NeutronCompressorMenu;
 import io.github.aspshijiu.avaritia26.inventory.NeutronRingMenu;
 import io.github.aspshijiu.avaritia26.inventory.SculkCraftingMenu;
 import io.github.aspshijiu.avaritia26.item.BlazeAxeItem;
+import io.github.aspshijiu.avaritia26.item.BlazeBowItem;
 import io.github.aspshijiu.avaritia26.item.BlazeHoeItem;
 import io.github.aspshijiu.avaritia26.item.BlazePickaxeItem;
 import io.github.aspshijiu.avaritia26.item.BlazeShovelItem;
@@ -79,6 +82,7 @@ import io.github.aspshijiu.avaritia26.registry.ModDataComponents;
 import io.github.aspshijiu.avaritia26.registry.ModEntityTypes;
 import io.github.aspshijiu.avaritia26.registry.ModItems;
 import io.github.aspshijiu.avaritia26.registry.ModMenus;
+import io.github.aspshijiu.avaritia26.registry.ModMobEffects;
 import io.github.aspshijiu.avaritia26.network.SetTimePayload;
 import io.github.aspshijiu.avaritia26.registry.ModArmorMaterials;
 import io.github.aspshijiu.avaritia26.singularity.SingularityDefinition;
@@ -4351,6 +4355,82 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	}
 
 	@GameTest
+	public void blazeBowCraftsSwitchesModesAndBurnsTargets(GameTestHelper helper) {
+		ItemStack bow = new ItemStack(ModItems.BLAZE_BOW);
+		helper.assertTrue(BuiltInRegistries.ITEM.getValue(ModItems.BLAZE_BOW_KEY)
+				== ModItems.BLAZE_BOW, "烈焰弓物品未注册");
+		helper.assertTrue(bow.getMaxStackSize() == 1 && bow.getRarity() == Rarity.EPIC
+				&& bow.has(DataComponents.DAMAGE_RESISTANT) && bow.getMaxDamage() == 0,
+				"烈焰弓物品属性错误");
+		helper.assertTrue(bow.is(ItemTags.BOW_ENCHANTABLE), "烈焰弓缺少弓附魔标签");
+		helper.assertFalse(ModItems.BLAZE_BOW.isFoil(bow), "烈焰弓不应显示附魔光效");
+		helper.assertTrue(ModItems.BLAZE_BOW.getUseAnimation(bow) == ItemUseAnimation.BOW,
+				"烈焰弓没有使用拉弓动画");
+
+		CraftingInput input = blazeBowInput();
+		assertExtremeRecipe(helper, "blaze_bow", input, ModItems.BLAZE_BOW);
+		List<ItemStack> wrongStacks = copyStacks(input.items());
+		wrongStacks.set(1, new ItemStack(Items.DIRT));
+		assertExtremeRecipeDoesNotMatch(helper, "blaze_bow",
+				CraftingInput.of(input.width(), input.height(), wrongStacks));
+
+		Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+		player.setItemInHand(InteractionHand.MAIN_HAND, bow);
+		helper.assertFalse(BlazeBowItem.isBurningMode(bow), "烈焰弓默认不应处于灼烧火球模式");
+		BurningArrowEntity arrow = (BurningArrowEntity) ModItems.BLAZE_BOW.createProjectile(
+				helper.getLevel(), player, bow, 1.0F);
+		helper.assertTrue(arrow.getOwner() == player && arrow.isCritArrow()
+				&& Math.abs(arrow.getConfiguredBaseDamage() - 4.0) < 0.001
+				&& Math.abs(arrow.getDeltaMovement().length() - 3.6) < 0.1,
+				"烈焰弓满蓄力灼烧箭的归属、暴击、伤害或速度错误");
+		var arrowTarget = helper.spawnWithNoFreeWill(EntityTypes.WARDEN, new BlockPos(7, 2, 7));
+		arrow.applyImpact(helper.getLevel(), arrowTarget);
+		MobEffectInstance arrowBurning = arrowTarget.getEffect(ModMobEffects.BURNING);
+		helper.assertTrue(arrow.isRemoved() && arrowBurning != null
+				&& arrowBurning.getDuration() == BurningArrowEntity.BURNING_DURATION
+				&& arrowBurning.getAmplifier() == 0,
+				"烈焰弓灼烧箭没有施加六十秒灼烧或命中后移除");
+
+		player.setShiftKeyDown(true);
+		ModItems.BLAZE_BOW.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+		player.setShiftKeyDown(false);
+		helper.assertTrue(BlazeBowItem.isBurningMode(bow), "烈焰弓没有切换到灼烧火球模式");
+		BurningBallEntity ball = (BurningBallEntity) ModItems.BLAZE_BOW.createProjectile(
+				helper.getLevel(), player, bow, 1.0F);
+		helper.assertTrue(ball.getOwner() == player
+				&& Math.abs(ball.getDeltaMovement().length() - 3.6) < 0.1,
+				"烈焰弓灼烧火球的归属或速度错误");
+		var areaTarget = helper.spawnWithNoFreeWill(EntityTypes.WARDEN, new BlockPos(10, 2, 7));
+		var farTarget = helper.spawnWithNoFreeWill(EntityTypes.WARDEN, new BlockPos(22, 2, 7));
+		ball.applyImpact(helper.getLevel(), areaTarget.position());
+		MobEffectInstance areaBurning = areaTarget.getEffect(ModMobEffects.BURNING);
+		helper.assertTrue(areaBurning != null
+				&& areaBurning.getDuration() == BurningBallEntity.BURNING_DURATION
+				&& areaBurning.getAmplifier() == BurningBallEntity.BURNING_AMPLIFIER,
+				"烈焰弓灼烧火球没有在范围内施加三十秒灼烧 IV");
+		helper.assertFalse(player.hasEffect(ModMobEffects.BURNING), "灼烧火球不应伤害发射者");
+		helper.assertFalse(farTarget.hasEffect(ModMobEffects.BURNING), "灼烧火球影响了范围外目标");
+
+		var tickTarget = helper.spawnWithNoFreeWill(EntityTypes.RAVAGER, new BlockPos(13, 2, 7));
+		float healthBefore = tickTarget.getHealth();
+		ModMobEffects.BURNING.value().applyEffectTick(helper.getLevel(), tickTarget, 0);
+		helper.assertTrue(Math.abs(tickTarget.getHealth() - (healthBefore - tickTarget.getMaxHealth() * 0.05F)) < 0.001
+				&& tickTarget.invulnerableTime == 10,
+				"灼烧效果没有按最大生命值的百分之五造成火焰伤害");
+		helper.assertTrue(ModMobEffects.BURNING.value().shouldApplyEffectTickThisTick(20, 0)
+				&& !ModMobEffects.BURNING.value().shouldApplyEffectTickThisTick(19, 0)
+				&& ModMobEffects.BURNING.value().shouldApplyEffectTickThisTick(2, 3),
+				"灼烧效果的伤害间隔没有随等级缩短");
+
+		int useDuration = ModItems.BLAZE_BOW.getUseDuration(bow, player);
+		helper.assertTrue(ModItems.BLAZE_BOW.releaseUsing(bow, helper.getLevel(), player, useDuration - 20)
+				&& player.getCooldowns().isOnCooldown(bow),
+				"烈焰弓灼烧火球没有成功发射或添加一秒冷却");
+		helper.assertTrue(bow.getDamageValue() == 0, "上游烈焰弓不应消耗耐久");
+		helper.succeed();
+	}
+
+	@GameTest
 	public void everyBuiltInSingularityCompresses(GameTestHelper helper) {
 		BlockPos relativePos = new BlockPos(13, 0, 0);
 		helper.setBlock(relativePos, ModBlocks.NEUTRON_COMPRESSOR);
@@ -6399,6 +6479,19 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 						'A', new ItemStack(Items.BONE_BLOCK),
 						'B', new ItemStack(ModItems.DIAMOND_LATTICE),
 						'C', new ItemStack(ModItems.BLAZE_CUBE),
+						'D', new ItemStack(Items.BLAZE_POWDER),
+						'E', new ItemStack(Items.SOUL_SOIL)
+				)
+		);
+	}
+
+	private static CraftingInput blazeBowInput() {
+		return extremeInput(
+				List.of(" ABBA", "ACDDC", "BD E ", "BDE  ", "AC   "),
+				Map.of(
+						'A', new ItemStack(Items.BONE_BLOCK),
+						'B', new ItemStack(ModItems.BLAZE_CUBE),
+						'C', new ItemStack(ModItems.DIAMOND_LATTICE),
 						'D', new ItemStack(Items.BLAZE_POWDER),
 						'E', new ItemStack(Items.SOUL_SOIL)
 				)

@@ -6,6 +6,7 @@ import java.util.function.Function;
 
 import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.item.BlazeAxeItem;
+import io.github.aspshijiu.avaritia26.item.BlazeBowItem;
 import io.github.aspshijiu.avaritia26.item.BlazeHoeItem;
 import io.github.aspshijiu.avaritia26.item.BlazePickaxeItem;
 import io.github.aspshijiu.avaritia26.item.BlazeShovelItem;
@@ -309,6 +310,17 @@ public final class ModItems {
 					.fireResistant()
 					.component(ModDataComponents.BLAZE_TOOL_MODE, false)
 					.delayedComponent(DataComponents.ENCHANTMENTS, ModItems::blazeToolEnchantments)
+	);
+	public static final ResourceKey<Item> BLAZE_BOW_KEY = key("blaze_bow");
+	public static final BlazeBowItem BLAZE_BOW = register(
+			BLAZE_BOW_KEY,
+			BlazeBowItem::new,
+			new Item.Properties()
+					.rarity(Rarity.EPIC)
+					.stacksTo(1)
+					.fireResistant()
+					.enchantable(1)
+					.component(ModDataComponents.BLAZE_BOW_BURNING, false)
 	);
 	public static final ResourceKey<Item> INFINITY_HELMET_KEY = key("infinity_helmet");
 	public static final Item INFINITY_HELMET = register(

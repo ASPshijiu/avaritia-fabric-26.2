@@ -3,6 +3,8 @@ package io.github.aspshijiu.avaritia26.registry;
 import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.entity.BladeSlashEntity;
 import io.github.aspshijiu.avaritia26.entity.BlazeFireballEntity;
+import io.github.aspshijiu.avaritia26.entity.BurningArrowEntity;
+import io.github.aspshijiu.avaritia26.entity.BurningBallEntity;
 import io.github.aspshijiu.avaritia26.entity.EndestPearlEntity;
 import io.github.aspshijiu.avaritia26.entity.GapingVoidEntity;
 import io.github.aspshijiu.avaritia26.entity.HeavenArrowEntity;
@@ -18,6 +20,26 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 
 public final class ModEntityTypes {
+	public static final ResourceKey<EntityType<?>> BURNING_ARROW_KEY = key("burning_arrow");
+	public static final EntityType<BurningArrowEntity> BURNING_ARROW = Registry.register(
+			BuiltInRegistries.ENTITY_TYPE,
+			BURNING_ARROW_KEY,
+			EntityType.Builder.<BurningArrowEntity>of(BurningArrowEntity::new, MobCategory.MISC)
+					.sized(0.5F, 0.5F)
+					.clientTrackingRange(4)
+					.updateInterval(1)
+					.build(BURNING_ARROW_KEY)
+	);
+	public static final ResourceKey<EntityType<?>> BURNING_BALL_KEY = key("burning_ball");
+	public static final EntityType<BurningBallEntity> BURNING_BALL = Registry.register(
+			BuiltInRegistries.ENTITY_TYPE,
+			BURNING_BALL_KEY,
+			EntityType.Builder.<BurningBallEntity>of(BurningBallEntity::new, MobCategory.MISC)
+					.sized(0.25F, 0.25F)
+					.clientTrackingRange(4)
+					.updateInterval(10)
+					.build(BURNING_BALL_KEY)
+	);
 	public static final ResourceKey<EntityType<?>> BLAZE_FIREBALL_KEY = key("blaze_fireball");
 	public static final EntityType<BlazeFireballEntity> BLAZE_FIREBALL = Registry.register(
 			BuiltInRegistries.ENTITY_TYPE,

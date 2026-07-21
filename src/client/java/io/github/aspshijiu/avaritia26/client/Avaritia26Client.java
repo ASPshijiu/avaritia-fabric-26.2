@@ -2,6 +2,7 @@ package io.github.aspshijiu.avaritia26.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import io.github.aspshijiu.avaritia26.client.render.BladeSlashRenderer;
+import io.github.aspshijiu.avaritia26.client.render.BurningArrowRenderer;
 import io.github.aspshijiu.avaritia26.client.render.HeavenArrowRenderer;
 import io.github.aspshijiu.avaritia26.client.render.NeutronArrowRenderer;
 import io.github.aspshijiu.avaritia26.client.screen.CompressedChestScreen;
@@ -16,6 +17,7 @@ import io.github.aspshijiu.avaritia26.client.screen.NeutronCompressorScreen;
 import io.github.aspshijiu.avaritia26.client.screen.NeutronRingScreen;
 import io.github.aspshijiu.avaritia26.client.screen.SculkCraftingScreen;
 import io.github.aspshijiu.avaritia26.entity.BlazeFireballEntity;
+import io.github.aspshijiu.avaritia26.entity.BurningBallEntity;
 import io.github.aspshijiu.avaritia26.entity.EndestPearlEntity;
 import io.github.aspshijiu.avaritia26.entity.GapingVoidEntity;
 import io.github.aspshijiu.avaritia26.entity.UmbrellaProjectileEntity;
@@ -63,6 +65,9 @@ public final class Avaritia26Client implements ClientModInitializer {
 		EntityRendererRegistry.register(ModEntityTypes.ENDEST_PEARL, ThrownItemRenderer<EndestPearlEntity>::new);
 		EntityRendererRegistry.register(ModEntityTypes.BLAZE_FIREBALL,
 				ThrownItemRenderer<BlazeFireballEntity>::new);
+		EntityRendererRegistry.register(ModEntityTypes.BURNING_ARROW, BurningArrowRenderer::new);
+		EntityRendererRegistry.register(ModEntityTypes.BURNING_BALL,
+				context -> new ThrownItemRenderer<BurningBallEntity>(context, 2.0F, true));
 		EntityRendererRegistry.register(ModEntityTypes.BLADE_SLASH, BladeSlashRenderer::new);
 		EntityRendererRegistry.register(ModEntityTypes.GAPING_VOID, NoopRenderer<GapingVoidEntity>::new);
 		EntityRendererRegistry.register(ModEntityTypes.HEAVEN_ARROW, context -> new HeavenArrowRenderer<>(context));
