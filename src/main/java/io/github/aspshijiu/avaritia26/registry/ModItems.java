@@ -1,6 +1,7 @@
 package io.github.aspshijiu.avaritia26.registry;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 import io.github.aspshijiu.avaritia26.Avaritia26;
@@ -27,21 +28,27 @@ import io.github.aspshijiu.avaritia26.item.SkullFireSwordItem;
 import io.github.aspshijiu.avaritia26.item.TooltipItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Registry;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.item.SmithingTemplateItem;
 import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.ItemContainerContents;
+import net.minecraft.world.item.component.BlocksAttacks;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.item.component.Weapon;
 import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.item.equipment.Equippable;
@@ -117,6 +124,12 @@ public final class ModItems {
 					.fireResistant()
 					.enchantable(1)
 					.component(ModDataComponents.INFINITY_CROSSBOW_MULTI, false)
+	);
+	public static final ResourceKey<Item> INFINITY_SHIELD_KEY = key("infinity_shield");
+	public static final Item INFINITY_SHIELD = register(
+			INFINITY_SHIELD_KEY,
+			ShieldItem::new,
+			infinityShieldProperties()
 	);
 	public static final ResourceKey<Item> INFINITY_HELMET_KEY = key("infinity_helmet");
 	public static final Item INFINITY_HELMET = register(
@@ -374,6 +387,27 @@ public final class ModItems {
 	);
 
 	private ModItems() {
+	}
+
+	private static Item.Properties infinityShieldProperties() {
+		return new Item.Properties()
+				.rarity(Rarity.EPIC)
+				.stacksTo(1)
+				.fireResistant()
+				.equippableUnswappable(EquipmentSlot.OFFHAND)
+				.delayedComponent(DataComponents.BLOCKS_ATTACKS, ModItems::infinityBlocksAttacks);
+	}
+
+	private static BlocksAttacks infinityBlocksAttacks(HolderLookup.Provider registries) {
+		return new BlocksAttacks(
+				0.25F,
+				0.0F,
+				List.of(new BlocksAttacks.DamageReduction(90.0F, Optional.empty(), 0.0F, 1.0F)),
+				new BlocksAttacks.ItemDamageFunction(3.0F, 1.0F, 1.0F),
+				Optional.of(registries.getOrThrow(DamageTypeTags.BYPASSES_SHIELD)),
+				Optional.of(SoundEvents.SHIELD_BLOCK),
+				Optional.of(SoundEvents.SHIELD_BREAK)
+		);
 	}
 
 	public static void initialize() {

@@ -1,0 +1,26 @@
+{
+	"type": "avaritia26:extreme_shaped",
+	"category": "equipment",
+	"key": {
+		"A": "avaritia26:crystal_matrix",
+		"C": "avaritia26:crystal_matrix_ingot",
+		"D": "avaritia26:diamond_lattice",
+		"I": "avaritia26:infinity_ingot",
+		"M": "avaritia26:neutron",
+		"N": "avaritia26:neutron_ingot",
+		"S": "minecraft:shield",
+		"X": "avaritia26:infinity_catalyst"
+	},
+	"pattern": [
+		" MNNCNNM ",
+		" NCCDCCN ",
+		" NSIIISN ",
+		" NIAAAIN ",
+		" NIAXAIN ",
+		" NIAAAIN ",
+		" NSIIISN ",
+		" NCCDCCN ",
+		" MNNCNNM "
+	],
+	"result": {"count": 1, "id": "avaritia26:infinity_shield"}
+}

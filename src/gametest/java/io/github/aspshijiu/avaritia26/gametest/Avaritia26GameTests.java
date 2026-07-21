@@ -126,12 +126,14 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.item.SmithingTemplateItem;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.Consumable;
 import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.item.component.ChargedProjectiles;
+import net.minecraft.world.item.component.BlocksAttacks;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.component.UseCooldown;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
@@ -3497,6 +3499,43 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	}
 
 	@GameTest
+	public void infinityShieldCraftsBlocksForeverAndCannotBeDisabled(GameTestHelper helper) {
+		ItemStack shield = new ItemStack(ModItems.INFINITY_SHIELD);
+		helper.assertTrue(BuiltInRegistries.ITEM.getValue(ModItems.INFINITY_SHIELD_KEY)
+				== ModItems.INFINITY_SHIELD, "无尽盾物品未注册");
+		helper.assertTrue(ModItems.INFINITY_SHIELD instanceof ShieldItem, "无尽盾没有使用原版盾牌行为");
+		helper.assertTrue(shield.getMaxStackSize() == 1 && shield.getRarity() == Rarity.EPIC
+				&& shield.has(DataComponents.DAMAGE_RESISTANT), "无尽盾物品属性错误");
+		helper.assertFalse(shield.isDamageableItem(), "无尽盾不应存在可损耗耐久");
+		BlocksAttacks blocking = shield.get(DataComponents.BLOCKS_ATTACKS);
+		helper.assertTrue(blocking != null, "无尽盾缺少 26.2 格挡组件");
+		helper.assertTrue(blocking.blockDelayTicks() == 5, "无尽盾应保留原版五刻起防延迟");
+		helper.assertTrue(blocking.disableCooldownScale() == 0.0F, "无尽盾仍可被斧类禁用");
+
+		CraftingInput input = infinityShieldInput();
+		assertExtremeRecipe(helper, "infinity_shield", input, ModItems.INFINITY_SHIELD);
+		List<ItemStack> wrongStacks = copyStacks(input.items());
+		wrongStacks.set(31, new ItemStack(Items.DIRT));
+		assertExtremeRecipeDoesNotMatch(
+				helper,
+				"infinity_shield",
+				CraftingInput.of(input.width(), input.height(), wrongStacks)
+		);
+
+		Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+		player.setItemInHand(InteractionHand.OFF_HAND, shield);
+		helper.assertTrue(ModItems.INFINITY_SHIELD.use(helper.getLevel(), player, InteractionHand.OFF_HAND)
+				.consumesAction() && player.isUsingItem(), "无尽盾右键没有进入格挡状态");
+		blocking.disable(helper.getLevel(), player, 5.0F, shield);
+		helper.assertTrue(player.isUsingItem() && !player.getCooldowns().isOnCooldown(shield),
+				"斧类禁用仍中断了无尽盾格挡或添加冷却");
+		blocking.hurtBlockingItem(helper.getLevel(), shield, player, InteractionHand.OFF_HAND, 1000.0F);
+		helper.assertTrue(!shield.isDamageableItem() && shield.getDamageValue() == 0,
+				"无尽盾承受高额格挡伤害后产生了耐久损耗");
+		helper.succeed();
+	}
+
+	@GameTest
 	public void everyBuiltInSingularityCompresses(GameTestHelper helper) {
 		BlockPos relativePos = new BlockPos(13, 0, 0);
 		helper.setBlock(relativePos, ModBlocks.NEUTRON_COMPRESSOR);
@@ -5291,6 +5330,32 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 						'I', new ItemStack(ModItems.INFINITY_INGOT),
 						'N', new ItemStack(ModItems.NEUTRON_INGOT),
 						'P', new ItemStack(ModItems.NEUTRON_PILE),
+						'X', new ItemStack(ModItems.INFINITY_CATALYST)
+				)
+		);
+	}
+
+	private static CraftingInput infinityShieldInput() {
+		return extremeInput(
+				List.of(
+						" MNNCNNM ",
+						" NCCDCCN ",
+						" NSIIISN ",
+						" NIAAAIN ",
+						" NIAXAIN ",
+						" NIAAAIN ",
+						" NSIIISN ",
+						" NCCDCCN ",
+						" MNNCNNM "
+				),
+				Map.of(
+						'A', new ItemStack(ModBlocks.CRYSTAL_MATRIX_ITEM),
+						'C', new ItemStack(ModItems.CRYSTAL_MATRIX_INGOT),
+						'D', new ItemStack(ModItems.DIAMOND_LATTICE),
+						'I', new ItemStack(ModItems.INFINITY_INGOT),
+						'M', new ItemStack(ModBlocks.NEUTRON_ITEM),
+						'N', new ItemStack(ModItems.NEUTRON_INGOT),
+						'S', new ItemStack(Items.SHIELD),
 						'X', new ItemStack(ModItems.INFINITY_CATALYST)
 				)
 		);
