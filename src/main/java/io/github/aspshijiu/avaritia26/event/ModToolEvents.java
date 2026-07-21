@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 
+import io.github.aspshijiu.avaritia26.item.BlazeHoeItem;
 import io.github.aspshijiu.avaritia26.item.CrystalPickaxeItem;
 import io.github.aspshijiu.avaritia26.item.InfinityAxeItem;
 import io.github.aspshijiu.avaritia26.item.InfinityPickaxeItem;
@@ -15,17 +16,25 @@ import io.github.aspshijiu.avaritia26.item.MatterClusterItem;
 import io.github.aspshijiu.avaritia26.registry.ModItems;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
+import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.phys.Vec3;
 
 public final class ModToolEvents {
 	private static final int RANGE = 8;
@@ -37,6 +46,36 @@ public final class ModToolEvents {
 
 	public static void initialize() {
 		AttackBlockCallback.EVENT.register(ModToolEvents::breakWithInfinityTool);
+		LootTableEvents.MODIFY_DROPS.register((table, context, drops) -> smeltBlazeHoeDrops(context, drops));
+	}
+
+	private static void smeltBlazeHoeDrops(LootContext context, List<ItemStack> drops) {
+		BlockState state = context.getOptionalParameter(LootContextParams.BLOCK_STATE);
+		var item = context.getOptionalParameter(LootContextParams.TOOL);
+		if (!(item instanceof ItemStack tool)
+				|| !tool.is(ModItems.BLAZE_HOE)
+				|| !BlazeHoeItem.isSmeltingEnabled(tool)
+				|| state == null
+				|| state.getBlock() instanceof CropBlock) {
+			return;
+		}
+		ServerLevel level = context.getLevel();
+		boolean changed = false;
+		for (int index = 0; index < drops.size(); index++) {
+			ItemStack input = drops.get(index);
+			ItemStack output = BlazeHoeItem.smeltDrop(level, input);
+			if (!ItemStack.matches(input, output)) {
+				drops.set(index, output);
+				changed = true;
+			}
+		}
+		Vec3 origin = context.getOptionalParameter(LootContextParams.ORIGIN);
+		if (changed && origin != null) {
+			level.sendParticles(ParticleTypes.FLAME, origin.x, origin.y + 0.5, origin.z,
+					10, 0.35, 0.35, 0.35, 0.02);
+			level.playSound(null, BlockPos.containing(origin), SoundEvents.FIRECHARGE_USE,
+					SoundSource.BLOCKS, 1.0F, 1.0F);
+		}
 	}
 
 	private static InteractionResult breakWithInfinityTool(

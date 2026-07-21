@@ -56,10 +56,11 @@ import io.github.aspshijiu.avaritia26.inventory.NeutronCollectorMenu;
 import io.github.aspshijiu.avaritia26.inventory.NeutronCompressorMenu;
 import io.github.aspshijiu.avaritia26.inventory.NeutronRingMenu;
 import io.github.aspshijiu.avaritia26.inventory.SculkCraftingMenu;
-import io.github.aspshijiu.avaritia26.item.MatterClusterItem;
-import io.github.aspshijiu.avaritia26.item.CrystalBowItem;
+import io.github.aspshijiu.avaritia26.item.BlazeHoeItem;
 import io.github.aspshijiu.avaritia26.item.BlazeSwordItem;
+import io.github.aspshijiu.avaritia26.item.CrystalBowItem;
 import io.github.aspshijiu.avaritia26.item.CrystalSwordItem;
+import io.github.aspshijiu.avaritia26.item.MatterClusterItem;
 import io.github.aspshijiu.avaritia26.item.NeutronRingItem;
 import io.github.aspshijiu.avaritia26.item.InfinityArmorItem;
 import io.github.aspshijiu.avaritia26.item.InfinityBucketItem;
@@ -4118,6 +4119,76 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	}
 
 	@GameTest
+	public void blazeHoeCraftsTillsSoulSoilAndSmeltsDrops(GameTestHelper helper) {
+		ItemStack hoe = new ItemStack(ModItems.BLAZE_HOE);
+		helper.assertTrue(BuiltInRegistries.ITEM.getValue(ModItems.BLAZE_HOE_KEY)
+				== ModItems.BLAZE_HOE, "烈焰锄物品未注册");
+		helper.assertTrue(hoe.getMaxStackSize() == 1 && hoe.getRarity() == Rarity.EPIC
+				&& hoe.has(DataComponents.DAMAGE_RESISTANT) && hoe.getMaxDamage() == 7777,
+				"烈焰锄物品属性或耐久错误");
+		helper.assertTrue(hoe.is(ItemTags.HOES), "烈焰锄缺少原版锄标签");
+		helper.assertFalse(ModItems.BLAZE_HOE.isFoil(hoe), "烈焰锄不应显示附魔光效");
+		var modifiers = hoe.get(DataComponents.ATTRIBUTE_MODIFIERS);
+		helper.assertTrue(modifiers != null
+				&& modifiers.compute(Attributes.ATTACK_DAMAGE, 1.0, EquipmentSlot.MAINHAND) == 26.0
+				&& modifiers.compute(Attributes.ATTACK_SPEED, 4.0, EquipmentSlot.MAINHAND) == 29.0,
+				"烈焰锄没有保留上游二十五点伤害与攻速增幅");
+		var enchantments = helper.getLevel().registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+		helper.assertTrue(EnchantmentHelper.getItemEnchantmentLevel(
+				enchantments.getOrThrow(Enchantments.FIRE_ASPECT), hoe) == 10,
+				"烈焰锄没有自带火焰附加 X");
+
+		CraftingInput input = blazeHoeInput();
+		assertExtremeRecipe(helper, "blaze_hoe", input, ModItems.BLAZE_HOE);
+		List<ItemStack> wrongStacks = copyStacks(input.items());
+		wrongStacks.set(2, new ItemStack(Items.DIRT));
+		assertExtremeRecipeDoesNotMatch(helper, "blaze_hoe",
+				CraftingInput.of(input.width(), input.height(), wrongStacks));
+
+		Player player = helper.makeMockServerPlayer(GameType.SURVIVAL);
+		player.setItemInHand(InteractionHand.MAIN_HAND, hoe);
+		BlockPos dirtPos = new BlockPos(7, 2, 7);
+		helper.setBlock(dirtPos, Blocks.DIRT);
+		BlockPos absoluteDirtPos = helper.absolutePos(dirtPos);
+		InteractionResult tillResult = ModItems.BLAZE_HOE.useOn(new UseOnContext(
+				player, InteractionHand.MAIN_HAND,
+				new BlockHitResult(Vec3.atCenterOf(absoluteDirtPos), Direction.UP, absoluteDirtPos, false)));
+		helper.assertTrue(tillResult.consumesAction() && helper.getBlockState(dirtPos).is(Blocks.FARMLAND),
+				"烈焰锄关闭熔炼模式时没有保留原版耕作能力");
+
+		player.setShiftKeyDown(true);
+		ModItems.BLAZE_HOE.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+		player.setShiftKeyDown(false);
+		helper.assertTrue(BlazeHoeItem.isSmeltingEnabled(hoe), "烈焰锄没有开启熔炼模式");
+		BlockPos soulPos = new BlockPos(10, 2, 7);
+		helper.setBlock(soulPos, Blocks.SOUL_SAND);
+		BlockPos absoluteSoulPos = helper.absolutePos(soulPos);
+		UseOnContext soulContext = new UseOnContext(player, InteractionHand.MAIN_HAND,
+				new BlockHitResult(Vec3.atCenterOf(absoluteSoulPos), Direction.UP, absoluteSoulPos, false));
+		ModItems.BLAZE_HOE.useOn(soulContext);
+		helper.assertTrue(helper.getBlockState(soulPos).is(Blocks.SOUL_SOIL),
+				"烈焰锄没有把灵魂沙转化为灵魂土");
+		ModItems.BLAZE_HOE.useOn(soulContext);
+		helper.assertTrue(helper.getBlockState(soulPos).is(ModBlocks.SOUL_FARMLAND),
+				"烈焰锄没有把灵魂土耕成灵魂耕地");
+
+		BlockPos orePos = new BlockPos(13, 2, 7);
+		helper.setBlock(orePos, Blocks.IRON_ORE);
+		List<ItemStack> oreDrops = Block.getDrops(helper.getBlockState(orePos), helper.getLevel(),
+				helper.absolutePos(orePos), null, player, hoe);
+		helper.assertTrue(oreDrops.size() == 1 && oreDrops.getFirst().is(Items.IRON_INGOT),
+				"烈焰锄熔炼模式没有把铁矿掉落物自动熔炼成铁锭：" + oreDrops);
+
+		BlockPos cropPos = new BlockPos(16, 2, 7);
+		helper.setBlock(cropPos, Blocks.POTATOES.defaultBlockState().setValue(CropBlock.AGE, CropBlock.MAX_AGE));
+		List<ItemStack> cropDrops = Block.getDrops(helper.getBlockState(cropPos), helper.getLevel(),
+				helper.absolutePos(cropPos), null, player, hoe);
+		helper.assertFalse(cropDrops.stream().anyMatch(stack -> stack.is(Items.BAKED_POTATO)),
+				"烈焰锄不应自动熔炼农作物掉落");
+		helper.succeed();
+	}
+
+	@GameTest
 	public void everyBuiltInSingularityCompresses(GameTestHelper helper) {
 		BlockPos relativePos = new BlockPos(13, 0, 0);
 		helper.setBlock(relativePos, ModBlocks.NEUTRON_COMPRESSOR);
@@ -6110,6 +6181,19 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	private static CraftingInput blazeSwordInput() {
 		return extremeInput(
 				List.of("   DC", "A DCD", "ADCD ", " ED  ", "B AA "),
+				Map.of(
+						'A', new ItemStack(Items.BONE_BLOCK),
+						'B', new ItemStack(ModItems.DIAMOND_LATTICE),
+						'C', new ItemStack(ModItems.BLAZE_CUBE),
+						'D', new ItemStack(Items.BLAZE_POWDER),
+						'E', new ItemStack(Items.SOUL_SOIL)
+				)
+		);
+	}
+
+	private static CraftingInput blazeHoeInput() {
+		return extremeInput(
+				List.of("DDCCA", " DDAC", "  A D", " E   ", "B    "),
 				Map.of(
 						'A', new ItemStack(Items.BONE_BLOCK),
 						'B', new ItemStack(ModItems.DIAMOND_LATTICE),
