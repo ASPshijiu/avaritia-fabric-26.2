@@ -1,0 +1,27 @@
+{
+	"type": "avaritia26:extreme_shaped",
+	"category": "equipment",
+	"key": {
+		"A": "avaritia26:crystal_matrix",
+		"C": "avaritia26:crystal_matrix_ingot",
+		"I": "avaritia26:infinity_ingot",
+		"N": "avaritia26:neutron_ingot",
+		"P": "avaritia26:neutron_pile",
+		"X": "avaritia26:infinity_catalyst"
+	},
+	"pattern": [
+		"   IIIIIP",
+		" AC N  C ",
+		" CXN  C  ",
+		"I NIPC   ",
+		"IN PCN   ",
+		"I  CNIN  ",
+		"I C  NNA ",
+		"IC    AAN",
+		"P      NN"
+	],
+	"result": {
+		"count": 1,
+		"id": "avaritia26:infinity_crossbow"
+	}
+}

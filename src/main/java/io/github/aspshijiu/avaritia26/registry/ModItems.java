@@ -11,6 +11,7 @@ import io.github.aspshijiu.avaritia26.item.InfinityArmorItem;
 import io.github.aspshijiu.avaritia26.item.InfinityBowItem;
 import io.github.aspshijiu.avaritia26.item.InfinityBucketItem;
 import io.github.aspshijiu.avaritia26.item.InfinityClockItem;
+import io.github.aspshijiu.avaritia26.item.InfinityCrossbowItem;
 import io.github.aspshijiu.avaritia26.item.InfinityHoeItem;
 import io.github.aspshijiu.avaritia26.item.InfinityPickaxeItem;
 import io.github.aspshijiu.avaritia26.item.InfinityShovelItem;
@@ -105,6 +106,17 @@ public final class ModItems {
 			INFINITY_BUCKET_KEY,
 			InfinityBucketItem::new,
 			new Item.Properties().rarity(Rarity.EPIC).stacksTo(1).fireResistant()
+	);
+	public static final ResourceKey<Item> INFINITY_CROSSBOW_KEY = key("infinity_crossbow");
+	public static final Item INFINITY_CROSSBOW = register(
+			INFINITY_CROSSBOW_KEY,
+			InfinityCrossbowItem::new,
+			new Item.Properties()
+					.rarity(Rarity.EPIC)
+					.stacksTo(1)
+					.fireResistant()
+					.enchantable(1)
+					.component(ModDataComponents.INFINITY_CROSSBOW_MULTI, false)
 	);
 	public static final ResourceKey<Item> INFINITY_HELMET_KEY = key("infinity_helmet");
 	public static final Item INFINITY_HELMET = register(

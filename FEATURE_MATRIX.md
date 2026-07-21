@@ -80,7 +80,7 @@
 | `infinity_clock` | 无尽时钟 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
 | `side_config_card` | 侧面配置卡 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
 | `infinity_bucket` | 无尽桶 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `infinity_crossbow` | 无尽弩 | 未开始 | — | — | — | — | — |
+| `infinity_crossbow` | 无尽弩 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
 | `infinity_shield` | 无尽盾 | 未开始 | — | — | — | — | — |
 | `infinity_trident` | 无尽三叉戟 | 未开始 | — | — | — | — | — |
 | `infinity_mace` | 无尽重锤 | 未开始 | — | — | — | — | — |

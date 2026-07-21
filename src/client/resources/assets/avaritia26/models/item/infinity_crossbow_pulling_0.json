@@ -1,0 +1,6 @@
+{
+	"parent": "avaritia26:item/infinity_crossbow",
+	"textures": {
+		"layer0": "avaritia26:item/tools/infinity_crossbow/pull_0"
+	}
+}

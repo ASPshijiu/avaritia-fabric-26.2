@@ -56,6 +56,7 @@ import io.github.aspshijiu.avaritia26.item.NeutronRingItem;
 import io.github.aspshijiu.avaritia26.item.InfinityArmorItem;
 import io.github.aspshijiu.avaritia26.item.InfinityBucketItem;
 import io.github.aspshijiu.avaritia26.item.InfinityClockItem;
+import io.github.aspshijiu.avaritia26.item.InfinityCrossbowItem;
 import io.github.aspshijiu.avaritia26.item.InfinityUmbrellaItem;
 import io.github.aspshijiu.avaritia26.item.SingularityItem;
 import io.github.aspshijiu.avaritia26.registry.ModBlockEntities;
@@ -108,6 +109,16 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
+import net.minecraft.world.entity.projectile.FireworkRocketEntity;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.entity.projectile.arrow.Arrow;
+import net.minecraft.world.entity.projectile.arrow.SpectralArrow;
+import net.minecraft.world.entity.projectile.arrow.ThrownTrident;
+import net.minecraft.world.entity.projectile.hurtingprojectile.SmallFireball;
+import net.minecraft.world.entity.projectile.hurtingprojectile.windcharge.WindCharge;
+import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
+import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEgg;
+import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEnderpearl;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.CraftingMenu;
@@ -120,6 +131,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.Consumable;
 import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.item.component.ItemContainerContents;
+import net.minecraft.world.item.component.ChargedProjectiles;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.component.UseCooldown;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
@@ -3398,6 +3410,93 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	}
 
 	@GameTest
+	public void infinityCrossbowCraftsChargesAndFiresEveryAmmoType(GameTestHelper helper) {
+		ItemStack crossbow = new ItemStack(ModItems.INFINITY_CROSSBOW);
+		helper.assertTrue(BuiltInRegistries.ITEM.getValue(ModItems.INFINITY_CROSSBOW_KEY)
+				== ModItems.INFINITY_CROSSBOW, "无尽弩物品未注册");
+		helper.assertTrue(BuiltInRegistries.DATA_COMPONENT_TYPE.getValue(Avaritia26.id("infinity_crossbow_multi"))
+				== ModDataComponents.INFINITY_CROSSBOW_MULTI, "无尽弩多重射击组件未注册");
+		helper.assertTrue(crossbow.getMaxStackSize() == 1 && crossbow.getRarity() == Rarity.EPIC
+				&& crossbow.has(DataComponents.DAMAGE_RESISTANT), "无尽弩物品属性错误");
+		helper.assertFalse(InfinityCrossbowItem.isMulti(crossbow), "无尽弩默认不应启用多重射击");
+
+		CraftingInput input = infinityCrossbowInput();
+		assertExtremeRecipe(helper, "infinity_crossbow", input, ModItems.INFINITY_CROSSBOW);
+		List<ItemStack> wrongStacks = copyStacks(input.items());
+		wrongStacks.set(4, new ItemStack(Items.DIRT));
+		assertExtremeRecipeDoesNotMatch(helper, "infinity_crossbow", CraftingInput.of(9, 9, wrongStacks));
+
+		List<Component> tooltip = new java.util.ArrayList<>();
+		ModItems.INFINITY_CROSSBOW.appendHoverText(
+				crossbow, Item.TooltipContext.of(helper.getLevel()), TooltipDisplay.DEFAULT,
+				tooltip::add, TooltipFlag.NORMAL
+		);
+		helper.assertTrue(tooltip.size() == 2, "无尽弩缺少无限等级或射击模式说明");
+
+		Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+		player.getInventory().setSelectedSlot(0);
+		player.setItemInHand(InteractionHand.MAIN_HAND, crossbow);
+		player.setPos(Vec3.atCenterOf(helper.absolutePos(new BlockPos(10, 2, 10))));
+		assertCrossbowProjectile(helper, player, crossbow, Items.ARROW, Arrow.class, "普通箭");
+		assertCrossbowProjectile(helper, player, crossbow, Items.TIPPED_ARROW, Arrow.class, "药箭");
+		assertCrossbowProjectile(helper, player, crossbow, Items.SPECTRAL_ARROW, SpectralArrow.class, "光灵箭");
+		assertCrossbowProjectile(helper, player, crossbow, Items.ENDER_PEARL, ThrownEnderpearl.class, "末影珍珠");
+		assertCrossbowProjectile(helper, player, crossbow, Items.FIRE_CHARGE, SmallFireball.class, "火焰弹");
+		assertCrossbowProjectile(helper, player, crossbow, Items.FIREWORK_ROCKET, FireworkRocketEntity.class, "烟花火箭");
+		assertCrossbowProjectile(helper, player, crossbow, Items.TRIDENT, ThrownTrident.class, "三叉戟");
+		assertCrossbowProjectile(helper, player, crossbow, Items.SNOWBALL, Snowball.class, "雪球");
+		assertCrossbowProjectile(helper, player, crossbow, Items.EGG, ThrownEgg.class, "鸡蛋");
+		assertCrossbowProjectile(helper, player, crossbow, ModItems.ENDEST_PEARL, EndestPearlEntity.class, "终望珍珠");
+		assertCrossbowProjectile(helper, player, crossbow, Items.WIND_CHARGE, WindCharge.class, "风弹");
+		assertCrossbowProjectile(helper, player, crossbow, Items.TNT, HeavenArrowEntity.class, "TNT");
+
+		ItemStack enderPearls = new ItemStack(Items.ENDER_PEARL, 16);
+		player.setItemInHand(InteractionHand.OFF_HAND, enderPearls);
+		helper.assertTrue(ModItems.INFINITY_CROSSBOW.use(helper.getLevel(), player, InteractionHand.MAIN_HAND)
+				.consumesAction() && player.isUsingItem(), "无尽弩没有开始十刻蓄力");
+		ModItems.INFINITY_CROSSBOW.onUseTick(helper.getLevel(), player, crossbow, 1);
+		ChargedProjectiles charged = crossbow.getOrDefault(DataComponents.CHARGED_PROJECTILES, ChargedProjectiles.EMPTY);
+		helper.assertTrue(!charged.isEmpty() && charged.itemCopies().getFirst().is(Items.ENDER_PEARL),
+				"无尽弩没有保存实际装填的末影珍珠");
+		helper.assertTrue(enderPearls.getCount() == 16, "无尽弩蓄力不应消耗副手弹药");
+
+		player.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(Items.SNOWBALL, 16));
+		ModItems.INFINITY_CROSSBOW.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+		List<ThrownEnderpearl> pearls = helper.getLevel().getEntitiesOfClass(
+				ThrownEnderpearl.class, player.getBoundingBox().inflate(16.0)
+		);
+		helper.assertTrue(pearls.size() == 1, "无尽弩应发射蓄力时保存的末影珍珠，而非当前副手弹药");
+		helper.assertFalse(crossbow.has(DataComponents.CHARGED_PROJECTILES), "无尽弩射击后没有清除装填状态");
+		helper.assertTrue(player.getCooldowns().isOnCooldown(crossbow), "无尽弩单发后没有进入冷却");
+
+		player.setShiftKeyDown(true);
+		ModItems.INFINITY_CROSSBOW.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+		player.setShiftKeyDown(false);
+		helper.assertTrue(InfinityCrossbowItem.isMulti(crossbow), "无尽弩潜行右键没有启用多重射击");
+		ModItems.INFINITY_CROSSBOW.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+		ModItems.INFINITY_CROSSBOW.onUseTick(helper.getLevel(), player, crossbow, 1);
+		ModItems.INFINITY_CROSSBOW.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+		List<Snowball> snowballs = helper.getLevel().getEntitiesOfClass(
+				Snowball.class, player.getBoundingBox().inflate(16.0)
+		);
+		helper.assertTrue(snowballs.size() == 5, "无尽弩多重射击应生成五枚不同角度的雪球");
+		helper.assertTrue(player.getOffhandItem().getCount() == 16, "无尽弩五连发不应消耗副手弹药");
+
+		player.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(Items.DIRT));
+		player.setShiftKeyDown(false);
+		crossbow.set(ModDataComponents.INFINITY_CROSSBOW_MULTI, false);
+		ModItems.INFINITY_CROSSBOW.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+		ModItems.INFINITY_CROSSBOW.onUseTick(helper.getLevel(), player, crossbow, 1);
+		ModItems.INFINITY_CROSSBOW.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+		List<HeavenArrowEntity> heavenArrows = helper.getLevel().getEntitiesOfClass(
+				HeavenArrowEntity.class, player.getBoundingBox().inflate(16.0)
+		);
+		helper.assertTrue(heavenArrows.size() == 1, "副手没有支持弹药时无尽弩没有发射天堂箭");
+		helper.assertTrue(player.getOffhandItem().is(Items.DIRT), "无尽弩默认天堂箭不应修改副手物品");
+		helper.succeed();
+	}
+
+	@GameTest
 	public void everyBuiltInSingularityCompresses(GameTestHelper helper) {
 		BlockPos relativePos = new BlockPos(13, 0, 0);
 		helper.setBlock(relativePos, ModBlocks.NEUTRON_COMPRESSOR);
@@ -5171,6 +5270,46 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 			}
 		}
 		return CraftingInput.of(9, 9, stacks);
+	}
+
+	private static CraftingInput infinityCrossbowInput() {
+		return extremeInput(
+				List.of(
+						"   IIIIIP",
+						" AC N  C ",
+						" CXN  C  ",
+						"I NIPC   ",
+						"IN PCN   ",
+						"I  CNIN  ",
+						"I C  NNA ",
+						"IC    AAN",
+						"P      NN"
+				),
+				Map.of(
+						'A', new ItemStack(ModBlocks.CRYSTAL_MATRIX_ITEM),
+						'C', new ItemStack(ModItems.CRYSTAL_MATRIX_INGOT),
+						'I', new ItemStack(ModItems.INFINITY_INGOT),
+						'N', new ItemStack(ModItems.NEUTRON_INGOT),
+						'P', new ItemStack(ModItems.NEUTRON_PILE),
+						'X', new ItemStack(ModItems.INFINITY_CATALYST)
+				)
+		);
+	}
+
+	private static void assertCrossbowProjectile(
+			GameTestHelper helper,
+			Player player,
+			ItemStack crossbow,
+			Item ammo,
+			Class<? extends Projectile> expectedType,
+			String name
+	) {
+		Projectile projectile = InfinityCrossbowItem.createProjectile(
+				helper.getLevel(), player, new ItemStack(ammo), crossbow
+		);
+		helper.assertTrue(expectedType.isInstance(projectile), "无尽弩没有为" + name + "创建正确投射物");
+		helper.assertTrue(InfinityCrossbowItem.isAmmo(new ItemStack(ammo)), "无尽弩没有识别" + name + "弹药");
+		projectile.discard();
 	}
 
 	private static CraftingInput infinityHelmetInput() {

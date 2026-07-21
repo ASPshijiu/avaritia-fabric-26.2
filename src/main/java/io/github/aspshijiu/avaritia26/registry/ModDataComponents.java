@@ -46,6 +46,14 @@ public final class ModDataComponents {
 					.networkSynchronized(ByteBufCodecs.INT)
 					.build()
 	);
+	public static final DataComponentType<Boolean> INFINITY_CROSSBOW_MULTI = Registry.register(
+			BuiltInRegistries.DATA_COMPONENT_TYPE,
+			Avaritia26.id("infinity_crossbow_multi"),
+			DataComponentType.<Boolean>builder()
+					.persistent(Codec.BOOL)
+					.networkSynchronized(ByteBufCodecs.BOOL)
+					.build()
+	);
 	public static final DataComponentType<SideConfiguration> SIDE_CONFIGURATION = Registry.register(
 			BuiltInRegistries.DATA_COMPONENT_TYPE,
 			Avaritia26.id("side_configuration"),
