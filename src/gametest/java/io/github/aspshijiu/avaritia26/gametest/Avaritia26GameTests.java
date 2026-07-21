@@ -1582,6 +1582,23 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 
 		Player player = helper.makeMockServerPlayer(GameType.SURVIVAL);
 		player.setItemInHand(InteractionHand.MAIN_HAND, pickaxe);
+		BlockPos normalOrigin = new BlockPos(40, 10, 40);
+		BlockPos normalNeighbor = normalOrigin.east();
+		helper.setBlock(normalOrigin, Blocks.STONE);
+		helper.setBlock(normalNeighbor, Blocks.STONE);
+		BlockPos absoluteNormalOrigin = helper.absolutePos(normalOrigin);
+		player.setPos(absoluteNormalOrigin.getX() + 0.5, absoluteNormalOrigin.getY(), absoluteNormalOrigin.getZ() + 0.5);
+		InteractionResult normalResult = AttackBlockCallback.EVENT.invoker().interact(
+				player,
+				helper.getLevel(),
+				InteractionHand.MAIN_HAND,
+				absoluteNormalOrigin,
+				Direction.UP
+		);
+		helper.assertTrue(normalResult.consumesAction(), "无尽镐普通模式没有接管瞬时开采");
+		helper.assertBlockPresent(Blocks.AIR, normalOrigin);
+		helper.assertBlockPresent(Blocks.STONE, normalNeighbor);
+
 		player.setShiftKeyDown(true);
 		ModItems.INFINITY_PICKAXE.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
 		helper.assertTrue(pickaxe.getOrDefault(ModDataComponents.INFINITY_PICKAXE_HAMMER, false), "无尽镐没有切换到锤模式");

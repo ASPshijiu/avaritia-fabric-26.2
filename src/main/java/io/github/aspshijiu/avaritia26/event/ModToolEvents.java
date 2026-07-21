@@ -109,6 +109,20 @@ public final class ModToolEvents {
 					? InteractionResult.SUCCESS_SERVER
 					: InteractionResult.PASS;
 		}
+		if (tool.is(ModItems.INFINITY_PICKAXE) && !InfinityPickaxeItem.isHammer(tool)
+				&& tool.isCorrectToolForDrops(originState)) {
+			if (!(level instanceof ServerLevel serverLevel)) {
+				return InteractionResult.SUCCESS;
+			}
+			List<ItemStack> drops = new ArrayList<>();
+			if (!breakBlock(serverLevel, player, tool, origin, drops, state -> tool.isCorrectToolForDrops(state))) {
+				return InteractionResult.PASS;
+			}
+			for (ItemStack drop : drops) {
+				Block.popResource(serverLevel, origin, drop);
+			}
+			return InteractionResult.SUCCESS_SERVER;
+		}
 		boolean activePickaxe = tool.is(ModItems.INFINITY_PICKAXE) && InfinityPickaxeItem.isHammer(tool);
 		boolean activeShovel = tool.is(ModItems.INFINITY_SHOVEL) && InfinityShovelItem.isDestroyer(tool);
 		if ((!activePickaxe && !activeShovel) || !tool.isCorrectToolForDrops(originState)) {
