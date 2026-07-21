@@ -29,6 +29,11 @@ public final class ModCombatEvents {
 		ServerLivingEntityEvents.AFTER_DEATH.register(ModCombatEvents::dropWitherSkeletonSkull);
 		ServerLivingEntityEvents.ALLOW_DEATH.register(ModCombatEvents::useInfinityTotem);
 		AttackEntityCallback.EVENT.register((player, level, hand, entity, hitResult) -> {
+			if (player.getItemInHand(hand).is(ModItems.CRYSTAL_SWORD)) {
+				player.resetAttackStrengthTicker();
+				entity.setInvulnerable(false);
+				return InteractionResult.PASS;
+			}
 			if (!(level instanceof ServerLevel serverLevel)
 					|| !(entity instanceof LivingEntity target)
 					|| !player.getItemInHand(hand).is(ModItems.INFINITY_SWORD)) {

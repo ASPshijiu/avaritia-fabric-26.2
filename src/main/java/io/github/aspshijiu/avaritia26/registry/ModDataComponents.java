@@ -62,6 +62,14 @@ public final class ModDataComponents {
 					.networkSynchronized(ByteBufCodecs.INT)
 					.build()
 	);
+	public static final DataComponentType<Boolean> CRYSTAL_BLADE_SLASH = Registry.register(
+			BuiltInRegistries.DATA_COMPONENT_TYPE,
+			Avaritia26.id("crystal_blade_slash"),
+			DataComponentType.<Boolean>builder()
+					.persistent(Codec.BOOL)
+					.networkSynchronized(ByteBufCodecs.BOOL)
+					.build()
+	);
 	public static final DataComponentType<SideConfiguration> SIDE_CONFIGURATION = Registry.register(
 			BuiltInRegistries.DATA_COMPONENT_TYPE,
 			Avaritia26.id("side_configuration"),

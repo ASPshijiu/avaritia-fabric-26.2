@@ -33,6 +33,7 @@ import io.github.aspshijiu.avaritia26.component.ClockAccelerationData;
 import io.github.aspshijiu.avaritia26.component.SideConfiguration;
 import io.github.aspshijiu.avaritia26.crafting.NoConsumeCatalystShapedRecipe;
 import io.github.aspshijiu.avaritia26.entity.EndestPearlEntity;
+import io.github.aspshijiu.avaritia26.entity.BladeSlashEntity;
 import io.github.aspshijiu.avaritia26.entity.GapingVoidEntity;
 import io.github.aspshijiu.avaritia26.entity.HeavenArrowEntity;
 import io.github.aspshijiu.avaritia26.entity.HeavenSubArrowEntity;
@@ -53,6 +54,7 @@ import io.github.aspshijiu.avaritia26.inventory.NeutronCompressorMenu;
 import io.github.aspshijiu.avaritia26.inventory.NeutronRingMenu;
 import io.github.aspshijiu.avaritia26.inventory.SculkCraftingMenu;
 import io.github.aspshijiu.avaritia26.item.MatterClusterItem;
+import io.github.aspshijiu.avaritia26.item.CrystalSwordItem;
 import io.github.aspshijiu.avaritia26.item.NeutronRingItem;
 import io.github.aspshijiu.avaritia26.item.InfinityArmorItem;
 import io.github.aspshijiu.avaritia26.item.InfinityBucketItem;
@@ -3465,11 +3467,13 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.assertTrue(enderPearls.getCount() == 16, "无尽弩蓄力不应消耗副手弹药");
 
 		player.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(Items.SNOWBALL, 16));
+		int pearlsBefore = helper.getLevel().getEntitiesOfClass(
+				ThrownEnderpearl.class, player.getBoundingBox().inflate(16.0)).size();
 		ModItems.INFINITY_CROSSBOW.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
-		List<ThrownEnderpearl> pearls = helper.getLevel().getEntitiesOfClass(
-				ThrownEnderpearl.class, player.getBoundingBox().inflate(16.0)
-		);
-		helper.assertTrue(pearls.size() == 1, "无尽弩应发射蓄力时保存的末影珍珠，而非当前副手弹药");
+		int pearlsAfter = helper.getLevel().getEntitiesOfClass(
+				ThrownEnderpearl.class, player.getBoundingBox().inflate(16.0)).size();
+		helper.assertTrue(pearlsAfter - pearlsBefore == 1,
+				"无尽弩应发射蓄力时保存的末影珍珠，而非当前副手弹药");
 		helper.assertFalse(crossbow.has(DataComponents.CHARGED_PROJECTILES), "无尽弩射击后没有清除装填状态");
 		helper.assertTrue(player.getCooldowns().isOnCooldown(crossbow), "无尽弩单发后没有进入冷却");
 
@@ -3479,11 +3483,13 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.assertTrue(InfinityCrossbowItem.isMulti(crossbow), "无尽弩潜行右键没有启用多重射击");
 		ModItems.INFINITY_CROSSBOW.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
 		ModItems.INFINITY_CROSSBOW.onUseTick(helper.getLevel(), player, crossbow, 1);
+		int snowballsBefore = helper.getLevel().getEntitiesOfClass(
+				Snowball.class, player.getBoundingBox().inflate(16.0)).size();
 		ModItems.INFINITY_CROSSBOW.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
-		List<Snowball> snowballs = helper.getLevel().getEntitiesOfClass(
-				Snowball.class, player.getBoundingBox().inflate(16.0)
-		);
-		helper.assertTrue(snowballs.size() == 5, "无尽弩多重射击应生成五枚不同角度的雪球");
+		int snowballsAfter = helper.getLevel().getEntitiesOfClass(
+				Snowball.class, player.getBoundingBox().inflate(16.0)).size();
+		helper.assertTrue(snowballsAfter - snowballsBefore == 5,
+				"无尽弩多重射击应生成五枚不同角度的雪球");
 		helper.assertTrue(player.getOffhandItem().getCount() == 16, "无尽弩五连发不应消耗副手弹药");
 
 		player.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(Items.DIRT));
@@ -3643,10 +3649,12 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		Player player = helper.makeMockPlayer(GameType.SURVIVAL);
 		player.setItemInHand(InteractionHand.MAIN_HAND, mace);
 		player.setPos(Vec3.atCenterOf(helper.absolutePos(new BlockPos(10, 2, 10))));
+		int chargesBefore = helper.getLevel().getEntitiesOfClass(
+				WindCharge.class, player.getBoundingBox().inflate(8.0)).size();
 		ModItems.INFINITY_MACE.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
-		List<WindCharge> charges = helper.getLevel().getEntitiesOfClass(
-				WindCharge.class, player.getBoundingBox().inflate(8.0));
-		helper.assertTrue(charges.size() == 3, "无尽重锤右键没有发射三枚风弹");
+		int chargesAfter = helper.getLevel().getEntitiesOfClass(
+				WindCharge.class, player.getBoundingBox().inflate(8.0)).size();
+		helper.assertTrue(chargesAfter - chargesBefore == 3, "无尽重锤右键没有发射三枚风弹");
 		helper.assertTrue(player.getCooldowns().isOnCooldown(mace), "无尽重锤右键没有进入一秒冷却");
 
 		var warden = helper.spawnWithNoFreeWill(EntityTypes.WARDEN, new BlockPos(14, 2, 10));
@@ -3657,6 +3665,66 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		float infinityBonus = ModItems.INFINITY_MACE.getAttackDamageBonus(warden, 0.0F, source);
 		helper.assertTrue(Math.abs(infinityBonus - vanillaBonus - warden.getHealth() * 0.25F) < 0.001F,
 				"无尽重锤粉碎攻击没有追加目标当前生命值 25% 的伤害");
+		helper.succeed();
+	}
+
+	@GameTest
+	public void crystalSwordCraftsSwitchesModeAndFiresPiercingSlash(GameTestHelper helper) {
+		ItemStack sword = new ItemStack(ModItems.CRYSTAL_SWORD);
+		helper.assertTrue(BuiltInRegistries.ITEM.getValue(ModItems.CRYSTAL_SWORD_KEY)
+				== ModItems.CRYSTAL_SWORD, "晶态矩阵剑物品未注册");
+		helper.assertTrue(BuiltInRegistries.ENTITY_TYPE.getValue(Avaritia26.id("blade_slash"))
+				== ModEntityTypes.BLADE_SLASH, "晶态矩阵剑剑气实体未注册");
+		helper.assertTrue(sword.getMaxStackSize() == 1 && sword.getRarity() == Rarity.EPIC
+				&& sword.has(DataComponents.DAMAGE_RESISTANT) && sword.getMaxDamage() == 8888,
+				"晶态矩阵剑物品属性或耐久错误");
+		helper.assertTrue(sword.is(ItemTags.SWORDS), "晶态矩阵剑缺少原版剑标签");
+		helper.assertFalse(ModItems.CRYSTAL_SWORD.isFoil(sword), "晶态矩阵剑不应显示附魔光效");
+		var modifiers = sword.get(DataComponents.ATTRIBUTE_MODIFIERS);
+		helper.assertTrue(modifiers != null
+				&& modifiers.compute(Attributes.ATTACK_DAMAGE, 1.0, EquipmentSlot.MAINHAND) == 51.0
+				&& modifiers.compute(Attributes.ATTACK_SPEED, 4.0, EquipmentSlot.MAINHAND) == 29.0,
+				"晶态矩阵剑没有保留上游五十点伤害与二十五点攻速增幅");
+		Repairable repairable = sword.get(DataComponents.REPAIRABLE);
+		helper.assertTrue(repairable != null
+				&& repairable.isValidRepairItem(new ItemStack(ModItems.CRYSTAL_MATRIX_INGOT)),
+				"晶态矩阵剑不能用晶态矩阵锭修复");
+
+		CraftingInput input = crystalSwordInput();
+		assertExtremeRecipe(helper, "crystal_sword", input, ModItems.CRYSTAL_SWORD);
+		List<ItemStack> wrongStacks = copyStacks(input.items());
+		wrongStacks.set(36, new ItemStack(Items.DIRT));
+		assertExtremeRecipeDoesNotMatch(helper, "crystal_sword",
+				CraftingInput.of(input.width(), input.height(), wrongStacks));
+
+		Player player = helper.makeMockServerPlayer(GameType.SURVIVAL);
+		player.setPos(Vec3.atCenterOf(helper.absolutePos(new BlockPos(10, 2, 10))));
+		player.setItemInHand(InteractionHand.MAIN_HAND, sword);
+		player.setShiftKeyDown(true);
+		ModItems.CRYSTAL_SWORD.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+		player.setShiftKeyDown(false);
+		helper.assertTrue(CrystalSwordItem.isBladeSlashEnabled(sword), "晶态矩阵剑没有开启剑气模式");
+		ModItems.CRYSTAL_SWORD.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+		List<BladeSlashEntity> slashes = helper.getLevel().getEntitiesOfClass(
+				BladeSlashEntity.class, player.getBoundingBox().inflate(8.0));
+		helper.assertTrue(slashes.size() == 1
+				&& Math.abs(slashes.getFirst().getDeltaMovement().length() - BladeSlashEntity.SPEED) < 0.2,
+				"晶态矩阵剑没有以预期速度发射剑气");
+
+		var warden = helper.spawnWithNoFreeWill(EntityTypes.WARDEN, new BlockPos(14, 2, 10));
+		float healthBefore = warden.getHealth();
+		slashes.getFirst().applyImpact(helper.getLevel(), warden);
+		helper.assertTrue(Math.abs(warden.getHealth() - (healthBefore - BladeSlashEntity.DAMAGE)) < 0.001F,
+				"晶态矩阵剑剑气没有造成两百点伤害");
+		warden.setInvulnerable(true);
+		InteractionResult attackResult = AttackEntityCallback.EVENT.invoker().interact(
+				player, helper.getLevel(), InteractionHand.MAIN_HAND, warden, new EntityHitResult(warden));
+		helper.assertFalse(attackResult.consumesAction(), "晶态矩阵剑近战攻击不应接管原版伤害流程");
+		helper.assertFalse(warden.isInvulnerable(), "晶态矩阵剑近战没有解除目标无敌状态");
+
+		player.setShiftKeyDown(true);
+		ModItems.CRYSTAL_SWORD.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+		helper.assertFalse(CrystalSwordItem.isBladeSlashEnabled(sword), "晶态矩阵剑没有关闭剑气模式");
 		helper.succeed();
 	}
 
@@ -5529,6 +5597,25 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 						'I', new ItemStack(ModItems.INFINITY_NUGGET),
 						'M', new ItemStack(Items.HEAVY_CORE),
 						'N', new ItemStack(ModItems.NEUTRON_INGOT)
+				)
+		);
+	}
+
+	private static CraftingInput crystalSwordInput() {
+		return extremeInput(
+				List.of(
+						"     CA",
+						"    CAC",
+						" C CAC ",
+						" CCAC  ",
+						"CAAC   ",
+						" BACC  ",
+						"A C    "
+				),
+				Map.of(
+						'A', new ItemStack(ModBlocks.CRYSTAL_MATRIX_ITEM),
+						'B', new ItemStack(ModBlocks.NEUTRON_ITEM),
+						'C', new ItemStack(ModItems.CRYSTAL_MATRIX_INGOT)
 				)
 		);
 	}

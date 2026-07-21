@@ -1,0 +1,22 @@
+{
+  "type": "avaritia26:extreme_shaped",
+  "category": "equipment",
+  "key": {
+    "A": "avaritia26:crystal_matrix",
+    "B": "avaritia26:neutron",
+    "C": "avaritia26:crystal_matrix_ingot"
+  },
+  "pattern": [
+    "     CA",
+    "    CAC",
+    " C CAC ",
+    " CCAC  ",
+    "CAAC   ",
+    " BACC  ",
+    "A C    "
+  ],
+  "result": {
+    "count": 1,
+    "id": "avaritia26:crystal_sword"
+  }
+}

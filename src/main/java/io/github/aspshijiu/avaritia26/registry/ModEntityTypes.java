@@ -2,6 +2,7 @@ package io.github.aspshijiu.avaritia26.registry;
 
 import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.entity.EndestPearlEntity;
+import io.github.aspshijiu.avaritia26.entity.BladeSlashEntity;
 import io.github.aspshijiu.avaritia26.entity.GapingVoidEntity;
 import io.github.aspshijiu.avaritia26.entity.HeavenArrowEntity;
 import io.github.aspshijiu.avaritia26.entity.HeavenSubArrowEntity;
@@ -15,6 +16,16 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 
 public final class ModEntityTypes {
+	public static final ResourceKey<EntityType<?>> BLADE_SLASH_KEY = key("blade_slash");
+	public static final EntityType<BladeSlashEntity> BLADE_SLASH = Registry.register(
+			BuiltInRegistries.ENTITY_TYPE,
+			BLADE_SLASH_KEY,
+			EntityType.Builder.<BladeSlashEntity>of(BladeSlashEntity::new, MobCategory.MISC)
+					.sized(0.5F, 0.5F)
+					.clientTrackingRange(4)
+					.updateInterval(1)
+					.build(BLADE_SLASH_KEY)
+	);
 	public static final ResourceKey<EntityType<?>> HEAVEN_ARROW_KEY = key("heaven_arrow");
 	public static final EntityType<HeavenArrowEntity> HEAVEN_ARROW = Registry.register(
 			BuiltInRegistries.ENTITY_TYPE,

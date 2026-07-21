@@ -2,6 +2,7 @@ package io.github.aspshijiu.avaritia26.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import io.github.aspshijiu.avaritia26.client.render.HeavenArrowRenderer;
+import io.github.aspshijiu.avaritia26.client.render.BladeSlashRenderer;
 import io.github.aspshijiu.avaritia26.client.screen.CompressedChestScreen;
 import io.github.aspshijiu.avaritia26.client.screen.EndCraftingScreen;
 import io.github.aspshijiu.avaritia26.client.screen.ExtremeCraftingScreen;
@@ -58,6 +59,7 @@ public final class Avaritia26Client implements ClientModInitializer {
 			}
 		});
 		EntityRendererRegistry.register(ModEntityTypes.ENDEST_PEARL, ThrownItemRenderer<EndestPearlEntity>::new);
+		EntityRendererRegistry.register(ModEntityTypes.BLADE_SLASH, BladeSlashRenderer::new);
 		EntityRendererRegistry.register(ModEntityTypes.GAPING_VOID, NoopRenderer<GapingVoidEntity>::new);
 		EntityRendererRegistry.register(ModEntityTypes.HEAVEN_ARROW, context -> new HeavenArrowRenderer<>(context));
 		EntityRendererRegistry.register(ModEntityTypes.HEAVEN_SUB_ARROW, context -> new HeavenArrowRenderer<>(context));

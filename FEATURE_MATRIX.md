@@ -84,7 +84,7 @@
 | `infinity_shield` | 无尽盾 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
 | `infinity_trident` | 无尽三叉戟 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
 | `infinity_mace` | 无尽重锤 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `crystal_sword` | 晶态矩阵剑 | 未开始 | — | — | — | — | — |
+| `crystal_sword` | 晶态矩阵剑 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
 | `crystal_hoe` | 晶态矩阵锄 | 未开始 | — | — | — | — | — |
 | `crystal_pickaxe` | 晶态矩阵镐 | 未开始 | — | — | — | — | — |
 | `crystal_shovel` | 晶态矩阵铲 | 未开始 | — | — | — | — | — |

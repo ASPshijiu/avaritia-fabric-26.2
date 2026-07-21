@@ -6,6 +6,7 @@ import java.util.function.Function;
 
 import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.item.EndestPearlItem;
+import io.github.aspshijiu.avaritia26.item.CrystalSwordItem;
 import io.github.aspshijiu.avaritia26.item.EternalSingularityItem;
 import io.github.aspshijiu.avaritia26.item.InfinityAxeItem;
 import io.github.aspshijiu.avaritia26.item.InfinityArmorItem;
@@ -57,11 +58,22 @@ import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.item.component.BlocksAttacks;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.item.component.Weapon;
 import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.item.equipment.Equippable;
 
 public final class ModItems {
+	private static final TagKey<Block> INCORRECT_FOR_CRYSTAL_TOOL = TagKey.create(
+			Registries.BLOCK, Avaritia26.id("incorrect_for_crystal_tool")
+	);
+	private static final TagKey<Item> REPAIRS_CRYSTAL_TOOL = TagKey.create(
+			Registries.ITEM, Avaritia26.id("repairs_crystal_tool")
+	);
+	public static final ToolMaterial CRYSTAL_TOOL_MATERIAL = new ToolMaterial(
+			INCORRECT_FOR_CRYSTAL_TOOL, 8888, 50.0F, 50.0F, 888, REPAIRS_CRYSTAL_TOOL
+	);
 	public static final ResourceKey<Item> NEUTRON_RING_KEY = key("neutron_ring");
 	public static final Item NEUTRON_RING = register(
 			NEUTRON_RING_KEY,
@@ -157,6 +169,17 @@ public final class ModItems {
 			INFINITY_MACE_KEY,
 			InfinityMaceItem::new,
 			infinityMaceProperties()
+	);
+	public static final ResourceKey<Item> CRYSTAL_SWORD_KEY = key("crystal_sword");
+	public static final Item CRYSTAL_SWORD = register(
+			CRYSTAL_SWORD_KEY,
+			CrystalSwordItem::new,
+			new Item.Properties()
+					.rarity(Rarity.EPIC)
+					.stacksTo(1)
+					.fireResistant()
+					.sword(CRYSTAL_TOOL_MATERIAL, 0.0F, 25.0F)
+					.component(ModDataComponents.CRYSTAL_BLADE_SLASH, false)
 	);
 	public static final ResourceKey<Item> INFINITY_HELMET_KEY = key("infinity_helmet");
 	public static final Item INFINITY_HELMET = register(
