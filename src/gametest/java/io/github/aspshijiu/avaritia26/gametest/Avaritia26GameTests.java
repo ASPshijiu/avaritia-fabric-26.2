@@ -9,6 +9,7 @@ import com.mojang.serialization.JsonOps;
 import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.block.CompressedChestBlock;
 import io.github.aspshijiu.avaritia26.block.ExtremeAnvilBlock;
+import io.github.aspshijiu.avaritia26.block.EndlessCakeBlock;
 import io.github.aspshijiu.avaritia26.block.InfinityChestBlock;
 import io.github.aspshijiu.avaritia26.block.NeutronCollectorBlock;
 import io.github.aspshijiu.avaritia26.block.NeutronCompressorBlock;
@@ -110,6 +111,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -4663,6 +4665,86 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 					"终焉之砧下落时没有摧毁普通支撑方块");
 			helper.assertBlockPresent(Blocks.BEDROCK, safeSupport);
 			helper.assertBlockPresent(ModBlocks.EXTREME_ANVIL, safeAnvil);
+			helper.succeed();
+		});
+	}
+
+	@GameTest
+	public void endlessCakeSmithsFeedsBuffsAndNeverRunsOut(GameTestHelper helper) {
+		ItemStack cakeStack = new ItemStack(ModBlocks.ENDLESS_CAKE_ITEM);
+		helper.assertTrue(BuiltInRegistries.BLOCK.getValue(ModBlocks.ENDLESS_CAKE_KEY)
+				== ModBlocks.ENDLESS_CAKE
+				&& BuiltInRegistries.ITEM.getValue(ModBlocks.ENDLESS_CAKE_ITEM_KEY)
+				== ModBlocks.ENDLESS_CAKE_ITEM,
+				"贪婪蛋糕方块或物品未注册");
+		helper.assertTrue(cakeStack.getMaxStackSize() == 64 && cakeStack.getRarity() == Rarity.UNCOMMON,
+				"贪婪蛋糕物品的堆叠或稀有度错误");
+		List<Component> tooltip = new java.util.ArrayList<>();
+		ModBlocks.ENDLESS_CAKE_ITEM.appendHoverText(
+				cakeStack, Item.TooltipContext.of(helper.getLevel()), TooltipDisplay.DEFAULT,
+				tooltip::add, TooltipFlag.NORMAL);
+		helper.assertTrue(tooltip.stream().anyMatch(line -> line.getContents() instanceof TranslatableContents contents
+				&& contents.getKey().equals("tooltip.avaritia26.endless_cake.desc")),
+				"贪婪蛋糕缺少上游说明文本");
+		BlockState cakeState = ModBlocks.ENDLESS_CAKE.defaultBlockState();
+		helper.assertTrue(cakeState.is(BlockTags.MINEABLE_WITH_SHOVEL)
+				&& cakeState.is(BlockTags.BEACON_BASE_BLOCKS)
+				&& cakeState.is(ExtremeAnvilBlock.UNBREAKABLE_SUPPORT),
+				"贪婪蛋糕没有加入铲挖掘、信标基座或终焉之砧支撑标签");
+
+		ExtremeSmithingInput input = new ExtremeSmithingInput(
+				new ItemStack(ModItems.UPGRADE_SMITHING_TEMPLATE),
+				new ItemStack(Items.CAKE),
+				new ItemStack(Items.GOLDEN_CARROT),
+				new ItemStack(ModItems.ENHANCEMENT_CORE),
+				new ItemStack(Items.DRAGON_EGG)
+		);
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(Registries.RECIPE, Avaritia26.id("endless_cake"));
+		RecipeHolder<ExtremeSmithingRecipe> recipe = helper.getLevel().getServer().getRecipeManager()
+				.getRecipeFor(ModRecipes.EXTREME_SMITHING, input, helper.getLevel())
+				.filter(candidate -> candidate.id().equals(recipeKey))
+				.orElseThrow(() -> helper.assertionException("正确材料未匹配贪婪蛋糕强化锻造配方"));
+		helper.assertTrue(recipe.value().assemble(input).is(ModBlocks.ENDLESS_CAKE_ITEM),
+				"贪婪蛋糕强化锻造输出错误");
+		ExtremeSmithingInput wrongInput = new ExtremeSmithingInput(
+				input.template(), input.base(), new ItemStack(Items.CARROT), input.addition2(), input.addition3());
+		helper.assertFalse(recipe.value().matches(wrongInput, helper.getLevel()),
+				"贪婪蛋糕配方不应接受普通胡萝卜");
+
+		BlockPos cakePos = new BlockPos(7, 2, 7);
+		helper.setBlock(cakePos.below(), Blocks.STONE);
+		helper.setBlock(cakePos, ModBlocks.ENDLESS_CAKE);
+		Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+		player.getFoodData().setFoodLevel(18);
+		player.getFoodData().setSaturation(0.0F);
+		player.getActiveEffectsMap().put(
+				MobEffects.POISON, new MobEffectInstance(MobEffects.POISON, 200, 0));
+		InteractionResult eaten = EndlessCakeBlock.tryEat(helper.getLevel(), helper.absolutePos(cakePos), player);
+		helper.assertTrue(eaten.consumesAction() && player.getFoodData().getFoodLevel() == 20
+				&& player.getFoodData().getSaturationLevel() > 0.0F,
+				"贪婪蛋糕没有恢复两点饥饿值与饱和度");
+		helper.assertFalse(player.hasEffect(MobEffects.POISON), "贪婪蛋糕没有移除中毒");
+		MobEffectInstance regeneration = player.getEffect(MobEffects.REGENERATION);
+		MobEffectInstance resistance = player.getEffect(MobEffects.RESISTANCE);
+		MobEffectInstance fireResistance = player.getEffect(MobEffects.FIRE_RESISTANCE);
+		MobEffectInstance absorption = player.getEffect(MobEffects.ABSORPTION);
+		helper.assertTrue(regeneration != null && regeneration.getDuration() == 400
+				&& regeneration.getAmplifier() == 1
+				&& resistance != null && resistance.getDuration() == 6000
+				&& fireResistance != null && fireResistance.getDuration() == 6000
+				&& absorption != null && absorption.getDuration() == 2400 && absorption.getAmplifier() == 3,
+				"贪婪蛋糕的生命恢复 II、抗性、抗火或伤害吸收 IV 参数错误");
+		helper.assertBlockPresent(ModBlocks.ENDLESS_CAKE, cakePos);
+		helper.assertTrue(EndlessCakeBlock.tryEat(helper.getLevel(), helper.absolutePos(cakePos), player)
+				.consumesAction(), "满饥饿值时贪婪蛋糕不再允许重复食用");
+		helper.assertBlockPresent(ModBlocks.ENDLESS_CAKE, cakePos);
+		helper.assertTrue(cakeState.hasAnalogOutputSignal()
+				&& cakeState.getAnalogOutputSignal(helper.getLevel(), helper.absolutePos(cakePos), Direction.UP) == 14,
+				"贪婪蛋糕没有持续输出十四格比较器信号");
+
+		helper.setBlock(cakePos.below(), Blocks.AIR);
+		helper.runAfterDelay(1, () -> {
+			helper.assertBlockNotPresent(ModBlocks.ENDLESS_CAKE, cakePos);
 			helper.succeed();
 		});
 	}

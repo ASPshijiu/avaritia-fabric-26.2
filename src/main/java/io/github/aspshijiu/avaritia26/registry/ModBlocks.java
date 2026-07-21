@@ -3,6 +3,7 @@ package io.github.aspshijiu.avaritia26.registry;
 import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.block.CompressedChestBlock;
 import io.github.aspshijiu.avaritia26.block.EndCraftingTableBlock;
+import io.github.aspshijiu.avaritia26.block.EndlessCakeBlock;
 import io.github.aspshijiu.avaritia26.block.ExtremeCraftingTableBlock;
 import io.github.aspshijiu.avaritia26.block.ExtremeAnvilBlock;
 import io.github.aspshijiu.avaritia26.block.ExtremeSmithingTableBlock;
@@ -12,6 +13,7 @@ import io.github.aspshijiu.avaritia26.block.NeutronCollectorBlock;
 import io.github.aspshijiu.avaritia26.block.NeutronCompressorBlock;
 import io.github.aspshijiu.avaritia26.block.SculkCraftingTableBlock;
 import io.github.aspshijiu.avaritia26.block.SoulFarmlandBlock;
+import io.github.aspshijiu.avaritia26.item.EndlessCakeBlockItem;
 import net.fabricmc.fabric.api.registry.FuelValueEvents;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -523,6 +525,26 @@ public final class ModBlocks {
 			new BlockItem(
 					EXTREME_ANVIL,
 					new Item.Properties().setId(EXTREME_ANVIL_ITEM_KEY).rarity(Rarity.EPIC).fireResistant()
+			)
+	);
+	public static final ResourceKey<Block> ENDLESS_CAKE_KEY = blockKey("endless_cake");
+	public static final EndlessCakeBlock ENDLESS_CAKE = Registry.register(
+			BuiltInRegistries.BLOCK,
+			ENDLESS_CAKE_KEY,
+			new EndlessCakeBlock(BlockBehaviour.Properties.of()
+					.setId(ENDLESS_CAKE_KEY)
+					.forceSolidOn()
+					.strength(0.5F)
+					.sound(SoundType.WOOL)
+					.pushReaction(PushReaction.DESTROY))
+	);
+	public static final ResourceKey<Item> ENDLESS_CAKE_ITEM_KEY = itemKey("endless_cake");
+	public static final EndlessCakeBlockItem ENDLESS_CAKE_ITEM = Registry.register(
+			BuiltInRegistries.ITEM,
+			ENDLESS_CAKE_ITEM_KEY,
+			new EndlessCakeBlockItem(
+					ENDLESS_CAKE,
+					new Item.Properties().setId(ENDLESS_CAKE_ITEM_KEY).rarity(Rarity.UNCOMMON)
 			)
 	);
 	public static final ResourceKey<Block> INFINITY_CHEST_KEY = blockKey("infinity_chest");
