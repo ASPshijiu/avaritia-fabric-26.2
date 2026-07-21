@@ -2,6 +2,7 @@ package io.github.aspshijiu.avaritia26.registry;
 
 import com.mojang.serialization.Codec;
 import io.github.aspshijiu.avaritia26.Avaritia26;
+import io.github.aspshijiu.avaritia26.component.InfinityBucketContents;
 import io.github.aspshijiu.avaritia26.component.InfinityChestContents;
 import io.github.aspshijiu.avaritia26.component.MatterClusterContents;
 import io.github.aspshijiu.avaritia26.component.SideConfiguration;
@@ -51,6 +52,14 @@ public final class ModDataComponents {
 			DataComponentType.<SideConfiguration>builder()
 					.persistent(SideConfiguration.CODEC)
 					.networkSynchronized(SideConfiguration.STREAM_CODEC)
+					.build()
+	);
+	public static final DataComponentType<InfinityBucketContents> INFINITY_BUCKET_CONTENTS = Registry.register(
+			BuiltInRegistries.DATA_COMPONENT_TYPE,
+			Avaritia26.id("infinity_bucket_contents"),
+			DataComponentType.<InfinityBucketContents>builder()
+					.persistent(InfinityBucketContents.CODEC)
+					.networkSynchronized(InfinityBucketContents.STREAM_CODEC)
 					.build()
 	);
 	public static final DataComponentType<SingularityDefinition> SINGULARITY = Registry.register(

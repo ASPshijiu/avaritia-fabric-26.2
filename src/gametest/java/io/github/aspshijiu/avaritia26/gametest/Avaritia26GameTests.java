@@ -28,6 +28,7 @@ import io.github.aspshijiu.avaritia26.crafting.FullMatterClusterRecipe;
 import io.github.aspshijiu.avaritia26.crafting.InfinityCatalystRecipe;
 import io.github.aspshijiu.avaritia26.crafting.ModRecipes;
 import io.github.aspshijiu.avaritia26.component.InfinityChestContents;
+import io.github.aspshijiu.avaritia26.component.InfinityBucketContents;
 import io.github.aspshijiu.avaritia26.component.ClockAccelerationData;
 import io.github.aspshijiu.avaritia26.component.SideConfiguration;
 import io.github.aspshijiu.avaritia26.crafting.NoConsumeCatalystShapedRecipe;
@@ -53,6 +54,7 @@ import io.github.aspshijiu.avaritia26.inventory.SculkCraftingMenu;
 import io.github.aspshijiu.avaritia26.item.MatterClusterItem;
 import io.github.aspshijiu.avaritia26.item.NeutronRingItem;
 import io.github.aspshijiu.avaritia26.item.InfinityArmorItem;
+import io.github.aspshijiu.avaritia26.item.InfinityBucketItem;
 import io.github.aspshijiu.avaritia26.item.InfinityClockItem;
 import io.github.aspshijiu.avaritia26.item.InfinityUmbrellaItem;
 import io.github.aspshijiu.avaritia26.item.SingularityItem;
@@ -69,6 +71,12 @@ import io.github.aspshijiu.avaritia26.singularity.SingularityManager;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.gametest.v1.CustomTestMethodInvoker;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
+import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
+import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
@@ -138,6 +146,7 @@ import net.minecraft.world.level.block.NetherWartBlock;
 import net.minecraft.world.level.block.SugarCaneBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
@@ -3260,6 +3269,131 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		));
 		helper.assertTrue(clearResult.consumesAction() && !card.has(ModDataComponents.SIDE_CONFIGURATION)
 				&& !card.hasFoil(), "侧面配置卡没有清除保存配置或附魔光效");
+		helper.succeed();
+	}
+
+	@GameTest
+	public void infinityBucketSmithsTransfersCyclesPicksUpAndPlacesFluids(GameTestHelper helper) {
+		ItemStack bucket = new ItemStack(ModItems.INFINITY_BUCKET);
+		helper.assertTrue(BuiltInRegistries.ITEM.getValue(ModItems.INFINITY_BUCKET_KEY) == ModItems.INFINITY_BUCKET,
+				"无尽桶物品未注册");
+		helper.assertTrue(BuiltInRegistries.DATA_COMPONENT_TYPE.getValue(Avaritia26.id("infinity_bucket_contents"))
+				== ModDataComponents.INFINITY_BUCKET_CONTENTS, "无尽桶流体组件未注册");
+		helper.assertTrue(bucket.getMaxStackSize() == 1 && bucket.getRarity() == Rarity.EPIC
+				&& bucket.has(DataComponents.DAMAGE_RESISTANT), "无尽桶物品属性错误");
+
+		ExtremeSmithingInput smithingInput = new ExtremeSmithingInput(
+				new ItemStack(ModItems.UPGRADE_SMITHING_TEMPLATE),
+				new ItemStack(Items.BUCKET),
+				new ItemStack(Items.LAVA_BUCKET),
+				new ItemStack(ModItems.ENHANCEMENT_CORE),
+				new ItemStack(Items.POWDER_SNOW_BUCKET)
+		);
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(Registries.RECIPE, Avaritia26.id("infinity_bucket"));
+		RecipeHolder<ExtremeSmithingRecipe> recipe = helper.getLevel().getServer().getRecipeManager()
+				.getRecipeFor(ModRecipes.EXTREME_SMITHING, smithingInput, helper.getLevel())
+				.filter(candidate -> candidate.id().equals(recipeKey))
+				.orElseThrow(() -> helper.assertionException("正确材料未匹配无尽桶锻造配方"));
+		helper.assertTrue(recipe.value().assemble(smithingInput).is(ModItems.INFINITY_BUCKET),
+				"无尽桶锻造配方输出错误");
+
+		ServerPlayer player = (ServerPlayer) helper.makeMockServerPlayer(GameType.SURVIVAL);
+		player.getInventory().setSelectedSlot(0);
+		player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
+		ContainerItemContext context = ContainerItemContext.ofPlayerHand(player, InteractionHand.MAIN_HAND);
+		Storage<FluidVariant> storage = FluidStorage.ITEM.find(bucket, context);
+		helper.assertTrue(storage != null, "无尽桶没有注册 Fabric 流体存储接口");
+		try (Transaction transaction = Transaction.openOuter()) {
+			helper.assertTrue(storage.insert(FluidVariant.of(Fluids.WATER), FluidConstants.BUCKET, transaction)
+					== FluidConstants.BUCKET, "无尽桶流体接口没有接受一桶水");
+		}
+		helper.assertTrue(InfinityBucketContents.EMPTY.equals(bucket.getOrDefault(
+				ModDataComponents.INFINITY_BUCKET_CONTENTS, InfinityBucketContents.EMPTY)),
+				"未提交的流体事务仍修改了无尽桶");
+		try (Transaction transaction = Transaction.openOuter()) {
+			helper.assertTrue(storage.insert(FluidVariant.of(Fluids.WATER), FluidConstants.BUCKET, transaction)
+					== FluidConstants.BUCKET, "无尽桶流体接口提交前插入失败");
+			transaction.commit();
+		}
+		try (Transaction transaction = Transaction.openOuter()) {
+			helper.assertTrue(storage.insert(FluidVariant.of(Fluids.LAVA), FluidConstants.BUCKET * 2, transaction)
+					== FluidConstants.BUCKET * 2, "无尽桶没有保存第二种流体");
+			transaction.commit();
+		}
+		InfinityBucketContents transferred = bucket.get(ModDataComponents.INFINITY_BUCKET_CONTENTS);
+		helper.assertTrue(transferred != null && transferred.entries().size() == 2
+				&& transferred.selected().fluid().isOf(Fluids.LAVA), "无尽桶没有把最近灌入的流体设为当前流体");
+		try (Transaction transaction = Transaction.openOuter()) {
+			helper.assertTrue(storage.extract(FluidVariant.of(Fluids.WATER), FluidConstants.BUCKET, transaction) == 0,
+					"无尽桶流体接口不应越过当前流体抽取");
+			helper.assertTrue(storage.extract(FluidVariant.of(Fluids.LAVA), FluidConstants.BUCKET, transaction)
+					== FluidConstants.BUCKET, "无尽桶流体接口没有抽取当前流体");
+			transaction.commit();
+		}
+		helper.assertTrue(bucket.get(ModDataComponents.INFINITY_BUCKET_CONTENTS).selected().amount()
+				== FluidConstants.BUCKET, "无尽桶流体接口抽取数量错误");
+		ItemStack capacityBucket = new ItemStack(ModItems.INFINITY_BUCKET);
+		helper.assertTrue(InfinityBucketItem.fill(
+				capacityBucket,
+				FluidVariant.of(Fluids.WATER),
+				Long.MAX_VALUE
+		) == InfinityBucketContents.CAPACITY_PER_FLUID, "无尽桶单种流体容量上限错误");
+		helper.assertTrue(InfinityBucketItem.fill(
+				capacityBucket,
+				FluidVariant.of(Fluids.WATER),
+				FluidConstants.BUCKET
+		) == 0, "无尽桶超过单种流体容量后仍继续灌入");
+
+		RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(), helper.getLevel().registryAccess());
+		try {
+			ItemStack.STREAM_CODEC.encode(buffer, bucket);
+			ItemStack decoded = ItemStack.STREAM_CODEC.decode(buffer);
+			helper.assertTrue(bucket.get(ModDataComponents.INFINITY_BUCKET_CONTENTS)
+					.equals(decoded.get(ModDataComponents.INFINITY_BUCKET_CONTENTS)),
+					"无尽桶多流体数据网络往返后不相等");
+		} finally {
+			buffer.release();
+		}
+
+		ItemStack worldBucket = new ItemStack(ModItems.INFINITY_BUCKET);
+		player.setItemInHand(InteractionHand.MAIN_HAND, worldBucket);
+		BlockPos waterPos = new BlockPos(8, 1, 12);
+		BlockPos lavaPos = new BlockPos(11, 1, 12);
+		BlockPos targetPos = new BlockPos(14, 1, 12);
+		helper.setBlock(waterPos, Blocks.WATER);
+		helper.setBlock(lavaPos, Blocks.LAVA);
+		helper.setBlock(targetPos, Blocks.STONE);
+		player.setPos(Vec3.atCenterOf(helper.absolutePos(waterPos.north(3))));
+		player.setYRot(0.0F);
+		player.setXRot(25.0F);
+		helper.assertTrue(ModItems.INFINITY_BUCKET.use(helper.getLevel(), player, InteractionHand.MAIN_HAND)
+				.consumesAction(), "无尽桶没有吸取水源");
+		helper.assertTrue(helper.getLevel().getFluidState(helper.absolutePos(waterPos)).isEmpty()
+				&& worldBucket.get(ModDataComponents.INFINITY_BUCKET_CONTENTS).selected().fluid().isOf(Fluids.WATER),
+				"无尽桶吸取水源后的世界或内容错误");
+
+		player.setPos(Vec3.atCenterOf(helper.absolutePos(lavaPos.north(3))));
+		player.setYRot(0.0F);
+		player.setXRot(25.0F);
+		ModItems.INFINITY_BUCKET.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+		helper.assertTrue(helper.getLevel().getFluidState(helper.absolutePos(lavaPos)).isEmpty()
+				&& worldBucket.get(ModDataComponents.INFINITY_BUCKET_CONTENTS).selected().fluid().isOf(Fluids.LAVA),
+				"无尽桶没有吸取并选中新流体");
+
+		player.setShiftKeyDown(true);
+		ModItems.INFINITY_BUCKET.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+		player.setShiftKeyDown(false);
+		helper.assertTrue(worldBucket.get(ModDataComponents.INFINITY_BUCKET_CONTENTS).selected().fluid().isOf(Fluids.WATER),
+				"无尽桶潜行右键没有轮换当前流体");
+
+		player.setPos(Vec3.atCenterOf(helper.absolutePos(targetPos.north(3))));
+		player.setYRot(0.0F);
+		player.setXRot(25.0F);
+		helper.assertTrue(ModItems.INFINITY_BUCKET.use(helper.getLevel(), player, InteractionHand.MAIN_HAND)
+				.consumesAction(), "无尽桶没有放置当前流体");
+		helper.assertTrue(helper.getLevel().getFluidState(helper.absolutePos(targetPos.north())).is(Fluids.WATER)
+				&& worldBucket.get(ModDataComponents.INFINITY_BUCKET_CONTENTS).selected().fluid().isOf(Fluids.LAVA),
+				"无尽桶放置水后没有扣除一桶或切换到下一种流体");
 		helper.succeed();
 	}
 

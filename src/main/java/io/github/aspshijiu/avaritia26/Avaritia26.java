@@ -16,6 +16,7 @@ import io.github.aspshijiu.avaritia26.registry.ModItems;
 import io.github.aspshijiu.avaritia26.registry.ModMenus;
 import io.github.aspshijiu.avaritia26.registry.ModSounds;
 import io.github.aspshijiu.avaritia26.singularity.SingularityManager;
+import io.github.aspshijiu.avaritia26.transfer.InfinityBucketStorage;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.resources.Identifier;
 import org.slf4j.Logger;
@@ -30,6 +31,7 @@ public final class Avaritia26 implements ModInitializer {
 		ModRecipes.initialize();
 		ModDataComponents.initialize();
 		ModItems.initialize();
+		InfinityBucketStorage.initialize();
 		ModArmorEvents.initialize();
 		ModCombatEvents.initialize();
 		ModClockEvents.initialize();

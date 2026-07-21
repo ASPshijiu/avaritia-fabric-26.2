@@ -9,6 +9,7 @@ import io.github.aspshijiu.avaritia26.item.EternalSingularityItem;
 import io.github.aspshijiu.avaritia26.item.InfinityAxeItem;
 import io.github.aspshijiu.avaritia26.item.InfinityArmorItem;
 import io.github.aspshijiu.avaritia26.item.InfinityBowItem;
+import io.github.aspshijiu.avaritia26.item.InfinityBucketItem;
 import io.github.aspshijiu.avaritia26.item.InfinityClockItem;
 import io.github.aspshijiu.avaritia26.item.InfinityHoeItem;
 import io.github.aspshijiu.avaritia26.item.InfinityPickaxeItem;
@@ -98,6 +99,12 @@ public final class ModItems {
 			SIDE_CONFIG_CARD_KEY,
 			SideConfigurationCardItem::new,
 			new Item.Properties().rarity(Rarity.RARE).stacksTo(1)
+	);
+	public static final ResourceKey<Item> INFINITY_BUCKET_KEY = key("infinity_bucket");
+	public static final Item INFINITY_BUCKET = register(
+			INFINITY_BUCKET_KEY,
+			InfinityBucketItem::new,
+			new Item.Properties().rarity(Rarity.EPIC).stacksTo(1).fireResistant()
 	);
 	public static final ResourceKey<Item> INFINITY_HELMET_KEY = key("infinity_helmet");
 	public static final Item INFINITY_HELMET = register(
