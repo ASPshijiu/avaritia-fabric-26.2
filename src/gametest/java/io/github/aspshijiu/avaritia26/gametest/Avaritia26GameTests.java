@@ -57,6 +57,7 @@ import io.github.aspshijiu.avaritia26.inventory.NeutronCompressorMenu;
 import io.github.aspshijiu.avaritia26.inventory.NeutronRingMenu;
 import io.github.aspshijiu.avaritia26.inventory.SculkCraftingMenu;
 import io.github.aspshijiu.avaritia26.item.BlazeHoeItem;
+import io.github.aspshijiu.avaritia26.item.BlazePickaxeItem;
 import io.github.aspshijiu.avaritia26.item.BlazeSwordItem;
 import io.github.aspshijiu.avaritia26.item.CrystalBowItem;
 import io.github.aspshijiu.avaritia26.item.CrystalSwordItem;
@@ -4189,6 +4190,56 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	}
 
 	@GameTest
+	public void blazePickaxeCraftsMinesAndSmeltsOreDrops(GameTestHelper helper) {
+		ItemStack pickaxe = new ItemStack(ModItems.BLAZE_PICKAXE);
+		helper.assertTrue(BuiltInRegistries.ITEM.getValue(ModItems.BLAZE_PICKAXE_KEY)
+				== ModItems.BLAZE_PICKAXE, "烈焰镐物品未注册");
+		helper.assertTrue(pickaxe.getMaxStackSize() == 1 && pickaxe.getRarity() == Rarity.EPIC
+				&& pickaxe.has(DataComponents.DAMAGE_RESISTANT) && pickaxe.getMaxDamage() == 7777,
+				"烈焰镐物品属性或耐久错误");
+		helper.assertTrue(pickaxe.is(ItemTags.PICKAXES), "烈焰镐缺少原版镐标签");
+		helper.assertTrue(pickaxe.isCorrectToolForDrops(Blocks.DIAMOND_ORE.defaultBlockState()),
+				"烈焰镐不能正确开采钻石矿");
+		helper.assertFalse(ModItems.BLAZE_PICKAXE.isFoil(pickaxe), "烈焰镐不应显示附魔光效");
+		var modifiers = pickaxe.get(DataComponents.ATTRIBUTE_MODIFIERS);
+		helper.assertTrue(modifiers != null
+				&& modifiers.compute(Attributes.ATTACK_DAMAGE, 1.0, EquipmentSlot.MAINHAND) == 26.0
+				&& modifiers.compute(Attributes.ATTACK_SPEED, 4.0, EquipmentSlot.MAINHAND) == 29.0,
+				"烈焰镐没有保留上游二十五点伤害与攻速增幅");
+		var enchantments = helper.getLevel().registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+		helper.assertTrue(EnchantmentHelper.getItemEnchantmentLevel(
+				enchantments.getOrThrow(Enchantments.FIRE_ASPECT), pickaxe) == 10,
+				"烈焰镐没有自带火焰附加 X");
+
+		CraftingInput input = blazePickaxeInput();
+		assertExtremeRecipe(helper, "blaze_pickaxe", input, ModItems.BLAZE_PICKAXE);
+		List<ItemStack> wrongStacks = copyStacks(input.items());
+		wrongStacks.set(1, new ItemStack(Items.DIRT));
+		assertExtremeRecipeDoesNotMatch(helper, "blaze_pickaxe",
+				CraftingInput.of(input.width(), input.height(), wrongStacks));
+
+		Player player = helper.makeMockServerPlayer(GameType.SURVIVAL);
+		player.setItemInHand(InteractionHand.MAIN_HAND, pickaxe);
+		BlockPos orePos = new BlockPos(7, 2, 7);
+		helper.setBlock(orePos, Blocks.GOLD_ORE);
+		List<ItemStack> normalDrops = Block.getDrops(helper.getBlockState(orePos), helper.getLevel(),
+				helper.absolutePos(orePos), null, player, pickaxe);
+		helper.assertTrue(normalDrops.stream().anyMatch(stack -> stack.is(Items.RAW_GOLD))
+				&& normalDrops.stream().noneMatch(stack -> stack.is(Items.GOLD_INGOT)),
+				"烈焰镐关闭熔炼模式时不应改变原矿掉落：" + normalDrops);
+
+		player.setShiftKeyDown(true);
+		ModItems.BLAZE_PICKAXE.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+		player.setShiftKeyDown(false);
+		helper.assertTrue(BlazePickaxeItem.isSmeltingEnabled(pickaxe), "烈焰镐没有开启熔炼模式");
+		List<ItemStack> smeltedDrops = Block.getDrops(helper.getBlockState(orePos), helper.getLevel(),
+				helper.absolutePos(orePos), null, player, pickaxe);
+		helper.assertTrue(smeltedDrops.size() == 1 && smeltedDrops.getFirst().is(Items.GOLD_INGOT),
+				"烈焰镐熔炼模式没有把金矿掉落物自动熔炼成金锭：" + smeltedDrops);
+		helper.succeed();
+	}
+
+	@GameTest
 	public void everyBuiltInSingularityCompresses(GameTestHelper helper) {
 		BlockPos relativePos = new BlockPos(13, 0, 0);
 		helper.setBlock(relativePos, ModBlocks.NEUTRON_COMPRESSOR);
@@ -6194,6 +6245,19 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	private static CraftingInput blazeHoeInput() {
 		return extremeInput(
 				List.of("DDCCA", " DDAC", "  A D", " E   ", "B    "),
+				Map.of(
+						'A', new ItemStack(Items.BONE_BLOCK),
+						'B', new ItemStack(ModItems.DIAMOND_LATTICE),
+						'C', new ItemStack(ModItems.BLAZE_CUBE),
+						'D', new ItemStack(Items.BLAZE_POWDER),
+						'E', new ItemStack(Items.SOUL_SOIL)
+				)
+		);
+	}
+
+	private static CraftingInput blazePickaxeInput() {
+		return extremeInput(
+				List.of("DCCCA", " DDAC", "  ADC", " E DC", "B   D"),
 				Map.of(
 						'A', new ItemStack(Items.BONE_BLOCK),
 						'B', new ItemStack(ModItems.DIAMOND_LATTICE),

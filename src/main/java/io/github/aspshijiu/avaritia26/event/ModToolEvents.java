@@ -13,6 +13,7 @@ import io.github.aspshijiu.avaritia26.item.InfinityAxeItem;
 import io.github.aspshijiu.avaritia26.item.InfinityPickaxeItem;
 import io.github.aspshijiu.avaritia26.item.InfinityShovelItem;
 import io.github.aspshijiu.avaritia26.item.MatterClusterItem;
+import io.github.aspshijiu.avaritia26.registry.ModDataComponents;
 import io.github.aspshijiu.avaritia26.registry.ModItems;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
@@ -46,15 +47,15 @@ public final class ModToolEvents {
 
 	public static void initialize() {
 		AttackBlockCallback.EVENT.register(ModToolEvents::breakWithInfinityTool);
-		LootTableEvents.MODIFY_DROPS.register((table, context, drops) -> smeltBlazeHoeDrops(context, drops));
+		LootTableEvents.MODIFY_DROPS.register((table, context, drops) -> smeltBlazeToolDrops(context, drops));
 	}
 
-	private static void smeltBlazeHoeDrops(LootContext context, List<ItemStack> drops) {
+	private static void smeltBlazeToolDrops(LootContext context, List<ItemStack> drops) {
 		BlockState state = context.getOptionalParameter(LootContextParams.BLOCK_STATE);
 		var item = context.getOptionalParameter(LootContextParams.TOOL);
 		if (!(item instanceof ItemStack tool)
-				|| !tool.is(ModItems.BLAZE_HOE)
-				|| !BlazeHoeItem.isSmeltingEnabled(tool)
+				|| (!tool.is(ModItems.BLAZE_HOE) && !tool.is(ModItems.BLAZE_PICKAXE))
+				|| !tool.getOrDefault(ModDataComponents.BLAZE_TOOL_MODE, false)
 				|| state == null
 				|| state.getBlock() instanceof CropBlock) {
 			return;
