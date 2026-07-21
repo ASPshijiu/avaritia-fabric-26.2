@@ -93,19 +93,29 @@ public final class ModToolEvents {
 			Direction face
 	) {
 		ItemStack tool = player.getItemInHand(hand);
-		if (level instanceof ServerLevel serverLevel && tool.is(ModItems.CRYSTAL_PICKAXE)
-				&& CrystalPickaxeItem.canBreakUnbreakable(serverLevel.getBlockState(origin))) {
+		BlockState originState = level.getBlockState(origin);
+		if (tool.is(ModItems.CRYSTAL_PICKAXE) && CrystalPickaxeItem.canBreakUnbreakable(originState)) {
+			if (!(level instanceof ServerLevel serverLevel)) {
+				return InteractionResult.SUCCESS;
+			}
 			return breakUnbreakable(serverLevel, player, hand, tool, origin);
 		}
-		if (level instanceof ServerLevel serverLevel && tool.is(ModItems.INFINITY_AXE) && !player.isShiftKeyDown()) {
+		if (tool.is(ModItems.INFINITY_AXE) && !player.isShiftKeyDown()
+				&& InfinityAxeItem.canClearClassicMaterial(originState)) {
+			if (!(level instanceof ServerLevel serverLevel)) {
+				return InteractionResult.SUCCESS;
+			}
 			return destroyAxeChain(serverLevel, player, tool, origin)
 					? InteractionResult.SUCCESS_SERVER
 					: InteractionResult.PASS;
 		}
 		boolean activePickaxe = tool.is(ModItems.INFINITY_PICKAXE) && InfinityPickaxeItem.isHammer(tool);
 		boolean activeShovel = tool.is(ModItems.INFINITY_SHOVEL) && InfinityShovelItem.isDestroyer(tool);
-		if (!(level instanceof ServerLevel serverLevel) || (!activePickaxe && !activeShovel)) {
+		if ((!activePickaxe && !activeShovel) || !tool.isCorrectToolForDrops(originState)) {
 			return InteractionResult.PASS;
+		}
+		if (!(level instanceof ServerLevel serverLevel)) {
+			return InteractionResult.SUCCESS;
 		}
 		List<ItemStack> drops = new ArrayList<>();
 		int minY = face.getAxis() == Direction.Axis.Y ? -RANGE : -1;
