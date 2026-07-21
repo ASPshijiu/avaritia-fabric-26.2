@@ -37,6 +37,7 @@ public final class ModCreativeTabs {
 				output.accept(ModItems.CRYSTAL_PICKAXE);
 				output.accept(ModItems.CRYSTAL_SHOVEL);
 				output.accept(ModItems.CRYSTAL_AXE);
+				output.accept(ModItems.CRYSTAL_BOW);
 				output.accept(ModItems.INFINITY_HELMET);
 				output.accept(ModItems.INFINITY_CHESTPLATE);
 				output.accept(ModItems.INFINITY_PANTS);

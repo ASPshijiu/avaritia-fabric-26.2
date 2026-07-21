@@ -7,4 +7,5 @@ public final class BladeSlashRenderState extends EntityRenderState {
 	public float xRot;
 	public float zRot;
 	public int age;
+	public int lifetime;
 }

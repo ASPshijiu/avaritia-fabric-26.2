@@ -6,6 +6,7 @@ import java.util.function.Function;
 
 import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.item.CrystalAxeItem;
+import io.github.aspshijiu.avaritia26.item.CrystalBowItem;
 import io.github.aspshijiu.avaritia26.item.CrystalHoeItem;
 import io.github.aspshijiu.avaritia26.item.CrystalPickaxeItem;
 import io.github.aspshijiu.avaritia26.item.CrystalShovelItem;
@@ -224,6 +225,19 @@ public final class ModItems {
 					.rarity(Rarity.EPIC)
 					.stacksTo(1)
 					.fireResistant()
+	);
+	public static final ResourceKey<Item> CRYSTAL_BOW_KEY = key("crystal_bow");
+	public static final CrystalBowItem CRYSTAL_BOW = register(
+			CRYSTAL_BOW_KEY,
+			CrystalBowItem::new,
+			new Item.Properties()
+					.rarity(Rarity.EPIC)
+					.stacksTo(1)
+					.fireResistant()
+					.durability(8888)
+					.enchantable(888)
+					.component(ModDataComponents.CRYSTAL_BLADE_SLASH, false)
+					.delayedComponent(DataComponents.ENCHANTMENTS, ModItems::crystalBowEnchantments)
 	);
 	public static final ResourceKey<Item> INFINITY_HELMET_KEY = key("infinity_helmet");
 	public static final Item INFINITY_HELMET = register(
@@ -515,6 +529,14 @@ public final class ModItems {
 		HolderLookup.RegistryLookup<Enchantment> enchantments = registries.lookupOrThrow(Registries.ENCHANTMENT);
 		ItemEnchantments.Mutable result = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
 		result.set(enchantments.getOrThrow(Enchantments.FORTUNE), 3);
+		return result.toImmutable();
+	}
+
+	private static ItemEnchantments crystalBowEnchantments(HolderLookup.Provider registries) {
+		HolderLookup.RegistryLookup<Enchantment> enchantments = registries.lookupOrThrow(Registries.ENCHANTMENT);
+		ItemEnchantments.Mutable result = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
+		result.set(enchantments.getOrThrow(Enchantments.INFINITY), 1);
+		result.set(enchantments.getOrThrow(Enchantments.MULTISHOT), 1);
 		return result.toImmutable();
 	}
 

@@ -35,7 +35,7 @@ public final class BladeSlashRenderer extends EntityRenderer<BladeSlashEntity, B
 		poseStack.mulPose(Axis.ZP.rotationDegrees(state.xRot + 10.0F));
 		poseStack.mulPose(Axis.XP.rotationDegrees(state.zRot));
 		poseStack.scale(0.6F, 0.6F, 1.8F);
-		int alpha = Math.max(0, 200 * (BladeSlashEntity.LIFETIME - state.age) / BladeSlashEntity.LIFETIME);
+		int alpha = Math.max(0, 200 * (state.lifetime - state.age) / state.lifetime);
 		collector.submitCustomGeometry(poseStack, RENDER_TYPE,
 				(pose, consumer) -> buildQuad(pose, consumer, alpha));
 		poseStack.popPose();
@@ -49,6 +49,7 @@ public final class BladeSlashRenderer extends EntityRenderer<BladeSlashEntity, B
 		state.xRot = Mth.lerp(partialTick, entity.xRotO, entity.getXRot());
 		state.zRot = (entity.getId() * 31 % 50) - 25.0F;
 		state.age = entity.tickCount;
+		state.lifetime = entity.getLifetime();
 	}
 
 	@Override

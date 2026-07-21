@@ -1,12 +1,13 @@
 package io.github.aspshijiu.avaritia26.registry;
 
 import io.github.aspshijiu.avaritia26.Avaritia26;
-import io.github.aspshijiu.avaritia26.entity.EndestPearlEntity;
 import io.github.aspshijiu.avaritia26.entity.BladeSlashEntity;
+import io.github.aspshijiu.avaritia26.entity.EndestPearlEntity;
 import io.github.aspshijiu.avaritia26.entity.GapingVoidEntity;
 import io.github.aspshijiu.avaritia26.entity.HeavenArrowEntity;
 import io.github.aspshijiu.avaritia26.entity.HeavenSubArrowEntity;
 import io.github.aspshijiu.avaritia26.entity.InfinityThrownTridentEntity;
+import io.github.aspshijiu.avaritia26.entity.NeutronArrowEntity;
 import io.github.aspshijiu.avaritia26.entity.UmbrellaProjectileEntity;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -45,6 +46,16 @@ public final class ModEntityTypes {
 					.clientTrackingRange(4)
 					.updateInterval(2)
 					.build(HEAVEN_SUB_ARROW_KEY)
+	);
+	public static final ResourceKey<EntityType<?>> NEUTRON_ARROW_KEY = key("neutron_arrow");
+	public static final EntityType<NeutronArrowEntity> NEUTRON_ARROW = Registry.register(
+			BuiltInRegistries.ENTITY_TYPE,
+			NEUTRON_ARROW_KEY,
+			EntityType.Builder.<NeutronArrowEntity>of(NeutronArrowEntity::new, MobCategory.MISC)
+					.sized(0.5F, 0.5F)
+					.clientTrackingRange(4)
+					.updateInterval(1)
+					.build(NEUTRON_ARROW_KEY)
 	);
 	public static final ResourceKey<EntityType<?>> ENDEST_PEARL_KEY = key("endest_pearl");
 	public static final EntityType<EndestPearlEntity> ENDEST_PEARL = Registry.register(

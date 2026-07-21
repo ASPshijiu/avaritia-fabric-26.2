@@ -38,6 +38,7 @@ import io.github.aspshijiu.avaritia26.entity.GapingVoidEntity;
 import io.github.aspshijiu.avaritia26.entity.HeavenArrowEntity;
 import io.github.aspshijiu.avaritia26.entity.HeavenSubArrowEntity;
 import io.github.aspshijiu.avaritia26.entity.InfinityThrownTridentEntity;
+import io.github.aspshijiu.avaritia26.entity.NeutronArrowEntity;
 import io.github.aspshijiu.avaritia26.entity.UmbrellaProjectileEntity;
 import io.github.aspshijiu.avaritia26.event.ModArmorEvents;
 import io.github.aspshijiu.avaritia26.event.ModCombatEvents;
@@ -55,6 +56,7 @@ import io.github.aspshijiu.avaritia26.inventory.NeutronCompressorMenu;
 import io.github.aspshijiu.avaritia26.inventory.NeutronRingMenu;
 import io.github.aspshijiu.avaritia26.inventory.SculkCraftingMenu;
 import io.github.aspshijiu.avaritia26.item.MatterClusterItem;
+import io.github.aspshijiu.avaritia26.item.CrystalBowItem;
 import io.github.aspshijiu.avaritia26.item.CrystalSwordItem;
 import io.github.aspshijiu.avaritia26.item.NeutronRingItem;
 import io.github.aspshijiu.avaritia26.item.InfinityArmorItem;
@@ -130,6 +132,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.CraftingMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.ShieldItem;
@@ -3972,6 +3975,71 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	}
 
 	@GameTest
+	public void crystalBowCraftsSwitchesModesAndFiresBothProjectiles(GameTestHelper helper) {
+		ItemStack bow = new ItemStack(ModItems.CRYSTAL_BOW);
+		helper.assertTrue(BuiltInRegistries.ITEM.getValue(ModItems.CRYSTAL_BOW_KEY)
+				== ModItems.CRYSTAL_BOW, "晶态矩阵弓物品未注册");
+		helper.assertTrue(bow.getMaxStackSize() == 1 && bow.getRarity() == Rarity.EPIC
+				&& bow.has(DataComponents.DAMAGE_RESISTANT) && bow.getMaxDamage() == 8888,
+				"晶态矩阵弓物品属性或耐久错误");
+		helper.assertTrue(bow.is(ItemTags.BOW_ENCHANTABLE), "晶态矩阵弓缺少弓附魔标签");
+		helper.assertFalse(ModItems.CRYSTAL_BOW.isFoil(bow), "晶态矩阵弓不应显示附魔光效");
+		helper.assertTrue(ModItems.CRYSTAL_BOW.getUseAnimation(bow) == ItemUseAnimation.BOW,
+				"晶态矩阵弓没有使用拉弓动画");
+
+		var enchantments = helper.getLevel().registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+		var infinity = enchantments.getOrThrow(Enchantments.INFINITY);
+		var multishot = enchantments.getOrThrow(Enchantments.MULTISHOT);
+		helper.assertTrue(EnchantmentHelper.getItemEnchantmentLevel(infinity, bow) == 1
+				&& EnchantmentHelper.getItemEnchantmentLevel(multishot, bow) == 1,
+				"晶态矩阵弓没有自带无限 I 与多重射击 I");
+
+		CraftingInput input = crystalBowInput();
+		assertExtremeRecipe(helper, "crystal_bow", input, ModItems.CRYSTAL_BOW);
+		List<ItemStack> wrongStacks = copyStacks(input.items());
+		wrongStacks.set(2, new ItemStack(Items.DIRT));
+		assertExtremeRecipeDoesNotMatch(helper, "crystal_bow",
+				CraftingInput.of(input.width(), input.height(), wrongStacks));
+
+		Player player = helper.makeMockServerPlayer(GameType.SURVIVAL);
+		player.setItemInHand(InteractionHand.MAIN_HAND, bow);
+		helper.assertFalse(CrystalBowItem.isBladeSlashEnabled(bow), "晶态矩阵弓默认弹道不应是剑气");
+		NeutronArrowEntity neutronArrow = (NeutronArrowEntity) ModItems.CRYSTAL_BOW.createProjectile(
+				helper.getLevel(), player, bow, 1.0F);
+		helper.assertTrue(neutronArrow.getOwner() == player
+				&& Math.abs(neutronArrow.getDeltaMovement().length() - 3.0) < 0.001,
+				"晶态矩阵弓中子箭的归属或速度错误");
+		var warden = helper.spawnWithNoFreeWill(EntityTypes.WARDEN, new BlockPos(7, 2, 7));
+		float healthBeforeArrow = warden.getHealth();
+		neutronArrow.applyImpact(helper.getLevel(), warden);
+		helper.assertTrue(neutronArrow.isRemoved() && warden.getHealth() <= healthBeforeArrow - 32.0F,
+				"晶态矩阵弓中子箭没有造成三十二点虚空伤害或命中后移除");
+
+		player.setShiftKeyDown(true);
+		ModItems.CRYSTAL_BOW.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+		player.setShiftKeyDown(false);
+		helper.assertTrue(CrystalBowItem.isBladeSlashEnabled(bow), "晶态矩阵弓没有切换到剑气模式");
+		BladeSlashEntity slash = (BladeSlashEntity) ModItems.CRYSTAL_BOW.createProjectile(
+				helper.getLevel(), player, bow, 1.0F);
+		helper.assertTrue(Math.abs(slash.getDeltaMovement().length() - 6.0) < 0.001
+				&& slash.getDamage() == 205.0F && slash.getLifetime() == 30,
+				"晶态矩阵弓满蓄力剑气参数错误：速度=" + slash.getDeltaMovement().length()
+						+ "，伤害=" + slash.getDamage() + "，寿命=" + slash.getLifetime());
+		var slashTarget = helper.spawnWithNoFreeWill(EntityTypes.WARDEN, new BlockPos(10, 2, 7));
+		float healthBeforeSlash = slashTarget.getHealth();
+		slash.applyImpact(helper.getLevel(), slashTarget);
+		helper.assertTrue(slashTarget.getHealth() <= healthBeforeSlash - 205.0F,
+				"晶态矩阵弓剑气没有造成蓄力增强伤害");
+
+		ModItems.CRYSTAL_BOW.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+		int useDuration = ModItems.CRYSTAL_BOW.getUseDuration(bow, player);
+		helper.assertTrue(ModItems.CRYSTAL_BOW.releaseUsing(bow, helper.getLevel(), player, useDuration - 20),
+				"晶态矩阵弓满蓄力没有成功发射");
+		helper.assertTrue(bow.getDamageValue() == 1, "晶态矩阵弓发射没有损耗一点耐久");
+		helper.succeed();
+	}
+
+	@GameTest
 	public void everyBuiltInSingularityCompresses(GameTestHelper helper) {
 		BlockPos relativePos = new BlockPos(13, 0, 0);
 		helper.setBlock(relativePos, ModBlocks.NEUTRON_COMPRESSOR);
@@ -5937,6 +6005,26 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 						'B', new ItemStack(ModItems.NEUTRON_INGOT),
 						'C', new ItemStack(ModItems.CRYSTAL_MATRIX_INGOT),
 						'D', new ItemStack(ModBlocks.NEUTRON_ITEM)
+				)
+		);
+	}
+
+	private static CraftingInput crystalBowInput() {
+		return extremeInput(
+				List.of(
+						"  CDAAC",
+						"   CCCD",
+						"C A  B ",
+						"DC  B  ",
+						"AC B   ",
+						"ACB    ",
+						"CD     "
+				),
+				Map.of(
+						'A', new ItemStack(ModBlocks.CRYSTAL_MATRIX_ITEM),
+						'B', new ItemStack(ModItems.NEUTRON_INGOT),
+						'C', new ItemStack(ModItems.CRYSTAL_MATRIX_INGOT),
+						'D', new ItemStack(ModItems.DIAMOND_LATTICE)
 				)
 		);
 	}

@@ -5,6 +5,8 @@ import java.util.Set;
 
 import io.github.aspshijiu.avaritia26.registry.ModEntityTypes;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
@@ -23,6 +25,12 @@ public final class BladeSlashEntity extends Projectile {
 	public static final float DAMAGE = 200.0F;
 	public static final int LIFETIME = 10;
 	public static final float SPEED = 2.0F;
+	private static final EntityDataAccessor<Float> DAMAGE_DATA = SynchedEntityData.defineId(
+			BladeSlashEntity.class, EntityDataSerializers.FLOAT
+	);
+	private static final EntityDataAccessor<Integer> LIFETIME_DATA = SynchedEntityData.defineId(
+			BladeSlashEntity.class, EntityDataSerializers.INT
+	);
 
 	private final Set<Integer> hitEntities = new HashSet<>();
 
@@ -41,12 +49,14 @@ public final class BladeSlashEntity extends Projectile {
 
 	@Override
 	protected void defineSynchedData(SynchedEntityData.Builder builder) {
+		builder.define(DAMAGE_DATA, DAMAGE);
+		builder.define(LIFETIME_DATA, LIFETIME);
 	}
 
 	@Override
 	public void tick() {
 		super.tick();
-		if (tickCount > LIFETIME) {
+		if (tickCount > getLifetime()) {
 			discard();
 			return;
 		}
@@ -99,6 +109,22 @@ public final class BladeSlashEntity extends Projectile {
 		} else {
 			source = damageSources().generic();
 		}
-		target.hurtServer(level, source, DAMAGE);
+		target.hurtServer(level, source, getDamage());
+	}
+
+	public void configureForBow(LivingEntity shooter, float power) {
+		float clampedPower = Math.max(0.0F, Math.min(1.0F, power));
+		shootFromRotation(shooter, shooter.getXRot(), shooter.getYRot(), 0.0F,
+				SPEED * (1.0F + clampedPower * 2.0F), 0.0F);
+		getEntityData().set(DAMAGE_DATA, DAMAGE + clampedPower * 5.0F);
+		getEntityData().set(LIFETIME_DATA, LIFETIME + (int) (clampedPower * 20.0F));
+	}
+
+	public float getDamage() {
+		return getEntityData().get(DAMAGE_DATA);
+	}
+
+	public int getLifetime() {
+		return getEntityData().get(LIFETIME_DATA);
 	}
 }
