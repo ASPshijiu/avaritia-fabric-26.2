@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import io.github.aspshijiu.avaritia26.Avaritia26;
+import io.github.aspshijiu.avaritia26.item.CrystalAxeItem;
 import io.github.aspshijiu.avaritia26.item.CrystalHoeItem;
 import io.github.aspshijiu.avaritia26.item.CrystalPickaxeItem;
 import io.github.aspshijiu.avaritia26.item.CrystalShovelItem;
@@ -214,6 +215,15 @@ public final class ModItems {
 					.stacksTo(1)
 					.fireResistant()
 					.shovel(CRYSTAL_TOOL_MATERIAL, 0.0F, 25.0F)
+	);
+	public static final ResourceKey<Item> CRYSTAL_AXE_KEY = key("crystal_axe");
+	public static final Item CRYSTAL_AXE = register(
+			CRYSTAL_AXE_KEY,
+			properties -> new CrystalAxeItem(CRYSTAL_TOOL_MATERIAL, properties),
+			new Item.Properties()
+					.rarity(Rarity.EPIC)
+					.stacksTo(1)
+					.fireResistant()
 	);
 	public static final ResourceKey<Item> INFINITY_HELMET_KEY = key("infinity_helmet");
 	public static final Item INFINITY_HELMET = register(

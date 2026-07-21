@@ -6,10 +6,12 @@ import io.github.aspshijiu.avaritia26.item.InfinitySwordItem;
 import io.github.aspshijiu.avaritia26.registry.ModItems;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityEvent;
@@ -20,6 +22,7 @@ import net.minecraft.world.entity.monster.skeleton.AbstractSkeleton;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.phys.Vec3;
 
 public final class ModCombatEvents {
 	private ModCombatEvents() {
@@ -28,12 +31,18 @@ public final class ModCombatEvents {
 	public static void initialize() {
 		ServerLivingEntityEvents.AFTER_DEATH.register(ModCombatEvents::dropWitherSkeletonSkull);
 		ServerLivingEntityEvents.ALLOW_DEATH.register(ModCombatEvents::useInfinityTotem);
+		ServerLivingEntityEvents.AFTER_DAMAGE.register(ModCombatEvents::applyCrystalAxeJumpDamage);
 		AttackEntityCallback.EVENT.register((player, level, hand, entity, hitResult) -> {
-			if (player.getItemInHand(hand).is(ModItems.CRYSTAL_SWORD)
-					|| player.getItemInHand(hand).is(ModItems.CRYSTAL_HOE)
-					|| player.getItemInHand(hand).is(ModItems.CRYSTAL_SHOVEL)) {
+			ItemStack weapon = player.getItemInHand(hand);
+			if (weapon.is(ModItems.CRYSTAL_SWORD)
+					|| weapon.is(ModItems.CRYSTAL_HOE)
+					|| weapon.is(ModItems.CRYSTAL_SHOVEL)
+					|| weapon.is(ModItems.CRYSTAL_AXE)) {
 				player.resetAttackStrengthTicker();
 				entity.setInvulnerable(false);
+				if (weapon.is(ModItems.CRYSTAL_AXE) && entity instanceof ServerPlayer target) {
+					disableShield(target);
+				}
 				return InteractionResult.PASS;
 			}
 			if (!(level instanceof ServerLevel serverLevel)
@@ -44,6 +53,44 @@ public final class ModCombatEvents {
 			InfinitySwordItem.kill(target, player, serverLevel);
 			return InteractionResult.SUCCESS_SERVER;
 		});
+	}
+
+	private static void applyCrystalAxeJumpDamage(
+			LivingEntity target,
+			DamageSource source,
+			float baseDamageTaken,
+			float damageTaken,
+			boolean blocked
+	) {
+		if (!(target.level() instanceof ServerLevel level)
+				|| !(source.getEntity() instanceof Player attacker)
+				|| !source.is(DamageTypes.PLAYER_ATTACK)
+				|| blocked
+				|| damageTaken <= 0.0F
+				|| !attacker.getMainHandItem().is(ModItems.CRYSTAL_AXE)
+				|| attacker.onGround()
+				|| attacker.getDeltaMovement().y >= -0.1) {
+			return;
+		}
+		target.hurtServer(level, target.damageSources().fellOutOfWorld(), 54.0F);
+		Vec3 pos = target.position();
+		level.sendParticles(ParticleTypes.PORTAL, pos.x, pos.y + target.getBbHeight() / 2.0, pos.z,
+				24, 0.5, 0.5, 0.5, 0.2);
+	}
+
+	private static void disableShield(ServerPlayer target) {
+		ItemStack shield = target.getUseItem().is(Items.SHIELD)
+				? target.getUseItem()
+				: target.getOffhandItem();
+		if (!shield.is(Items.SHIELD)) {
+			return;
+		}
+		if (target.connection != null) {
+			target.getCooldowns().addCooldown(shield, 1200);
+		}
+		target.stopUsingItem();
+		shield.setDamageValue(Math.max(shield.getDamageValue(), shield.getMaxDamage() / 2));
+		target.level().broadcastEntityEvent(target, (byte) 30);
 	}
 
 	private static boolean useInfinityTotem(LivingEntity entity, DamageSource source, float amount) {

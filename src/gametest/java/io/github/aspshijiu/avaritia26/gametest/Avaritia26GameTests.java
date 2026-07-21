@@ -3913,6 +3913,70 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	}
 
 	@GameTest
+	public void crystalAxeCraftsStripsShieldsAndDealsJumpDamage(GameTestHelper helper) {
+		ItemStack axe = new ItemStack(ModItems.CRYSTAL_AXE);
+		helper.assertTrue(BuiltInRegistries.ITEM.getValue(ModItems.CRYSTAL_AXE_KEY)
+				== ModItems.CRYSTAL_AXE, "晶态矩阵斧物品未注册");
+		helper.assertTrue(axe.getMaxStackSize() == 1 && axe.getRarity() == Rarity.EPIC
+				&& axe.has(DataComponents.DAMAGE_RESISTANT) && axe.getMaxDamage() == 8888,
+				"晶态矩阵斧物品属性或耐久错误");
+		helper.assertTrue(axe.is(ItemTags.AXES), "晶态矩阵斧缺少原版斧标签");
+		helper.assertFalse(ModItems.CRYSTAL_AXE.isFoil(axe), "晶态矩阵斧不应显示附魔光效");
+		var modifiers = axe.get(DataComponents.ATTRIBUTE_MODIFIERS);
+		helper.assertTrue(modifiers != null
+				&& modifiers.compute(Attributes.ATTACK_DAMAGE, 1.0, EquipmentSlot.MAINHAND) == 51.0
+				&& modifiers.compute(Attributes.ATTACK_SPEED, 4.0, EquipmentSlot.MAINHAND) == 29.0,
+				"晶态矩阵斧没有保留上游五十点伤害与二十五点攻速增幅");
+
+		CraftingInput input = crystalAxeInput();
+		assertExtremeRecipe(helper, "crystal_axe", input, ModItems.CRYSTAL_AXE);
+		List<ItemStack> wrongStacks = copyStacks(input.items());
+		wrongStacks.set(12, new ItemStack(Items.DIRT));
+		assertExtremeRecipeDoesNotMatch(helper, "crystal_axe",
+				CraftingInput.of(input.width(), input.height(), wrongStacks));
+
+		Player attacker = helper.makeMockServerPlayer(GameType.SURVIVAL);
+		attacker.setItemInHand(InteractionHand.MAIN_HAND, axe);
+		Player defender = helper.makeMockServerPlayer(GameType.SURVIVAL);
+		ItemStack shield = new ItemStack(Items.SHIELD);
+		defender.setItemInHand(InteractionHand.OFF_HAND, shield);
+		defender.startUsingItem(InteractionHand.OFF_HAND);
+		AttackEntityCallback.EVENT.invoker().interact(
+				attacker, helper.getLevel(), InteractionHand.MAIN_HAND, defender, new EntityHitResult(defender));
+		helper.assertFalse(defender.isUsingItem(), "晶态矩阵斧没有停止盾牌格挡");
+		helper.assertTrue(shield.getDamageValue() >= shield.getMaxDamage() / 2,
+				"晶态矩阵斧没有削减盾牌至少一半耐久");
+
+		var warden = helper.spawnWithNoFreeWill(EntityTypes.WARDEN, new BlockPos(7, 2, 7));
+		attacker.setOnGround(false);
+		attacker.setDeltaMovement(0.0, -0.2, 0.0);
+		float healthBeforeJump = warden.getHealth();
+		ServerLivingEntityEvents.AFTER_DAMAGE.invoker().afterDamage(
+				warden, attacker.damageSources().playerAttack(attacker), 1.0F, 1.0F, false);
+		helper.assertTrue(warden.getHealth() <= healthBeforeJump - 54.0F,
+				"晶态矩阵斧下落跳劈没有追加五十四点虚空伤害");
+		attacker.setOnGround(true);
+		float healthBeforeGrounded = warden.getHealth();
+		ServerLivingEntityEvents.AFTER_DAMAGE.invoker().afterDamage(
+				warden, attacker.damageSources().playerAttack(attacker), 1.0F, 1.0F, false);
+		helper.assertTrue(warden.getHealth() == healthBeforeGrounded,
+				"晶态矩阵斧在地面攻击时错误追加跳劈伤害");
+
+		BlockPos logPos = new BlockPos(10, 2, 7);
+		helper.setBlock(logPos, Blocks.OAK_LOG);
+		InteractionResult stripResult = ModItems.CRYSTAL_AXE.useOn(new UseOnContext(
+				attacker,
+				InteractionHand.MAIN_HAND,
+				new BlockHitResult(Vec3.atCenterOf(helper.absolutePos(logPos)), Direction.UP,
+						helper.absolutePos(logPos), false)
+		));
+		helper.assertTrue(stripResult.consumesAction(), "晶态矩阵斧没有接管原木去皮操作");
+		helper.assertBlockPresent(Blocks.STRIPPED_OAK_LOG, logPos);
+		helper.assertTrue(axe.getDamageValue() == 1, "晶态矩阵斧原木去皮没有损耗一点耐久");
+		helper.succeed();
+	}
+
+	@GameTest
 	public void everyBuiltInSingularityCompresses(GameTestHelper helper) {
 		BlockPos relativePos = new BlockPos(13, 0, 0);
 		helper.setBlock(relativePos, ModBlocks.NEUTRON_COMPRESSOR);
@@ -5858,6 +5922,26 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 						'A', new ItemStack(ModBlocks.CRYSTAL_MATRIX_ITEM),
 						'B', new ItemStack(ModItems.NEUTRON_INGOT),
 						'C', new ItemStack(ModItems.CRYSTAL_MATRIX_INGOT)
+				)
+		);
+	}
+
+	private static CraftingInput crystalAxeInput() {
+		return extremeInput(
+				List.of(
+						"  CCC  ",
+						" CAA D ",
+						" CAA   ",
+						" C  AC ",
+						"  B CC ",
+						" B     ",
+						"A      "
+				),
+				Map.of(
+						'A', new ItemStack(ModBlocks.CRYSTAL_MATRIX_ITEM),
+						'B', new ItemStack(ModItems.NEUTRON_INGOT),
+						'C', new ItemStack(ModItems.CRYSTAL_MATRIX_INGOT),
+						'D', new ItemStack(ModBlocks.NEUTRON_ITEM)
 				)
 		);
 	}
