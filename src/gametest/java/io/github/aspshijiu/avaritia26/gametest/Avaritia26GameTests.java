@@ -58,6 +58,7 @@ import io.github.aspshijiu.avaritia26.inventory.NeutronRingMenu;
 import io.github.aspshijiu.avaritia26.inventory.SculkCraftingMenu;
 import io.github.aspshijiu.avaritia26.item.BlazeHoeItem;
 import io.github.aspshijiu.avaritia26.item.BlazePickaxeItem;
+import io.github.aspshijiu.avaritia26.item.BlazeShovelItem;
 import io.github.aspshijiu.avaritia26.item.BlazeSwordItem;
 import io.github.aspshijiu.avaritia26.item.CrystalBowItem;
 import io.github.aspshijiu.avaritia26.item.CrystalSwordItem;
@@ -4240,6 +4241,68 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	}
 
 	@GameTest
+	public void blazeShovelCraftsFlattensAndTransformsEveryMappedBlock(GameTestHelper helper) {
+		ItemStack shovel = new ItemStack(ModItems.BLAZE_SHOVEL);
+		helper.assertTrue(BuiltInRegistries.ITEM.getValue(ModItems.BLAZE_SHOVEL_KEY)
+				== ModItems.BLAZE_SHOVEL, "烈焰铲物品未注册");
+		helper.assertTrue(shovel.getMaxStackSize() == 1 && shovel.getRarity() == Rarity.EPIC
+				&& shovel.has(DataComponents.DAMAGE_RESISTANT) && shovel.getMaxDamage() == 7777,
+				"烈焰铲物品属性或耐久错误");
+		helper.assertTrue(shovel.is(ItemTags.SHOVELS), "烈焰铲缺少原版铲标签");
+		helper.assertFalse(ModItems.BLAZE_SHOVEL.isFoil(shovel), "烈焰铲不应显示附魔光效");
+		var modifiers = shovel.get(DataComponents.ATTRIBUTE_MODIFIERS);
+		helper.assertTrue(modifiers != null
+				&& modifiers.compute(Attributes.ATTACK_DAMAGE, 1.0, EquipmentSlot.MAINHAND) == 26.0
+				&& modifiers.compute(Attributes.ATTACK_SPEED, 4.0, EquipmentSlot.MAINHAND) == 29.0,
+				"烈焰铲没有保留上游二十五点伤害与攻速增幅");
+		var enchantments = helper.getLevel().registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+		helper.assertTrue(EnchantmentHelper.getItemEnchantmentLevel(
+				enchantments.getOrThrow(Enchantments.FIRE_ASPECT), shovel) == 10,
+				"烈焰铲没有自带火焰附加 X");
+
+		CraftingInput input = blazeShovelInput();
+		assertExtremeRecipe(helper, "blaze_shovel", input, ModItems.BLAZE_SHOVEL);
+		List<ItemStack> wrongStacks = copyStacks(input.items());
+		wrongStacks.set(4, new ItemStack(Items.DIRT));
+		assertExtremeRecipeDoesNotMatch(helper, "blaze_shovel",
+				CraftingInput.of(input.width(), input.height(), wrongStacks));
+
+		Player player = helper.makeMockServerPlayer(GameType.SURVIVAL);
+		player.setItemInHand(InteractionHand.MAIN_HAND, shovel);
+		BlockPos dirtPos = new BlockPos(4, 2, 4);
+		helper.setBlock(dirtPos, Blocks.DIRT);
+		BlockPos absoluteDirtPos = helper.absolutePos(dirtPos);
+		InteractionResult flattenResult = ModItems.BLAZE_SHOVEL.useOn(new UseOnContext(
+				player, InteractionHand.MAIN_HAND,
+				new BlockHitResult(Vec3.atCenterOf(absoluteDirtPos), Direction.UP, absoluteDirtPos, false)));
+		helper.assertTrue(flattenResult.consumesAction() && helper.getBlockState(dirtPos).is(Blocks.DIRT_PATH),
+				"烈焰铲关闭转化模式时没有保留原版铲平能力");
+
+		player.setShiftKeyDown(true);
+		ModItems.BLAZE_SHOVEL.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+		player.setShiftKeyDown(false);
+		helper.assertTrue(BlazeShovelItem.isTransformationEnabled(shovel), "烈焰铲没有开启转化模式");
+		helper.assertTrue(BlazeShovelItem.TRANSFORMATIONS.size() == 17, "烈焰铲转化表条目数量错误");
+		int index = 0;
+		for (var entry : BlazeShovelItem.TRANSFORMATIONS.entrySet()) {
+			BlockPos pos = new BlockPos(5 + index, 2, 8);
+			Block support = entry.getValue() == Blocks.CRIMSON_FUNGUS
+					? Blocks.CRIMSON_NYLIUM
+					: entry.getValue() == Blocks.WARPED_FUNGUS ? Blocks.WARPED_NYLIUM : Blocks.STONE;
+			helper.setBlock(pos.below(), support);
+			helper.setBlock(pos, entry.getKey());
+			BlockPos absolutePos = helper.absolutePos(pos);
+			InteractionResult result = ModItems.BLAZE_SHOVEL.useOn(new UseOnContext(
+					player, InteractionHand.MAIN_HAND,
+					new BlockHitResult(Vec3.atCenterOf(absolutePos), Direction.UP, absolutePos, false)));
+			helper.assertTrue(result.consumesAction() && helper.getBlockState(pos).is(entry.getValue()),
+					"烈焰铲转化失败：" + entry.getKey() + "→" + entry.getValue());
+			index++;
+		}
+		helper.succeed();
+	}
+
+	@GameTest
 	public void everyBuiltInSingularityCompresses(GameTestHelper helper) {
 		BlockPos relativePos = new BlockPos(13, 0, 0);
 		helper.setBlock(relativePos, ModBlocks.NEUTRON_COMPRESSOR);
@@ -6258,6 +6321,19 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	private static CraftingInput blazePickaxeInput() {
 		return extremeInput(
 				List.of("DCCCA", " DDAC", "  ADC", " E DC", "B   D"),
+				Map.of(
+						'A', new ItemStack(Items.BONE_BLOCK),
+						'B', new ItemStack(ModItems.DIAMOND_LATTICE),
+						'C', new ItemStack(ModItems.BLAZE_CUBE),
+						'D', new ItemStack(Items.BLAZE_POWDER),
+						'E', new ItemStack(Items.SOUL_SOIL)
+				)
+		);
+	}
+
+	private static CraftingInput blazeShovelInput() {
+		return extremeInput(
+				List.of("   DC", "  DCD", "  AD ", " E   ", "B    "),
 				Map.of(
 						'A', new ItemStack(Items.BONE_BLOCK),
 						'B', new ItemStack(ModItems.DIAMOND_LATTICE),
