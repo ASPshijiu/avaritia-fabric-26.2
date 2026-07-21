@@ -168,6 +168,8 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.item.enchantment.Repairable;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -4428,6 +4430,79 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 				"烈焰弓灼烧火球没有成功发射或添加一秒冷却");
 		helper.assertTrue(bow.getDamageValue() == 0, "上游烈焰弓不应消耗耐久");
 		helper.succeed();
+	}
+
+	@GameTest
+	public void neutronHorseArmorSmithsEquipsAndProtectsHorse(GameTestHelper helper) {
+		ItemStack armor = new ItemStack(ModItems.NEUTRON_HORSE_ARMOR);
+		helper.assertTrue(BuiltInRegistries.ITEM.getValue(ModItems.NEUTRON_HORSE_ARMOR_KEY)
+				== ModItems.NEUTRON_HORSE_ARMOR, "中子马铠物品未注册");
+		helper.assertTrue(armor.getMaxStackSize() == 1 && armor.get(DataComponents.RARITY) == Rarity.RARE
+				&& armor.has(DataComponents.DAMAGE_RESISTANT) && !armor.isDamageableItem(),
+				"中子马铠物品属性错误：堆叠=" + armor.getMaxStackSize()
+						+ "，基础稀有度=" + armor.get(DataComponents.RARITY)
+						+ "，防火=" + armor.has(DataComponents.DAMAGE_RESISTANT)
+						+ "，最大耐久=" + armor.getMaxDamage());
+		helper.assertFalse(ModItems.NEUTRON_HORSE_ARMOR.isFoil(armor), "中子马铠不应显示附魔光效");
+
+		var enchantments = helper.getLevel().registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+		helper.assertTrue(EnchantmentHelper.getItemEnchantmentLevel(
+				enchantments.getOrThrow(Enchantments.FROST_WALKER), armor) == 10,
+				"中子马铠没有自带冰霜行者 X");
+		helper.assertTrue(EnchantmentHelper.getItemEnchantmentLevel(
+				enchantments.getOrThrow(Enchantments.PROTECTION), armor) == 10,
+				"中子马铠没有自带保护 X");
+		helper.assertTrue(EnchantmentHelper.getItemEnchantmentLevel(
+				enchantments.getOrThrow(Enchantments.FEATHER_FALLING), armor) == 4,
+				"中子马铠没有自带摔落缓冲 IV");
+
+		Equippable equippable = armor.get(DataComponents.EQUIPPABLE);
+		helper.assertTrue(equippable != null && equippable.slot() == EquipmentSlot.BODY
+				&& equippable.canBeEquippedBy(EntityTypes.HORSE.builtInRegistryHolder())
+				&& !equippable.canBeEquippedBy(EntityTypes.PLAYER.builtInRegistryHolder())
+				&& !equippable.damageOnHurt(),
+				"中子马铠没有限制在战马身体槽或仍会受击损耗");
+		var modifiers = armor.get(DataComponents.ATTRIBUTE_MODIFIERS);
+		helper.assertTrue(modifiers != null
+				&& modifiers.compute(Attributes.ARMOR, 0.0, EquipmentSlot.BODY) == 50.0
+				&& modifiers.compute(Attributes.ARMOR_TOUGHNESS, 0.0, EquipmentSlot.BODY) == 1.0
+				&& modifiers.compute(Attributes.KNOCKBACK_RESISTANCE, 0.0, EquipmentSlot.BODY) == 1.0,
+				"中子马铠物品没有声明五十护甲、一点韧性和完全击退抗性");
+
+		ExtremeSmithingInput input = new ExtremeSmithingInput(
+				new ItemStack(ModItems.UPGRADE_SMITHING_TEMPLATE),
+				new ItemStack(Items.DIAMOND_HORSE_ARMOR),
+				PotionContents.createItemStack(Items.POTION, Potions.SWIFTNESS),
+				new ItemStack(ModItems.ENHANCEMENT_CORE),
+				new ItemStack(Items.BLUE_ICE)
+		);
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(
+				Registries.RECIPE, Avaritia26.id("neutron_horse_armor"));
+		RecipeHolder<ExtremeSmithingRecipe> recipe = helper.getLevel().getServer().getRecipeManager()
+				.getRecipeFor(ModRecipes.EXTREME_SMITHING, input, helper.getLevel())
+				.filter(candidate -> candidate.id().equals(recipeKey))
+				.orElseThrow(() -> helper.assertionException("正确材料未匹配中子马铠强化锻造配方"));
+		helper.assertTrue(recipe.value().assemble(input).is(ModItems.NEUTRON_HORSE_ARMOR),
+				"中子马铠强化锻造输出错误");
+		ExtremeSmithingInput wrongPotion = new ExtremeSmithingInput(
+				input.template(), input.base(), PotionContents.createItemStack(Items.POTION, Potions.STRENGTH),
+				input.addition2(), input.addition3());
+		helper.assertFalse(recipe.value().matches(wrongPotion, helper.getLevel()),
+				"中子马铠配方不应接受非迅捷药水");
+
+		var horse = helper.spawnWithNoFreeWill(EntityTypes.HORSE, new BlockPos(8, 2, 8));
+		horse.setItemSlot(EquipmentSlot.BODY, armor.copy());
+		helper.assertTrue(horse.getItemBySlot(EquipmentSlot.BODY).is(ModItems.NEUTRON_HORSE_ARMOR),
+				"中子马铠没有装备到战马身体槽");
+		helper.runAfterDelay(1, () -> {
+			helper.assertTrue(horse.getAttributeValue(Attributes.ARMOR) == 30.0
+					&& horse.getAttributeValue(Attributes.ARMOR_TOUGHNESS) == 1.0
+					&& horse.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE) == 1.0,
+					"中子马铠属性错误：护甲=" + horse.getAttributeValue(Attributes.ARMOR)
+							+ "，韧性=" + horse.getAttributeValue(Attributes.ARMOR_TOUGHNESS)
+							+ "，击退抗性=" + horse.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE));
+			helper.succeed();
+		});
 	}
 
 	@GameTest

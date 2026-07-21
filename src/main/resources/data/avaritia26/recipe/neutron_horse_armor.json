@@ -1,0 +1,19 @@
+{
+  "type": "avaritia26:extreme_smithing",
+  "template": "avaritia26:upgrade_smithing_template",
+  "base": "minecraft:diamond_horse_armor",
+  "addition": [
+    {
+      "fabric:type": "fabric:components",
+      "base": "minecraft:potion",
+      "components": {
+        "minecraft:potion_contents": {
+          "potion": "minecraft:swiftness"
+        }
+      }
+    },
+    "avaritia26:enhancement_core",
+    "minecraft:blue_ice"
+  ],
+  "result": { "count": 1, "id": "avaritia26:neutron_horse_armor" }
+}

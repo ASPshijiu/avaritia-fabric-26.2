@@ -16,6 +16,10 @@ public final class ModArmorMaterials {
 			EquipmentAssets.ROOT_ID,
 			Avaritia26.id("infinity")
 	);
+	public static final ResourceKey<EquipmentAsset> NEUTRON_HORSE_ARMOR_ASSET = ResourceKey.create(
+			EquipmentAssets.ROOT_ID,
+			Avaritia26.id("neutron_horse_armor")
+	);
 
 	public static final ArmorMaterial INFINITY = new ArmorMaterial(
 			9999,
@@ -31,6 +35,16 @@ public final class ModArmorMaterials {
 			0.0F,
 			ItemTags.REPAIRS_NETHERITE_ARMOR,
 			INFINITY_ASSET
+	);
+	public static final ArmorMaterial NEUTRON_HORSE_ARMOR = new ArmorMaterial(
+			0,
+			Map.of(ArmorType.BODY, 50),
+			10,
+			SoundEvents.ARMOR_EQUIP_DIAMOND,
+			1.0F,
+			1.0F,
+			ItemTags.REPAIRS_NETHERITE_ARMOR,
+			NEUTRON_HORSE_ARMOR_ASSET
 	);
 
 	private ModArmorMaterials() {

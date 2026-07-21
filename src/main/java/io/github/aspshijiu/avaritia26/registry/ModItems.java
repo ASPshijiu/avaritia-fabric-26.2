@@ -36,6 +36,7 @@ import io.github.aspshijiu.avaritia26.item.InfinityUmbrellaItem;
 import io.github.aspshijiu.avaritia26.item.InfinityUpgradeItem;
 import io.github.aspshijiu.avaritia26.item.MatterClusterItem;
 import io.github.aspshijiu.avaritia26.item.NeutronRingItem;
+import io.github.aspshijiu.avaritia26.item.NeutronHorseArmorItem;
 import io.github.aspshijiu.avaritia26.item.SideConfigurationCardItem;
 import io.github.aspshijiu.avaritia26.item.SingularityItem;
 import io.github.aspshijiu.avaritia26.item.SkullFireSwordItem;
@@ -321,6 +322,18 @@ public final class ModItems {
 					.fireResistant()
 					.enchantable(1)
 					.component(ModDataComponents.BLAZE_BOW_BURNING, false)
+	);
+	public static final ResourceKey<Item> NEUTRON_HORSE_ARMOR_KEY = key("neutron_horse_armor");
+	public static final NeutronHorseArmorItem NEUTRON_HORSE_ARMOR = register(
+			NEUTRON_HORSE_ARMOR_KEY,
+			NeutronHorseArmorItem::new,
+			new Item.Properties()
+					.rarity(Rarity.RARE)
+					.stacksTo(1)
+					.fireResistant()
+					.enchantable(10)
+					.horseArmor(ModArmorMaterials.NEUTRON_HORSE_ARMOR)
+					.delayedComponent(DataComponents.ENCHANTMENTS, ModItems::neutronHorseArmorEnchantments)
 	);
 	public static final ResourceKey<Item> INFINITY_HELMET_KEY = key("infinity_helmet");
 	public static final Item INFINITY_HELMET = register(
@@ -627,6 +640,15 @@ public final class ModItems {
 		HolderLookup.RegistryLookup<Enchantment> enchantments = registries.lookupOrThrow(Registries.ENCHANTMENT);
 		ItemEnchantments.Mutable result = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
 		result.set(enchantments.getOrThrow(Enchantments.FIRE_ASPECT), 10);
+		return result.toImmutable();
+	}
+
+	private static ItemEnchantments neutronHorseArmorEnchantments(HolderLookup.Provider registries) {
+		HolderLookup.RegistryLookup<Enchantment> enchantments = registries.lookupOrThrow(Registries.ENCHANTMENT);
+		ItemEnchantments.Mutable result = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
+		result.set(enchantments.getOrThrow(Enchantments.FROST_WALKER), 10);
+		result.set(enchantments.getOrThrow(Enchantments.PROTECTION), 10);
+		result.set(enchantments.getOrThrow(Enchantments.FEATHER_FALLING), 4);
 		return result.toImmutable();
 	}
 
