@@ -82,7 +82,7 @@ public final class InfinityTridentItem extends TridentItem {
 				: "tooltip.avaritia26.infinity_trident.riptide").withStyle(ChatFormatting.GRAY));
 	}
 
-	private static void throwTrident(ServerLevel level, Player player, ItemStack stack) {
+	public static InfinityThrownTridentEntity throwTrident(ServerLevel level, Player player, ItemStack stack) {
 		InfinityThrownTridentEntity trident = new InfinityThrownTridentEntity(level, player, stack);
 		trident.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 2.5F, 1.0F);
 		trident.pickup = player.getAbilities().instabuild
@@ -93,6 +93,7 @@ public final class InfinityTridentItem extends TridentItem {
 		if (!player.getAbilities().instabuild) {
 			player.setItemInHand(player.getUsedItemHand(), ItemStack.EMPTY);
 		}
+		return trident;
 	}
 
 	private static void riptide(Level level, Player player, ItemStack stack) {

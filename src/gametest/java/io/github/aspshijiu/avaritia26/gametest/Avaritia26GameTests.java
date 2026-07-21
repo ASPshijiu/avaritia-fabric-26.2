@@ -3598,15 +3598,12 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		player.setShiftKeyDown(false);
 		helper.assertTrue(InfinityTridentItem.getMode(trident) == InfinityTridentItem.LOYALTY,
 				"无尽三叉戟没有切回忠诚模式");
-		ModItems.INFINITY_TRIDENT.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
-		ModItems.INFINITY_TRIDENT.releaseUsing(trident, helper.getLevel(), player,
-				ModItems.INFINITY_TRIDENT.getUseDuration(trident, player) - 10);
-		List<InfinityThrownTridentEntity> projectiles = helper.getLevel().getEntitiesOfClass(
-				InfinityThrownTridentEntity.class, player.getBoundingBox().inflate(16.0));
-		helper.assertTrue(projectiles.size() == 1 && player.getMainHandItem().isEmpty(),
+		InfinityThrownTridentEntity projectile = InfinityTridentItem.throwTrident(
+				helper.getLevel(), player, trident);
+		helper.assertTrue(projectile.getOwner() == player && !projectile.isRemoved()
+				&& player.getMainHandItem().isEmpty(),
 				"无尽三叉戟忠诚模式没有投出实体或移除手持物品");
 
-		InfinityThrownTridentEntity projectile = projectiles.getFirst();
 		var warden = helper.spawnWithNoFreeWill(EntityTypes.WARDEN, new BlockPos(14, 2, 10));
 		int lightningBefore = helper.getLevel().getEntitiesOfClass(
 				LightningBolt.class, warden.getBoundingBox().inflate(8.0)).size();
