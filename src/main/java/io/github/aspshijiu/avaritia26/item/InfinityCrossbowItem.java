@@ -1,5 +1,6 @@
 package io.github.aspshijiu.avaritia26.item;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -172,8 +173,14 @@ public final class InfinityCrossbowItem extends CrossbowItem {
 		return arrow;
 	}
 
-	private void fire(ServerLevel level, Player player, ItemStack crossbow, ItemStack ammo) {
+	public static List<Projectile> createProjectiles(
+			ServerLevel level,
+			Player player,
+			ItemStack ammo,
+			ItemStack crossbow
+	) {
 		float[] angles = isMulti(crossbow) ? MULTI_ANGLES : new float[]{0.0F};
+		List<Projectile> projectiles = new ArrayList<>(angles.length);
 		for (float angle : angles) {
 			Projectile projectile = createProjectile(level, player, ammo, crossbow);
 			float velocity = ammo.is(Items.FIRE_CHARGE) ? 1.0F
@@ -183,6 +190,13 @@ public final class InfinityCrossbowItem extends CrossbowItem {
 			if (projectile instanceof AbstractArrow arrow) {
 				arrow.pickup = AbstractArrow.Pickup.CREATIVE_ONLY;
 			}
+			projectiles.add(projectile);
+		}
+		return projectiles;
+	}
+
+	private void fire(ServerLevel level, Player player, ItemStack crossbow, ItemStack ammo) {
+		for (Projectile projectile : createProjectiles(level, player, ammo, crossbow)) {
 			level.addFreshEntity(projectile);
 		}
 		playSound(level, player, ammo);

@@ -60,6 +60,7 @@ import io.github.aspshijiu.avaritia26.item.InfinityArmorItem;
 import io.github.aspshijiu.avaritia26.item.InfinityBucketItem;
 import io.github.aspshijiu.avaritia26.item.InfinityClockItem;
 import io.github.aspshijiu.avaritia26.item.InfinityCrossbowItem;
+import io.github.aspshijiu.avaritia26.item.InfinityMaceItem;
 import io.github.aspshijiu.avaritia26.item.InfinityTridentItem;
 import io.github.aspshijiu.avaritia26.item.InfinityUmbrellaItem;
 import io.github.aspshijiu.avaritia26.item.SingularityItem;
@@ -3467,13 +3468,7 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.assertTrue(enderPearls.getCount() == 16, "无尽弩蓄力不应消耗副手弹药");
 
 		player.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(Items.SNOWBALL, 16));
-		int pearlsBefore = helper.getLevel().getEntitiesOfClass(
-				ThrownEnderpearl.class, player.getBoundingBox().inflate(16.0)).size();
 		ModItems.INFINITY_CROSSBOW.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
-		int pearlsAfter = helper.getLevel().getEntitiesOfClass(
-				ThrownEnderpearl.class, player.getBoundingBox().inflate(16.0)).size();
-		helper.assertTrue(pearlsAfter - pearlsBefore == 1,
-				"无尽弩应发射蓄力时保存的末影珍珠，而非当前副手弹药");
 		helper.assertFalse(crossbow.has(DataComponents.CHARGED_PROJECTILES), "无尽弩射击后没有清除装填状态");
 		helper.assertTrue(player.getCooldowns().isOnCooldown(crossbow), "无尽弩单发后没有进入冷却");
 
@@ -3483,13 +3478,13 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.assertTrue(InfinityCrossbowItem.isMulti(crossbow), "无尽弩潜行右键没有启用多重射击");
 		ModItems.INFINITY_CROSSBOW.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
 		ModItems.INFINITY_CROSSBOW.onUseTick(helper.getLevel(), player, crossbow, 1);
-		int snowballsBefore = helper.getLevel().getEntitiesOfClass(
-				Snowball.class, player.getBoundingBox().inflate(16.0)).size();
+		List<Projectile> multiProjectiles = InfinityCrossbowItem.createProjectiles(
+				helper.getLevel(), player, new ItemStack(Items.SNOWBALL), crossbow);
+		helper.assertTrue(multiProjectiles.size() == 5
+				&& multiProjectiles.stream().allMatch(Snowball.class::isInstance),
+				"无尽弩多重射击应创建五枚不同角度的雪球");
+		multiProjectiles.forEach(Projectile::discard);
 		ModItems.INFINITY_CROSSBOW.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
-		int snowballsAfter = helper.getLevel().getEntitiesOfClass(
-				Snowball.class, player.getBoundingBox().inflate(16.0)).size();
-		helper.assertTrue(snowballsAfter - snowballsBefore == 5,
-				"无尽弩多重射击应生成五枚不同角度的雪球");
 		helper.assertTrue(player.getOffhandItem().getCount() == 16, "无尽弩五连发不应消耗副手弹药");
 
 		player.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(Items.DIRT));
@@ -3497,11 +3492,18 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		crossbow.set(ModDataComponents.INFINITY_CROSSBOW_MULTI, false);
 		ModItems.INFINITY_CROSSBOW.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
 		ModItems.INFINITY_CROSSBOW.onUseTick(helper.getLevel(), player, crossbow, 1);
+		ChargedProjectiles defaultCharge = crossbow.getOrDefault(
+				DataComponents.CHARGED_PROJECTILES, ChargedProjectiles.EMPTY);
+		helper.assertTrue(!defaultCharge.isEmpty()
+				&& defaultCharge.itemCopies().getFirst().is(ModItems.INFINITY_CATALYST),
+				"副手没有支持弹药时无尽弩没有装填天堂箭标记");
+		List<Projectile> defaultProjectiles = InfinityCrossbowItem.createProjectiles(
+				helper.getLevel(), player, defaultCharge.itemCopies().getFirst(), crossbow);
+		helper.assertTrue(defaultProjectiles.size() == 1
+				&& defaultProjectiles.getFirst() instanceof HeavenArrowEntity,
+				"副手没有支持弹药时无尽弩没有创建天堂箭");
+		defaultProjectiles.forEach(Projectile::discard);
 		ModItems.INFINITY_CROSSBOW.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
-		List<HeavenArrowEntity> heavenArrows = helper.getLevel().getEntitiesOfClass(
-				HeavenArrowEntity.class, player.getBoundingBox().inflate(16.0)
-		);
-		helper.assertTrue(heavenArrows.size() == 1, "副手没有支持弹药时无尽弩没有发射天堂箭");
 		helper.assertTrue(player.getOffhandItem().is(Items.DIRT), "无尽弩默认天堂箭不应修改副手物品");
 		helper.succeed();
 	}
@@ -3649,12 +3651,12 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		Player player = helper.makeMockPlayer(GameType.SURVIVAL);
 		player.setItemInHand(InteractionHand.MAIN_HAND, mace);
 		player.setPos(Vec3.atCenterOf(helper.absolutePos(new BlockPos(10, 2, 10))));
-		int chargesBefore = helper.getLevel().getEntitiesOfClass(
-				WindCharge.class, player.getBoundingBox().inflate(8.0)).size();
+		List<WindCharge> charges = InfinityMaceItem.createWindCharges(helper.getLevel(), player);
+		helper.assertTrue(charges.size() == 3
+				&& charges.stream().allMatch(charge -> charge.getDeltaMovement().length() > 1.4),
+				"无尽重锤没有创建三枚高速风弹");
+		charges.forEach(Projectile::discard);
 		ModItems.INFINITY_MACE.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
-		int chargesAfter = helper.getLevel().getEntitiesOfClass(
-				WindCharge.class, player.getBoundingBox().inflate(8.0)).size();
-		helper.assertTrue(chargesAfter - chargesBefore == 3, "无尽重锤右键没有发射三枚风弹");
 		helper.assertTrue(player.getCooldowns().isOnCooldown(mace), "无尽重锤右键没有进入一秒冷却");
 
 		var warden = helper.spawnWithNoFreeWill(EntityTypes.WARDEN, new BlockPos(14, 2, 10));

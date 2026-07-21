@@ -1,5 +1,8 @@
 package io.github.aspshijiu.avaritia26.item;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
@@ -24,16 +27,22 @@ public final class InfinityMaceItem extends MaceItem {
 	@Override
 	public InteractionResult use(Level level, Player player, InteractionHand hand) {
 		if (level instanceof ServerLevel serverLevel) {
-			for (int index = 0; index < 3; index++) {
-				WindCharge charge = new WindCharge(
-						player, serverLevel, player.getX(), player.getEyeY(), player.getZ()
-				);
-				charge.shoot(player.getLookAngle().x, player.getLookAngle().y, player.getLookAngle().z, 1.5F, 1.0F);
+			for (WindCharge charge : createWindCharges(serverLevel, player)) {
 				serverLevel.addFreshEntity(charge);
 			}
 			player.getCooldowns().addCooldown(player.getItemInHand(hand), 20);
 		}
 		return InteractionResult.SUCCESS;
+	}
+
+	public static List<WindCharge> createWindCharges(ServerLevel level, Player player) {
+		List<WindCharge> charges = new ArrayList<>(3);
+		for (int index = 0; index < 3; index++) {
+			WindCharge charge = new WindCharge(player, level, player.getX(), player.getEyeY(), player.getZ());
+			charge.shoot(player.getLookAngle().x, player.getLookAngle().y, player.getLookAngle().z, 1.5F, 1.0F);
+			charges.add(charge);
+		}
+		return charges;
 	}
 
 	@Override
