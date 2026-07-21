@@ -5641,6 +5641,10 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		BlockPos relativePos = new BlockPos(5, 0, 0);
 		helper.setBlock(relativePos, ModBlocks.EXTREME_CRAFTING_TABLE);
 		helper.assertBlockPresent(ModBlocks.EXTREME_CRAFTING_TABLE, relativePos);
+		helper.assertTrue(
+				helper.getBlockState(relativePos).is(BlockTags.MINEABLE_WITH_PICKAXE),
+				"终极工作台启用了正确工具掉落但缺少镐开采标签"
+		);
 		ExtremeCraftingTableBlockEntity blockEntity = helper.getBlockEntity(
 				relativePos,
 				ExtremeCraftingTableBlockEntity.class
