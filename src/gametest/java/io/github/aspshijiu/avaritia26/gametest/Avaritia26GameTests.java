@@ -104,6 +104,7 @@ import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
+import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -4458,6 +4459,17 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 					"烈焰铲转化失败：" + entry.getKey() + "→" + entry.getValue());
 			index++;
 		}
+
+		BlockPos beaconPos = new BlockPos(4, 2, 12);
+		helper.setBlock(beaconPos, Blocks.BEACON);
+		BlockPos absoluteBeaconPos = helper.absolutePos(beaconPos);
+		InteractionResult beaconResult = UseBlockCallback.EVENT.invoker().interact(
+				player,
+				helper.getLevel(),
+				InteractionHand.MAIN_HAND,
+				new BlockHitResult(Vec3.atCenterOf(absoluteBeaconPos), Direction.UP, absoluteBeaconPos, false));
+		helper.assertTrue(beaconResult.consumesAction() && helper.getBlockState(beaconPos).is(Blocks.ANCIENT_DEBRIS),
+				"烈焰铲转化模式应在信标菜单打开前把信标转化为远古残骸");
 		helper.succeed();
 	}
 

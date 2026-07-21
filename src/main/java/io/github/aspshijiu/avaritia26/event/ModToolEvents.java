@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 import io.github.aspshijiu.avaritia26.item.BlazeHoeItem;
+import io.github.aspshijiu.avaritia26.item.BlazeShovelItem;
 import io.github.aspshijiu.avaritia26.item.CrystalPickaxeItem;
 import io.github.aspshijiu.avaritia26.item.InfinityAxeItem;
 import io.github.aspshijiu.avaritia26.item.InfinityPickaxeItem;
@@ -17,6 +18,7 @@ import io.github.aspshijiu.avaritia26.registry.ModDataComponents;
 import io.github.aspshijiu.avaritia26.registry.ModItems;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
+import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -29,6 +31,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -47,6 +50,15 @@ public final class ModToolEvents {
 
 	public static void initialize() {
 		AttackBlockCallback.EVENT.register(ModToolEvents::breakWithInfinityTool);
+		UseBlockCallback.EVENT.register((player, level, hand, hitResult) -> {
+			ItemStack tool = player.getItemInHand(hand);
+			if (!tool.is(ModItems.BLAZE_SHOVEL)
+					|| !BlazeShovelItem.isTransformationEnabled(tool)
+					|| !BlazeShovelItem.TRANSFORMATIONS.containsKey(level.getBlockState(hitResult.getBlockPos()).getBlock())) {
+				return InteractionResult.PASS;
+			}
+			return ModItems.BLAZE_SHOVEL.useOn(new UseOnContext(player, hand, hitResult));
+		});
 		LootTableEvents.MODIFY_DROPS.register((table, context, drops) -> smeltBlazeToolDrops(context, drops));
 	}
 
