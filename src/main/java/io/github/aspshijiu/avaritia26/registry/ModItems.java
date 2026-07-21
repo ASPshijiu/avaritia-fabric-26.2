@@ -253,6 +253,7 @@ public final class ModItems {
 					.stacksTo(1)
 					.fireResistant()
 					.durability(8888)
+					.repairable(REPAIRS_CRYSTAL_TOOL)
 					.enchantable(888)
 					.component(ModDataComponents.CRYSTAL_BLADE_SLASH, false)
 					.delayedComponent(DataComponents.ENCHANTMENTS, ModItems::crystalBowEnchantments)

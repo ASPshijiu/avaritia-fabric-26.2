@@ -3855,6 +3855,17 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.assertTrue(repairable != null
 				&& repairable.isValidRepairItem(new ItemStack(ModItems.CRYSTAL_MATRIX_INGOT)),
 				"晶态矩阵剑不能用晶态矩阵锭修复");
+		ItemStack damagedSword = sword.copy();
+		damagedSword.setDamageValue(100);
+		Player repairPlayer = helper.makeMockPlayer(GameType.SURVIVAL);
+		net.minecraft.world.inventory.AnvilMenu anvil = new net.minecraft.world.inventory.AnvilMenu(
+				1, repairPlayer.getInventory());
+		anvil.getSlot(0).set(damagedSword);
+		anvil.getSlot(1).set(new ItemStack(ModItems.CRYSTAL_MATRIX_INGOT, 64));
+		anvil.createResult();
+		helper.assertTrue(!anvil.getSlot(2).getItem().isEmpty()
+				&& anvil.getSlot(2).getItem().getDamageValue() < damagedSword.getDamageValue(),
+				"原版铁砧没有接受晶态矩阵锭修复晶态矩阵剑");
 
 		CraftingInput input = crystalSwordInput();
 		assertExtremeRecipe(helper, "crystal_sword", input, ModItems.CRYSTAL_SWORD);
@@ -4161,6 +4172,21 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.assertFalse(ModItems.CRYSTAL_BOW.isFoil(bow), "晶态矩阵弓不应显示附魔光效");
 		helper.assertTrue(ModItems.CRYSTAL_BOW.getUseAnimation(bow) == ItemUseAnimation.BOW,
 				"晶态矩阵弓没有使用拉弓动画");
+		Repairable bowRepairable = bow.get(DataComponents.REPAIRABLE);
+		helper.assertTrue(bowRepairable != null
+				&& bowRepairable.isValidRepairItem(new ItemStack(ModItems.CRYSTAL_MATRIX_INGOT)),
+				"晶态矩阵弓不能用晶态矩阵锭修复");
+		ItemStack damagedBow = bow.copy();
+		damagedBow.setDamageValue(100);
+		Player repairPlayer = helper.makeMockPlayer(GameType.SURVIVAL);
+		net.minecraft.world.inventory.AnvilMenu anvil = new net.minecraft.world.inventory.AnvilMenu(
+				1, repairPlayer.getInventory());
+		anvil.getSlot(0).set(damagedBow);
+		anvil.getSlot(1).set(new ItemStack(ModItems.CRYSTAL_MATRIX_INGOT, 64));
+		anvil.createResult();
+		helper.assertTrue(!anvil.getSlot(2).getItem().isEmpty()
+				&& anvil.getSlot(2).getItem().getDamageValue() < damagedBow.getDamageValue(),
+				"原版铁砧没有接受晶态矩阵锭修复晶态矩阵弓");
 
 		var enchantments = helper.getLevel().registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
 		var infinity = enchantments.getOrThrow(Enchantments.INFINITY);
