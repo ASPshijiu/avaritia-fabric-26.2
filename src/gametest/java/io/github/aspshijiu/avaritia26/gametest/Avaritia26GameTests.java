@@ -1520,6 +1520,23 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.assertTrue(pickaxe.getMaxStackSize() == 1 && !pickaxe.isDamageableItem(), "无尽镐应当不可堆叠且永不损耗");
 		helper.assertTrue(pickaxe.getRarity() == Rarity.EPIC && pickaxe.is(ItemTags.PICKAXES), "无尽镐稀有度或工具标签错误");
 		helper.assertTrue(ModItems.INFINITY_PICKAXE.getDestroySpeed(pickaxe, Blocks.STONE.defaultBlockState()) == 9999.0F, "无尽镐普通模式速度错误");
+		for (Block customBlock : List.of(
+				ModBlocks.BLAZE_CUBE_BLOCK,
+				ModBlocks.DIAMOND_LATTICE_BLOCK,
+				ModBlocks.CRYSTAL_MATRIX,
+				ModBlocks.NEUTRON,
+				ModBlocks.STAR_FUEL_BLOCK,
+				ModBlocks.REFINED_COAL_BLOCK
+		)) {
+			helper.assertTrue(
+					customBlock.defaultBlockState().is(BlockTags.MINEABLE_WITH_PICKAXE),
+					"材料方块缺少原版镐开采标签：" + BuiltInRegistries.BLOCK.getKey(customBlock)
+			);
+			helper.assertTrue(
+					pickaxe.isCorrectToolForDrops(customBlock.defaultBlockState()),
+					"无尽镐不能正确开采材料方块：" + BuiltInRegistries.BLOCK.getKey(customBlock)
+			);
+		}
 
 		CraftingInput input = infinityPickaxeInput();
 		assertExtremeRecipe(helper, "infinity_pickaxe", input, ModItems.INFINITY_PICKAXE);

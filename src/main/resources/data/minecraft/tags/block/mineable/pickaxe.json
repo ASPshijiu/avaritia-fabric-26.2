@@ -2,6 +2,11 @@
 	"replace": false,
 	"values": [
 		"avaritia26:blaze_cube_block",
+		"avaritia26:diamond_lattice_block",
+		"avaritia26:crystal_matrix",
+		"avaritia26:neutron",
+		"avaritia26:star_fuel_block",
+		"avaritia26:refined_coal_block",
 		"avaritia26:neutron_collector",
 		"avaritia26:dense_neutron_collector",
 		"avaritia26:denser_neutron_collector",
