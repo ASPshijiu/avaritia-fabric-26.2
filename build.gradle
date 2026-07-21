@@ -1,3 +1,5 @@
+import groovy.json.JsonSlurper
+
 plugins {
 	id 'net.fabricmc.fabric-loom' version "${loom_version}"
 	id 'maven-publish'
@@ -47,6 +49,89 @@ processResources {
 
 tasks.withType(JavaCompile).configureEach {
 	options.release = 25
+}
+
+tasks.register("validateResources") {
+	group = "verification"
+	description = "校验 JSON、双语键及本模组数据和客户端资源引用的一致性"
+
+	doLast {
+		def json = new JsonSlurper()
+		def jsonFiles = fileTree(projectDir) {
+			include "src/*/resources/**/*.json"
+		}.files.sort()
+		def parsed = [:]
+		jsonFiles.each { resource ->
+			try {
+				parsed[resource] = json.parse(resource)
+			} catch (Exception exception) {
+				throw new GradleException("无法解析 JSON：${project.relativePath(resource)}", exception)
+			}
+		}
+
+		def idsUnder = { String path ->
+			fileTree(path).matching { include "**/*.json" }.files.collect { it.name[0..<-5] } as Set
+		}
+		def recipes = idsUnder("src/main/resources/data/avaritia26/recipe")
+		def recipeAdvancements = idsUnder("src/main/resources/data/avaritia26/advancement/recipes")
+		if (recipes != recipeAdvancements) {
+			throw new GradleException("配方与进度不一致；缺少进度=${recipes - recipeAdvancements}，孤立进度=${recipeAdvancements - recipes}")
+		}
+
+		def blockstates = idsUnder("src/client/resources/assets/avaritia26/blockstates")
+		def blockLoot = idsUnder("src/main/resources/data/avaritia26/loot_table/blocks")
+		if (blockstates != blockLoot) {
+			throw new GradleException("方块状态与战利品表不一致；缺少战利品=${blockstates - blockLoot}，孤立战利品=${blockLoot - blockstates}")
+		}
+
+		def english = parsed[file("src/client/resources/assets/avaritia26/lang/en_us.json")].keySet()
+		def chinese = parsed[file("src/client/resources/assets/avaritia26/lang/zh_cn.json")].keySet()
+		if (english != chinese) {
+			throw new GradleException("中英文翻译键不一致；缺少中文=${english - chinese}，缺少英文=${chinese - english}")
+		}
+
+		def clientRoot = file("src/client/resources/assets/avaritia26")
+		def checkModel = { String id, File source ->
+			if (id.startsWith("avaritia26:")) {
+				def target = new File(clientRoot, "models/${id.substring("avaritia26:".length())}.json")
+				if (!target.isFile()) {
+					throw new GradleException("缺少模型 ${id}，引用自 ${project.relativePath(source)}")
+				}
+			}
+		}
+		def checkTexture = { String id, File source ->
+			if (id.startsWith("avaritia26:")) {
+				def target = new File(clientRoot, "textures/${id.substring("avaritia26:".length())}.png")
+				if (!target.isFile()) {
+					throw new GradleException("缺少纹理 ${id}，引用自 ${project.relativePath(source)}")
+				}
+			}
+		}
+		def walk
+		walk = { value, File source ->
+			if (value instanceof Map) {
+				value.each { key, child ->
+					if ((key == "model" || key == "parent") && child instanceof String) {
+						checkModel(child, source)
+					}
+					if (key == "textures" && child instanceof Map) {
+						child.values().findAll { it instanceof String && !it.startsWith("#") }.each { checkTexture(it, source) }
+					}
+					walk(child, source)
+				}
+			} else if (value instanceof List) {
+				value.each { walk(it, source) }
+			}
+		}
+		parsed.findAll { source, ignored -> source.toPath().startsWith(clientRoot.toPath()) }
+			.each { source, value -> walk(value, source) }
+
+		logger.lifecycle("资源校验通过：${jsonFiles.size()} 个 JSON、${recipes.size()} 个配方、${blockstates.size()} 个方块、${english.size()} 个双语键")
+	}
+}
+
+tasks.named("check") {
+	dependsOn tasks.named("validateResources")
 }
 
 java {
