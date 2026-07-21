@@ -42,6 +42,7 @@ public final class ModCreativeTabs {
 				output.accept(ModItems.BLAZE_HOE);
 				output.accept(ModItems.BLAZE_PICKAXE);
 				output.accept(ModItems.BLAZE_SHOVEL);
+				output.accept(ModItems.BLAZE_AXE);
 				output.accept(ModItems.INFINITY_HELMET);
 				output.accept(ModItems.INFINITY_CHESTPLATE);
 				output.accept(ModItems.INFINITY_PANTS);

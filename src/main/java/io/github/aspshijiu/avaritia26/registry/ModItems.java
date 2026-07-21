@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import io.github.aspshijiu.avaritia26.Avaritia26;
+import io.github.aspshijiu.avaritia26.item.BlazeAxeItem;
 import io.github.aspshijiu.avaritia26.item.BlazeHoeItem;
 import io.github.aspshijiu.avaritia26.item.BlazePickaxeItem;
 import io.github.aspshijiu.avaritia26.item.BlazeShovelItem;
@@ -291,6 +292,17 @@ public final class ModItems {
 	public static final BlazeShovelItem BLAZE_SHOVEL = register(
 			BLAZE_SHOVEL_KEY,
 			properties -> new BlazeShovelItem(BLAZE_TOOL_MATERIAL, properties),
+			new Item.Properties()
+					.rarity(Rarity.EPIC)
+					.stacksTo(1)
+					.fireResistant()
+					.component(ModDataComponents.BLAZE_TOOL_MODE, false)
+					.delayedComponent(DataComponents.ENCHANTMENTS, ModItems::blazeToolEnchantments)
+	);
+	public static final ResourceKey<Item> BLAZE_AXE_KEY = key("blaze_axe");
+	public static final BlazeAxeItem BLAZE_AXE = register(
+			BLAZE_AXE_KEY,
+			properties -> new BlazeAxeItem(BLAZE_TOOL_MATERIAL, properties),
 			new Item.Properties()
 					.rarity(Rarity.EPIC)
 					.stacksTo(1)

@@ -56,6 +56,7 @@ import io.github.aspshijiu.avaritia26.inventory.NeutronCollectorMenu;
 import io.github.aspshijiu.avaritia26.inventory.NeutronCompressorMenu;
 import io.github.aspshijiu.avaritia26.inventory.NeutronRingMenu;
 import io.github.aspshijiu.avaritia26.inventory.SculkCraftingMenu;
+import io.github.aspshijiu.avaritia26.item.BlazeAxeItem;
 import io.github.aspshijiu.avaritia26.item.BlazeHoeItem;
 import io.github.aspshijiu.avaritia26.item.BlazePickaxeItem;
 import io.github.aspshijiu.avaritia26.item.BlazeShovelItem;
@@ -4300,6 +4301,58 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	}
 
 	@GameTest
+	public void blazeAxeCraftsStripsAndSmeltsLogsIntoRefinedCoal(GameTestHelper helper) {
+		ItemStack axe = new ItemStack(ModItems.BLAZE_AXE);
+		helper.assertTrue(BuiltInRegistries.ITEM.getValue(ModItems.BLAZE_AXE_KEY)
+				== ModItems.BLAZE_AXE, "烈焰斧物品未注册");
+		helper.assertTrue(axe.getMaxStackSize() == 1 && axe.getRarity() == Rarity.EPIC
+				&& axe.has(DataComponents.DAMAGE_RESISTANT) && axe.getMaxDamage() == 7777,
+				"烈焰斧物品属性或耐久错误");
+		helper.assertTrue(axe.is(ItemTags.AXES), "烈焰斧缺少原版斧标签");
+		helper.assertFalse(ModItems.BLAZE_AXE.isFoil(axe), "烈焰斧不应显示附魔光效");
+		var modifiers = axe.get(DataComponents.ATTRIBUTE_MODIFIERS);
+		helper.assertTrue(modifiers != null
+				&& modifiers.compute(Attributes.ATTACK_DAMAGE, 1.0, EquipmentSlot.MAINHAND) == 26.0
+				&& modifiers.compute(Attributes.ATTACK_SPEED, 4.0, EquipmentSlot.MAINHAND) == 29.0,
+				"烈焰斧没有保留上游二十五点伤害与攻速增幅");
+		var enchantments = helper.getLevel().registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+		helper.assertTrue(EnchantmentHelper.getItemEnchantmentLevel(
+				enchantments.getOrThrow(Enchantments.FIRE_ASPECT), axe) == 10,
+				"烈焰斧没有自带火焰附加 X");
+
+		CraftingInput input = blazeAxeInput();
+		assertExtremeRecipe(helper, "blaze_axe", input, ModItems.BLAZE_AXE);
+		List<ItemStack> wrongStacks = copyStacks(input.items());
+		wrongStacks.set(7, new ItemStack(Items.DIRT));
+		assertExtremeRecipeDoesNotMatch(helper, "blaze_axe",
+				CraftingInput.of(input.width(), input.height(), wrongStacks));
+
+		Player player = helper.makeMockServerPlayer(GameType.SURVIVAL);
+		player.setItemInHand(InteractionHand.MAIN_HAND, axe);
+		BlockPos stripPos = new BlockPos(7, 2, 7);
+		helper.setBlock(stripPos, Blocks.OAK_LOG);
+		BlockPos absoluteStripPos = helper.absolutePos(stripPos);
+		InteractionResult stripResult = ModItems.BLAZE_AXE.useOn(new UseOnContext(
+				player, InteractionHand.MAIN_HAND,
+				new BlockHitResult(Vec3.atCenterOf(absoluteStripPos), Direction.UP, absoluteStripPos, false)));
+		helper.assertTrue(stripResult.consumesAction() && helper.getBlockState(stripPos).is(Blocks.STRIPPED_OAK_LOG),
+				"烈焰斧关闭熔炼模式时没有保留原版去皮能力");
+
+		player.setShiftKeyDown(true);
+		ModItems.BLAZE_AXE.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+		player.setShiftKeyDown(false);
+		helper.assertTrue(BlazeAxeItem.isSmeltingEnabled(axe), "烈焰斧没有开启熔炼模式");
+		BlockPos logPos = new BlockPos(10, 2, 7);
+		helper.setBlock(logPos, Blocks.OAK_LOG);
+		List<ItemStack> logDrops = Block.getDrops(helper.getBlockState(logPos), helper.getLevel(),
+				helper.absolutePos(logPos), null, player, axe);
+		helper.assertTrue(logDrops.stream().anyMatch(stack -> stack.is(Items.CHARCOAL))
+				&& logDrops.stream().anyMatch(stack -> stack.is(ModItems.REFINED_COAL)),
+				"烈焰斧没有把原木熔成木炭并追加精炼煤炭：" + logDrops);
+		helper.succeed();
+	}
+
+	@GameTest
 	public void everyBuiltInSingularityCompresses(GameTestHelper helper) {
 		BlockPos relativePos = new BlockPos(13, 0, 0);
 		helper.setBlock(relativePos, ModBlocks.NEUTRON_COMPRESSOR);
@@ -6331,6 +6384,19 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	private static CraftingInput blazeShovelInput() {
 		return extremeInput(
 				List.of("   DC", "  DCD", "  AD ", " E   ", "B    "),
+				Map.of(
+						'A', new ItemStack(Items.BONE_BLOCK),
+						'B', new ItemStack(ModItems.DIAMOND_LATTICE),
+						'C', new ItemStack(ModItems.BLAZE_CUBE),
+						'D', new ItemStack(Items.BLAZE_POWDER),
+						'E', new ItemStack(Items.SOUL_SOIL)
+				)
+		);
+	}
+
+	private static CraftingInput blazeAxeInput() {
+		return extremeInput(
+				List.of("  DDA", " DCA ", " DACD", " E DD", "B    "),
 				Map.of(
 						'A', new ItemStack(Items.BONE_BLOCK),
 						'B', new ItemStack(ModItems.DIAMOND_LATTICE),

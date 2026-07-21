@@ -1,7 +1,8 @@
 {
-  "replace": false,
-  "values": [
-    "avaritia26:infinity_axe",
-    "avaritia26:crystal_axe"
-  ]
+	"replace": false,
+	"values": [
+		"avaritia26:blaze_axe",
+		"avaritia26:crystal_axe",
+		"avaritia26:infinity_axe"
+	]
 }

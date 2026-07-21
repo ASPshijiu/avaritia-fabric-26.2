@@ -54,7 +54,9 @@ public final class ModToolEvents {
 		BlockState state = context.getOptionalParameter(LootContextParams.BLOCK_STATE);
 		var item = context.getOptionalParameter(LootContextParams.TOOL);
 		if (!(item instanceof ItemStack tool)
-				|| (!tool.is(ModItems.BLAZE_HOE) && !tool.is(ModItems.BLAZE_PICKAXE))
+				|| (!tool.is(ModItems.BLAZE_HOE)
+				&& !tool.is(ModItems.BLAZE_PICKAXE)
+				&& !tool.is(ModItems.BLAZE_AXE))
 				|| !tool.getOrDefault(ModDataComponents.BLAZE_TOOL_MODE, false)
 				|| state == null
 				|| state.getBlock() instanceof CropBlock) {
@@ -69,6 +71,10 @@ public final class ModToolEvents {
 				drops.set(index, output);
 				changed = true;
 			}
+		}
+		if (tool.is(ModItems.BLAZE_AXE) && state.is(BlockTags.LOGS)) {
+			drops.add(new ItemStack(ModItems.REFINED_COAL));
+			changed = true;
 		}
 		Vec3 origin = context.getOptionalParameter(LootContextParams.ORIGIN);
 		if (changed && origin != null) {
