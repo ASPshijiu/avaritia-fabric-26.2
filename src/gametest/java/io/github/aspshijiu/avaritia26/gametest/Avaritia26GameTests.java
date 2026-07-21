@@ -1551,18 +1551,16 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.assertBlockPresent(Blocks.OAK_LOG, wood);
 		helper.assertBlockPresent(Blocks.BEDROCK, bedrock);
 		helper.assertTrue(shovel.getDamageValue() == 0, "无尽铲范围挖掘后不应产生耐久损耗");
-		helper.runAfterDelay(1, () -> {
-			List<ItemEntity> clusters = helper.getLevel().getEntitiesOfClass(
-					ItemEntity.class,
-					new AABB(absoluteOrigin).inflate(2.0),
-					entity -> entity.getItem().is(ModItems.MATTER_CLUSTER)
-			);
-			helper.assertTrue(
-					clusters.size() == 1 && MatterClusterItem.getSize(clusters.getFirst().getItem()) == 2,
-					"无尽铲没有把范围掉落压入物质团"
-			);
-			helper.succeed();
-		});
+		List<ItemEntity> clusters = helper.getLevel().getEntitiesOfClass(
+				ItemEntity.class,
+				new AABB(absoluteOrigin).inflate(2.0),
+				entity -> entity.getItem().is(ModItems.MATTER_CLUSTER)
+		);
+		helper.assertTrue(
+				clusters.size() == 1 && MatterClusterItem.getSize(clusters.getFirst().getItem()) == 2,
+				"无尽铲没有把范围掉落压入物质团"
+		);
+		helper.succeed();
 	}
 
 	@GameTest
