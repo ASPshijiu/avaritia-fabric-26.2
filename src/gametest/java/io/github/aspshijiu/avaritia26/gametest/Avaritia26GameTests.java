@@ -3883,10 +3883,13 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.assertTrue(Math.abs(warden.getHealth() - (healthBefore - BladeSlashEntity.DAMAGE)) < 0.001F,
 				"晶态矩阵剑剑气没有造成两百点伤害");
 		warden.setInvulnerable(true);
+		float attackStrengthBefore = player.getAttackStrengthScale(0.5F);
 		InteractionResult attackResult = AttackEntityCallback.EVENT.invoker().interact(
 				player, helper.getLevel(), InteractionHand.MAIN_HAND, warden, new EntityHitResult(warden));
 		helper.assertFalse(attackResult.consumesAction(), "晶态矩阵剑近战攻击不应接管原版伤害流程");
 		helper.assertFalse(warden.isInvulnerable(), "晶态矩阵剑近战没有解除目标无敌状态");
+		helper.assertTrue(player.getAttackStrengthScale(0.5F) >= attackStrengthBefore,
+				"晶态工具攻击事件不应在原版结算前重置本次攻击强度");
 
 		player.setShiftKeyDown(true);
 		ModItems.CRYSTAL_SWORD.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);

@@ -42,7 +42,6 @@ public final class ModCombatEvents {
 					|| weapon.is(ModItems.CRYSTAL_HOE)
 					|| weapon.is(ModItems.CRYSTAL_SHOVEL)
 					|| weapon.is(ModItems.CRYSTAL_AXE)) {
-				player.resetAttackStrengthTicker();
 				entity.setInvulnerable(false);
 				if (weapon.is(ModItems.CRYSTAL_AXE) && entity instanceof ServerPlayer target) {
 					disableShield(target);
