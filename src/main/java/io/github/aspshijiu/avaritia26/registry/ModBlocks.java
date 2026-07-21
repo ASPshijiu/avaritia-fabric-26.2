@@ -2,6 +2,7 @@ package io.github.aspshijiu.avaritia26.registry;
 
 import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.block.CompressedChestBlock;
+import io.github.aspshijiu.avaritia26.block.CompressedCraftingTableBlock;
 import io.github.aspshijiu.avaritia26.block.EndCraftingTableBlock;
 import io.github.aspshijiu.avaritia26.block.EndlessCakeBlock;
 import io.github.aspshijiu.avaritia26.block.ExtremeCraftingTableBlock;
@@ -23,7 +24,6 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.CraftingTableBlock;
 import net.minecraft.world.level.block.MagmaBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -360,7 +360,7 @@ public final class ModBlocks {
 	public static final Block COMPRESSED_CRAFTING_TABLE = Registry.register(
 			BuiltInRegistries.BLOCK,
 			COMPRESSED_CRAFTING_TABLE_KEY,
-			new CraftingTableBlock(BlockBehaviour.Properties.of()
+			new CompressedCraftingTableBlock(BlockBehaviour.Properties.of()
 					.setId(COMPRESSED_CRAFTING_TABLE_KEY)
 					.mapColor(MapColor.WOOD)
 					.sound(SoundType.WOOD)
@@ -382,7 +382,7 @@ public final class ModBlocks {
 	public static final Block DOUBLE_COMPRESSED_CRAFTING_TABLE = Registry.register(
 			BuiltInRegistries.BLOCK,
 			DOUBLE_COMPRESSED_CRAFTING_TABLE_KEY,
-			new CraftingTableBlock(BlockBehaviour.Properties.of()
+			new CompressedCraftingTableBlock(BlockBehaviour.Properties.of()
 					.setId(DOUBLE_COMPRESSED_CRAFTING_TABLE_KEY)
 					.mapColor(MapColor.WOOD)
 					.sound(SoundType.WOOD)

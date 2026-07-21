@@ -7319,7 +7319,10 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		);
 		helper.assertTrue(provider != null, name + "没有菜单提供器");
 		Player player = helper.makeMockPlayer(GameType.CREATIVE);
+		BlockPos absolutePos = helper.absolutePos(relativePos);
+		player.setPos(absolutePos.getX() + 0.5, absolutePos.getY(), absolutePos.getZ() + 0.5);
 		AbstractContainerMenu menu = provider.createMenu(1, player.getInventory(), player);
 		helper.assertTrue(menu instanceof CraftingMenu, name + "没有创建 3x3 合成界面");
+		helper.assertTrue(menu.stillValid(player), name + "打开后立即因原版工作台坐标校验而关闭");
 	}
 }
