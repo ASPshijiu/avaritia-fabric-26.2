@@ -95,6 +95,11 @@
 | `infinity_axe` | 在终极工作台实际摆入完整 9×9 配方并点击取出；普通左键 35 格相连原木及单独原木，再以原木连接 6 格树叶；潜行右键清理包含原木、树叶、活珊瑚块、成熟小麦、花、藤蔓和梯子的范围，布置石头及水平/垂直边界对照；实际攻击铁傀儡；执行两把分槽、熔岩和保存重进 | 原木连锁从起点完成 32 步且不波及断开的原木，第 33 步之外保留；从原木进入树叶后清理 4 格深度，第 5 格保留；潜行范围内全部目标材质被清理，石头以及 x/y 边界外原木保持，物质团被玩家拾取并含原木、作物、花和梯子；铁傀儡生命 100→60；使用后无损伤组件，两把分槽且耐火；重进后物品保持 | `AXE_CHAIN_*`、`AXE_LEAF_CHAIN_*`、`AXE_AREA_*`、物质团组件、铁傀儡生命值、`AXE_FIRE_RESISTANT_OK` 和 `INFINITY_TOOLS_PERSISTENCE_OK` 均有游戏内日志/画面证据；无模组错误 | 通过 |
 | `skull_fire_sword` | 在终极工作台实际摆入完整 9×9 骨头、原木、烈焰粉、下界之星与晶态矩阵锭图案，打开 GUI 点击取出；生存模式实际击杀普通骷髅；再让生命值 1 的骷髅以 100% 掉落率头戴普通骷髅头并实际击杀；读取攻击前后耐久；用 `/give` 验证 2 个分槽；执行熔岩和保存重进 | 中文名“炽焰之啄颅剑”、模型、斜体说明、7 攻击伤害与 1.6 攻速正确；普通骷髅必定产生凋灵骷髅头；死亡当刻掉落的普通骷髅头被转换，现场无普通头颅且有凋灵头颅；每次命中正常消耗 1 耐久；2 把剑分占两格；按普通物品语义被熔岩销毁；重进后损伤 1 的剑和组件保持 | 完整工作台输入/空台、`SKULL_FIRE_SWORD_GUARANTEED_SKULL_OK`、26.2 `equipment`/`drop_chances`、三条新鲜掉落回执、损伤 1/2、分槽、熔岩和 `SKULL_FIRE_SWORD_PERSISTENCE_OK` 均有游戏内日志/画面证据；无模组错误 | 通过 |
 | `infinity_sword` | 在终极工作台实际摆入完整 9×9 无尽锭、无尽催化剂、中子锭和晶态矩阵锭图案，打开 GUI 点击取出；生存模式手持实际点击 500 生命值监守者；读取命中前后物品组件；用 `/give` 验证 2 个分槽；投入封闭熔岩并保存退出、重新进入 | 中文名“寰宇支配之剑”、动态模型、100 攻击伤害与 1.6 攻速正确；一次实际命中终结监守者；命中前后均无损伤组件且物品不消耗；2 把剑分占两格；熔岩中物品仍存在；重进后保持 | 完整工作台输入/空台、监守者近距离画面、`INFINITY_SWORD_WARDEN_KILL_OK`、命中前后 `SelectedItem`、分槽、`INFINITY_SWORD_FIRE_RESISTANT_OK` 和 `INFINITY_SWORD_PERSISTENCE_OK` 均有游戏内日志/画面证据；无模组错误 | 通过 |
+| `crystal_sword` | 在终极工作台实际摆入完整配方并点击取出；生存模式实际攻击铁傀儡；潜行右键开关斩击模式，向两个目标和黑曜石墙实际攻击；在原版铁砧用水晶矩阵锭修复；执行两把分槽、按 `Q` 投入熔岩、保存退出和重新进入 | 普通攻击使铁傀儡生命 100→49；斩击穿透两个目标并各造成 200 点伤害，但不能穿过黑曜石墙；关闭模式后不产生斩击；损伤 100→0 且消耗 1 个锭、1 级经验；两把各占一格，物品耐火，重进后损伤 7 与斩击模式保持 | `CRYSTAL_SWORD_EXTREME_CRAFT_OK`、斩击目标/墙体、`CRYSTAL_SWORD_ANVIL_REPAIR_OK`、`CRYSTAL_SWORD_FIRE_RESISTANT_OK`、`CRYSTAL_SWORD_STACK_ONE_OK` 和 `CRYSTAL_SWORD_SAVE_RELOAD_OK` 均有游戏内日志/画面证据；攻击伤害修复提交 `b887ee6` | 通过 |
+| `crystal_hoe` | 在终极工作台实际摆入配方并点击取出；生存模式右键耕作 3×3 泥土并另测顶部被覆盖方块；让耕地吸水、种植并催熟作物；实际开采干草块并攻击铁傀儡；在原版铁砧修复；执行分槽、熔岩和保存重进 | 3×3 范围内 8 个可耕方块全部变为最大湿度耕地，被覆盖方块保持原状；作物生长不消耗耐久；干草块快速破坏并掉落；铁傀儡生命 100→49；修复消耗 1 个锭和 1 级经验；两把分槽、耐火、损伤 7 保存均正确 | `CRYSTAL_HOE_EXTREME_CRAFT_OK`、范围耕作/覆盖对照、`CRYSTAL_HOE_ANVIL_REPAIR_OK`、`CRYSTAL_HOE_FIRE_RESISTANT_OK`、`CRYSTAL_HOE_STACK_ONE_OK` 和 `CRYSTAL_HOE_SAVE_RELOAD_OK` 均有游戏内日志/画面证据；攻击伤害修复提交 `b887ee6` | 通过 |
+| `crystal_pickaxe` | 在终极工作台实际摆入配方并点击取出；潜行右键开关精准采集模式，分别实际开采钻石矿；实际开采基岩、末地传送门框架、末地传送门、强化深板岩、普通石头和黑曜石；实际攻击铁傀儡；在原版铁砧修复；执行分槽、熔岩和保存重进 | 开启模式掉落钻石矿，关闭后按时运掉落钻石；可破坏并获得四类原版不可破坏目标；普通石头和黑曜石均以真实持续按键完成开采并正常掉落。曾受非和平难度怪物干扰的黑曜石结果已作废，重新明确切到和平并满血后独立复测通过；铁傀儡生命 100→49；修复、两把分槽、耐火、损伤 7 与模式保存正确 | `CRYSTAL_PICKAXE_EXTREME_CRAFT_OK`、各方块掉落、`INPUT_HARNESS_HOLD_ATTACK_OBSIDIAN_OK`、两次“目前难度为和平”、`CRYSTAL_PICKAXE_ANVIL_REPAIR_OK`、`CRYSTAL_PICKAXE_FIRE_RESISTANT_OK`、`CRYSTAL_PICKAXE_STACK_ONE_OK` 和 `CRYSTAL_PICKAXE_SAVE_RELOAD_OK` 均有游戏内日志/画面证据 | 通过 |
+| `crystal_shovel` | 在终极工作台实际摆入配方并点击取出；手持观察常驻效果并施加缓慢、挖掘疲劳对照；实际右键六类可铲平方块和顶部被覆盖方块；实际开采沙子并攻击铁傀儡；在原版铁砧修复；执行分槽、熔岩和保存重进 | 手持获得急迫 III、速度 III，并清除缓慢和挖掘疲劳；草方块、泥土、砂土、灰化土、菌丝体、缠根泥土均变为土径，顶部覆盖时拒绝转换且不耗耐久；沙子正常掉落；铁傀儡生命 100→49；修复、两把分槽、耐火和损伤 7 保存正确 | `CRYSTAL_SHOVEL_EXTREME_CRAFT_OK`、效果及六类方块回执、`CRYSTAL_SHOVEL_ANVIL_REPAIR_OK`、`CRYSTAL_SHOVEL_FIRE_RESISTANT_OK`、`CRYSTAL_SHOVEL_STACK_ONE_OK` 和 `CRYSTAL_SHOVEL_SAVE_RELOAD_OK` 均有游戏内日志/画面证据；攻击伤害修复提交 `b887ee6` | 通过 |
+| `crystal_bow` | 在终极工作台实际摆入配方并点击取出；以真实持续使用输入完成普通满蓄力射击；潜行右键开启斩击模式后再次满蓄力射击两个目标；在原版铁砧用水晶矩阵锭修复；执行两把分槽、按 `Q` 投入熔岩、保存退出和重新进入 | 普通中子箭准确造成 32 点伤害且命中后消失；满蓄力斩击贯穿两个目标并各造成 205 点伤害，生命周期结束后实体消失；弓每次发射正常损伤 1；修复损伤 100→0、消耗 1 个锭和 1 级经验；两把分槽、耐火、损伤 7 与斩击模式保存正确 | `CRYSTAL_BOW_EXTREME_CRAFT_OK`、`CRYSTAL_BOW_NEUTRON_ARROW_32_DAMAGE_OK`、`CRYSTAL_BOW_FULL_CHARGE_205_PIERCE_OK`、`CRYSTAL_BOW_SLASH_LIFETIME_OK`、`CRYSTAL_BOW_ANVIL_REPAIR_OK`、`CRYSTAL_BOW_FIRE_RESISTANT_OK`、`CRYSTAL_BOW_STACK_ONE_OK` 和 `CRYSTAL_BOW_SAVE_RELOAD_OK` 均有游戏内日志/画面证据；铁砧修复提交 `01255ff` | 通过 |
 
 | Registry path | 实际操作 | 画面/结果 | 日志 | 结论 |
 |---|---|---|---|---|
@@ -105,9 +110,16 @@
 | `blaze_axe` | 在终极工作台实际摆入配方并点击取出；关闭模式时实际给橡木原木去皮；潜行右键开启熔炼模式后实际开采橡木原木；实际攻击抗火铁傀儡；执行两把分槽、按 `Q` 投入熔岩、保存重进 | 原版去皮能力正确；熔炼模式把原木变为木炭并额外掉落精炼煤炭，使用后损伤 2；铁傀儡生命 100→74 且 `Fire:769s`；两把分槽、耐火和 `blaze_tool_mode:1b` 保存正确 | `BLAZE_AXE_NORMAL_STRIP_OK`、`BLAZE_AXE_LOG_TO_CHARCOAL_OK`、`BLAZE_AXE_REFINED_COAL_BONUS_OK`、`BLAZE_AXE_MELEE_DAMAGE_OK`、`BLAZE_AXE_FIRE_RESISTANT_OK`、`BLAZE_AXE_FIRE_REENTER_OK` 和 `BLAZE_AXE_PERSISTENCE_OK` 均有游戏内日志/画面证据；无模组错误 | 通过 |
 | `blaze_bow` | 在终极工作台实际摆入配方并点击取出；关闭模式时实际蓄力发射普通燃烧箭命中铁傀儡；潜行右键开启燃烧弹模式，向实心墙实际发射并在命中点附近布置两个无敌目标、一个范围外目标；读取发射者与目标效果；执行两把分槽、按 `Q` 投入熔岩、保存重进 | 普通箭使铁傀儡生命 100→21 并获得燃烧效果；燃烧弹给两个范围内目标施加燃烧 IV，读取时持续时间 436/422 tick，范围外目标和发射者没有该效果；弓不消耗耐久；两把分槽、耐火和 `blaze_bow_burning:1b` 保存正确 | 普通箭生命/效果、`BLAZE_BOW_BALL_TARGET_A_OK`、`BLAZE_BOW_BALL_TARGET_B_OK`、`BLAZE_BOW_BALL_CLOSE_OK`、`BLAZE_BOW_BALL_FAR_SAFE_OK`、`BLAZE_BOW_OWNER_SAFE_OK`、`BLAZE_BOW_FIRE_RESISTANT_OK`、`BLAZE_BOW_FIRE_REENTER_OK` 和 `BLAZE_BOW_PERSISTENCE_OK` 均有游戏内日志/画面证据；无模组错误 | 通过 |
 
+## 进行中项目
+
+| Registry path | 已完成实际操作 | 尚未完成 | 当前结论 |
+|---|---|---|---|
+| `crystal_axe` | 在终极工作台实际合成；普通攻击铁傀儡；实际给橡木原木去皮；从空中真实点击目标验证坠落加伤；在原版铁砧修复；执行两把分槽、熔岩和保存重进 | 必须在专用服务器双客户端中由一名玩家持盾、另一名玩家用晶态斧实际攻击，验证盾牌禁用及双方同步 | 单人部分通过；最初实测发现坠落加伤未触发，提交 `928c0f3` 后重新从空中攻击，200 生命铁傀儡降至 69.5，确认基础暴击与额外 54 点伤害共同生效；`CRYSTAL_AXE_EXTREME_CRAFT_OK`、`CRYSTAL_AXE_FINAL_FALLING_PLUS_54_DAMAGE_OK`、`CRYSTAL_AXE_ANVIL_REPAIR_OK`、`CRYSTAL_AXE_FIRE_RESISTANT_OK`、`CRYSTAL_AXE_STACK_ONE_OK` 和 `CRYSTAL_AXE_SAVE_RELOAD_OK` 均有游戏内证据 |
+
 ## 当前进度
 
-- 已完成并通过真实客户端逐项操作：76 项。
+- 已完成并通过真实客户端逐项操作：81 项。
+- 晶态矩阵斧：单人部分已通过，专用服务器双客户端破盾验证待完成。
 - 其余 [FEATURE_MATRIX.md](FEATURE_MATRIX.md) 中的玩家物品、方块物品与奇点变体：待实测。
 - 专用服务器双客户端同时在线：待实测。
 
