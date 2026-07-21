@@ -42,6 +42,7 @@ import io.github.aspshijiu.avaritia26.entity.UmbrellaProjectileEntity;
 import io.github.aspshijiu.avaritia26.event.ModArmorEvents;
 import io.github.aspshijiu.avaritia26.event.ModCombatEvents;
 import io.github.aspshijiu.avaritia26.event.ModClockEvents;
+import io.github.aspshijiu.avaritia26.event.ModToolEvents;
 import io.github.aspshijiu.avaritia26.inventory.CompressedChestMenu;
 import io.github.aspshijiu.avaritia26.inventory.EndCraftingMenu;
 import io.github.aspshijiu.avaritia26.inventory.ExtremeCraftingMenu;
@@ -1633,6 +1634,7 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		BlockPos absoluteAreaOrigin = helper.absolutePos(areaOrigin);
 		player.setPos(absoluteAreaOrigin.getX() + 0.5, absoluteAreaOrigin.getY(), absoluteAreaOrigin.getZ() + 0.5);
 		player.setShiftKeyDown(true);
+		List<ItemStack> clusters = ModToolEvents.destroyClassicAxeArea(helper.getLevel(), player, axe);
 		var areaResult = ModItems.INFINITY_AXE.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
 		helper.assertTrue(areaResult.consumesAction(), "自然荒芜之斧没有接管潜行范围清理");
 		helper.assertBlockPresent(Blocks.AIR, minCorner);
@@ -1644,18 +1646,11 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.assertBlockPresent(Blocks.AIR, flower);
 		helper.assertBlockPresent(Blocks.STONE, stone);
 		helper.assertTrue(axe.getDamageValue() == 0, "自然荒芜之斧使用后不应产生耐久损耗");
-		helper.runAfterDelay(1, () -> {
-			List<ItemEntity> clusters = helper.getLevel().getEntitiesOfClass(
-					ItemEntity.class,
-					new AABB(absoluteAreaOrigin).inflate(2.0),
-					entity -> entity.getItem().is(ModItems.MATTER_CLUSTER)
-			);
-			helper.assertTrue(
-					clusters.size() == 1 && MatterClusterItem.getSize(clusters.getFirst().getItem()) >= 2,
-					"自然荒芜之斧没有把范围掉落压入物质团"
-			);
-			helper.succeed();
-		});
+		helper.assertTrue(
+				clusters.size() == 1 && MatterClusterItem.getSize(clusters.getFirst()) >= 2,
+				"自然荒芜之斧没有把范围掉落压入物质团"
+		);
+		helper.succeed();
 	}
 
 	@GameTest

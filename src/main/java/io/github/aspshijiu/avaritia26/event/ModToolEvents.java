@@ -106,7 +106,7 @@ public final class ModToolEvents {
 		return InteractionResult.PASS;
 	}
 
-	public static void destroyClassicAxeArea(ServerLevel level, Player player, ItemStack tool) {
+	public static List<ItemStack> destroyClassicAxeArea(ServerLevel level, Player player, ItemStack tool) {
 		BlockPos origin = player.blockPosition();
 		List<ItemStack> drops = new ArrayList<>();
 		for (int x = -AXE_RANGE; x < AXE_RANGE; x++) {
@@ -116,9 +116,11 @@ public final class ModToolEvents {
 				}
 			}
 		}
-		for (ItemStack cluster : MatterClusterItem.createClusters(drops)) {
+		List<ItemStack> clusters = MatterClusterItem.createClusters(drops);
+		for (ItemStack cluster : clusters) {
 			Block.popResource(level, origin, cluster);
 		}
+		return clusters;
 	}
 
 	private static boolean destroyAxeChain(ServerLevel level, Player player, ItemStack tool, BlockPos origin) {
