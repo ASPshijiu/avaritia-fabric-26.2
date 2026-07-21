@@ -11,9 +11,9 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityEvent;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -22,6 +22,7 @@ import net.minecraft.world.entity.monster.skeleton.AbstractSkeleton;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 public final class ModCombatEvents {
@@ -31,7 +32,6 @@ public final class ModCombatEvents {
 	public static void initialize() {
 		ServerLivingEntityEvents.AFTER_DEATH.register(ModCombatEvents::dropWitherSkeletonSkull);
 		ServerLivingEntityEvents.ALLOW_DEATH.register(ModCombatEvents::useInfinityTotem);
-		ServerLivingEntityEvents.AFTER_DAMAGE.register(ModCombatEvents::applyCrystalAxeJumpDamage);
 		AttackEntityCallback.EVENT.register((player, level, hand, entity, hitResult) -> {
 			ItemStack weapon = player.getItemInHand(hand);
 			if (weapon.is(ModItems.BLAZE_SWORD)) {
@@ -43,8 +43,11 @@ public final class ModCombatEvents {
 					|| weapon.is(ModItems.CRYSTAL_SHOVEL)
 					|| weapon.is(ModItems.CRYSTAL_AXE)) {
 				entity.setInvulnerable(false);
-				if (weapon.is(ModItems.CRYSTAL_AXE) && entity instanceof ServerPlayer target) {
-					disableShield(target);
+				if (weapon.is(ModItems.CRYSTAL_AXE)) {
+					if (entity instanceof ServerPlayer target) {
+						disableShield(target);
+					}
+					applyCrystalAxeJumpDamage(level, player, entity);
 				}
 				return InteractionResult.PASS;
 			}
@@ -59,25 +62,23 @@ public final class ModCombatEvents {
 	}
 
 	private static void applyCrystalAxeJumpDamage(
-			LivingEntity target,
-			DamageSource source,
-			float baseDamageTaken,
-			float damageTaken,
-			boolean blocked
+			Level level,
+			Player attacker,
+			Entity entity
 	) {
-		if (!(target.level() instanceof ServerLevel level)
-				|| !(source.getEntity() instanceof Player attacker)
-				|| !source.is(DamageTypes.PLAYER_ATTACK)
-				|| blocked
-				|| damageTaken <= 0.0F
-				|| !attacker.getMainHandItem().is(ModItems.CRYSTAL_AXE)
+		if (!(level instanceof ServerLevel serverLevel)
+				|| !(entity instanceof LivingEntity target)
 				|| attacker.onGround()
-				|| attacker.getDeltaMovement().y >= -0.1) {
+				|| attacker.fallDistance <= 0.0F) {
 			return;
 		}
-		target.hurtServer(level, target.damageSources().fellOutOfWorld(), 54.0F);
+		target.invulnerableTime = 0;
+		if (!target.hurtServer(serverLevel, target.damageSources().fellOutOfWorld(), 54.0F)) {
+			return;
+		}
+		target.invulnerableTime = 0;
 		Vec3 pos = target.position();
-		level.sendParticles(ParticleTypes.PORTAL, pos.x, pos.y + target.getBbHeight() / 2.0, pos.z,
+		serverLevel.sendParticles(ParticleTypes.PORTAL, pos.x, pos.y + target.getBbHeight() / 2.0, pos.z,
 				24, 0.5, 0.5, 0.5, 0.2);
 	}
 

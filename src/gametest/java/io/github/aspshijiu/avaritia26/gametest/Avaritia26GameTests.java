@@ -4116,15 +4116,22 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		var warden = helper.spawnWithNoFreeWill(EntityTypes.WARDEN, new BlockPos(7, 2, 7));
 		attacker.setOnGround(false);
 		attacker.setDeltaMovement(0.0, -0.2, 0.0);
+		attacker.fallDistance = 2.0F;
 		float healthBeforeJump = warden.getHealth();
-		ServerLivingEntityEvents.AFTER_DAMAGE.invoker().afterDamage(
-				warden, attacker.damageSources().playerAttack(attacker), 1.0F, 1.0F, false);
+		AttackEntityCallback.EVENT.invoker().interact(
+				attacker, helper.getLevel(), InteractionHand.MAIN_HAND, warden, new EntityHitResult(warden));
 		helper.assertTrue(warden.getHealth() <= healthBeforeJump - 54.0F,
-				"晶态矩阵斧下落跳劈没有追加五十四点虚空伤害");
+				"晶态矩阵斧下落攻击回调没有先追加五十四点虚空伤害");
+		helper.assertTrue(warden.hurtServer(
+				helper.getLevel(), attacker.damageSources().playerAttack(attacker), 100.0F),
+				"晶态矩阵斧下落跳劈的基础攻击没有生效");
+		helper.assertTrue(warden.getHealth() <= healthBeforeJump - 154.0F,
+				"晶态矩阵斧追加伤害后的受伤冷却阻断了紧随其后的基础攻击");
 		attacker.setOnGround(true);
+		attacker.fallDistance = 0.0F;
 		float healthBeforeGrounded = warden.getHealth();
-		ServerLivingEntityEvents.AFTER_DAMAGE.invoker().afterDamage(
-				warden, attacker.damageSources().playerAttack(attacker), 1.0F, 1.0F, false);
+		AttackEntityCallback.EVENT.invoker().interact(
+				attacker, helper.getLevel(), InteractionHand.MAIN_HAND, warden, new EntityHitResult(warden));
 		helper.assertTrue(warden.getHealth() == healthBeforeGrounded,
 				"晶态矩阵斧在地面攻击时错误追加跳劈伤害");
 
