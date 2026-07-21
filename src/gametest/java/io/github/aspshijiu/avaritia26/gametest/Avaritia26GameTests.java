@@ -3798,6 +3798,68 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	}
 
 	@GameTest
+	public void crystalPickaxeCraftsTogglesSilkAndBreaksUnbreakableBlocks(GameTestHelper helper) {
+		ItemStack pickaxe = new ItemStack(ModItems.CRYSTAL_PICKAXE);
+		helper.assertTrue(BuiltInRegistries.ITEM.getValue(ModItems.CRYSTAL_PICKAXE_KEY)
+				== ModItems.CRYSTAL_PICKAXE, "晶态矩阵镐物品未注册");
+		helper.assertTrue(pickaxe.getMaxStackSize() == 1 && pickaxe.getRarity() == Rarity.EPIC
+				&& pickaxe.has(DataComponents.DAMAGE_RESISTANT) && pickaxe.getMaxDamage() == 8888,
+				"晶态矩阵镐物品属性或耐久错误");
+		helper.assertTrue(pickaxe.is(ItemTags.PICKAXES), "晶态矩阵镐缺少原版镐标签");
+		helper.assertFalse(ModItems.CRYSTAL_PICKAXE.isFoil(pickaxe), "晶态矩阵镐不应显示附魔光效");
+		helper.assertTrue(ModItems.CRYSTAL_PICKAXE.getDestroySpeed(
+				pickaxe, Blocks.OBSIDIAN.defaultBlockState()) == 100.0F, "晶态矩阵镐挖掘速度错误");
+		var modifiers = pickaxe.get(DataComponents.ATTRIBUTE_MODIFIERS);
+		helper.assertTrue(modifiers != null
+				&& modifiers.compute(Attributes.ATTACK_DAMAGE, 1.0, EquipmentSlot.MAINHAND) == 51.0
+				&& modifiers.compute(Attributes.ATTACK_SPEED, 4.0, EquipmentSlot.MAINHAND) == 29.0,
+				"晶态矩阵镐没有保留上游五十点伤害与二十五点攻速增幅");
+
+		var enchantments = helper.getLevel().registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+		var fortune = enchantments.getOrThrow(Enchantments.FORTUNE);
+		var silkTouch = enchantments.getOrThrow(Enchantments.SILK_TOUCH);
+		helper.assertTrue(EnchantmentHelper.getItemEnchantmentLevel(fortune, pickaxe) == 3
+				&& EnchantmentHelper.getItemEnchantmentLevel(silkTouch, pickaxe) == 0,
+				"晶态矩阵镐默认时运或精准采集状态错误");
+
+		CraftingInput input = crystalPickaxeInput();
+		assertExtremeRecipe(helper, "crystal_pickaxe", input, ModItems.CRYSTAL_PICKAXE);
+		List<ItemStack> wrongStacks = copyStacks(input.items());
+		wrongStacks.set(6, new ItemStack(Items.DIRT));
+		assertExtremeRecipeDoesNotMatch(helper, "crystal_pickaxe",
+				CraftingInput.of(input.width(), input.height(), wrongStacks));
+
+		Player player = helper.makeMockServerPlayer(GameType.SURVIVAL);
+		player.setItemInHand(InteractionHand.MAIN_HAND, pickaxe);
+		player.setShiftKeyDown(true);
+		ModItems.CRYSTAL_PICKAXE.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+		helper.assertTrue(EnchantmentHelper.getItemEnchantmentLevel(silkTouch, pickaxe) == 1
+				&& EnchantmentHelper.getItemEnchantmentLevel(fortune, pickaxe) == 3,
+				"晶态矩阵镐没有开启精准采集或错误移除时运");
+		ModItems.CRYSTAL_PICKAXE.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+		helper.assertTrue(EnchantmentHelper.getItemEnchantmentLevel(silkTouch, pickaxe) == 0
+				&& EnchantmentHelper.getItemEnchantmentLevel(fortune, pickaxe) == 3,
+				"晶态矩阵镐没有关闭精准采集或错误移除时运");
+
+		BlockPos bedrockPos = new BlockPos(6, 2, 6);
+		helper.setBlock(bedrockPos, Blocks.BEDROCK);
+		BlockPos absoluteBedrock = helper.absolutePos(bedrockPos);
+		InteractionResult breakResult = AttackBlockCallback.EVENT.invoker().interact(
+				player, helper.getLevel(), InteractionHand.MAIN_HAND, absoluteBedrock, Direction.UP);
+		helper.assertTrue(breakResult.consumesAction(), "晶态矩阵镐没有接管基岩破坏");
+		helper.assertBlockPresent(Blocks.AIR, bedrockPos);
+		helper.assertTrue(pickaxe.getDamageValue() == 1, "晶态矩阵镐破坏不可破坏方块没有损耗一点耐久");
+		helper.runAfterDelay(1, () -> {
+			int bedrockDrops = helper.getLevel().getEntitiesOfClass(
+					ItemEntity.class, new AABB(absoluteBedrock).inflate(2.0),
+					entity -> entity.getItem().is(Items.BEDROCK)
+			).stream().mapToInt(entity -> entity.getItem().getCount()).sum();
+			helper.assertTrue(bedrockDrops == 1, "晶态矩阵镐破坏基岩没有掉落基岩物品");
+			helper.succeed();
+		});
+	}
+
+	@GameTest
 	public void everyBuiltInSingularityCompresses(GameTestHelper helper) {
 		BlockPos relativePos = new BlockPos(13, 0, 0);
 		helper.setBlock(relativePos, ModBlocks.NEUTRON_COMPRESSOR);
@@ -5704,6 +5766,26 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 						'A', new ItemStack(ModBlocks.CRYSTAL_MATRIX_ITEM),
 						'B', new ItemStack(ModItems.NEUTRON_INGOT),
 						'C', new ItemStack(ModItems.CRYSTAL_MATRIX_INGOT)
+				)
+		);
+	}
+
+	private static CraftingInput crystalPickaxeInput() {
+		return extremeInput(
+				List.of(
+						"CAAAA D",
+						" CCCC  ",
+						"    CCA",
+						"   B CA",
+						"  B  CA",
+						" B   CA",
+						"A     C"
+				),
+				Map.of(
+						'A', new ItemStack(ModBlocks.CRYSTAL_MATRIX_ITEM),
+						'B', new ItemStack(ModItems.NEUTRON_INGOT),
+						'C', new ItemStack(ModItems.CRYSTAL_MATRIX_INGOT),
+						'D', new ItemStack(ModBlocks.NEUTRON_ITEM)
 				)
 		);
 	}

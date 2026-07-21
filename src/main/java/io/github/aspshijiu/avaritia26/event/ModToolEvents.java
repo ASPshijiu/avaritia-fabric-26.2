@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 
+import io.github.aspshijiu.avaritia26.item.CrystalPickaxeItem;
 import io.github.aspshijiu.avaritia26.item.InfinityAxeItem;
 import io.github.aspshijiu.avaritia26.item.InfinityPickaxeItem;
 import io.github.aspshijiu.avaritia26.item.InfinityShovelItem;
@@ -21,6 +22,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -45,6 +47,10 @@ public final class ModToolEvents {
 			Direction face
 	) {
 		ItemStack tool = player.getItemInHand(hand);
+		if (level instanceof ServerLevel serverLevel && tool.is(ModItems.CRYSTAL_PICKAXE)
+				&& CrystalPickaxeItem.canBreakUnbreakable(serverLevel.getBlockState(origin))) {
+			return breakUnbreakable(serverLevel, player, hand, tool, origin);
+		}
 		if (level instanceof ServerLevel serverLevel && tool.is(ModItems.INFINITY_AXE) && !player.isShiftKeyDown()) {
 			return destroyAxeChain(serverLevel, player, tool, origin)
 					? InteractionResult.SUCCESS_SERVER
@@ -69,6 +75,35 @@ public final class ModToolEvents {
 			Block.popResource(serverLevel, origin, cluster);
 		}
 		return InteractionResult.SUCCESS_SERVER;
+	}
+
+	private static InteractionResult breakUnbreakable(
+			ServerLevel level,
+			Player player,
+			net.minecraft.world.InteractionHand hand,
+			ItemStack tool,
+			BlockPos pos
+	) {
+		if (!level.mayInteract(player, pos)) {
+			return InteractionResult.PASS;
+		}
+		BlockState state = level.getBlockState(pos);
+		BlockEntity blockEntity = level.getBlockEntity(pos);
+		if (!PlayerBlockBreakEvents.BEFORE.invoker().beforeBlockBreak(level, player, pos, state, blockEntity)) {
+			PlayerBlockBreakEvents.CANCELED.invoker().onBlockBreakCanceled(level, player, pos, state, blockEntity);
+			return InteractionResult.FAIL;
+		}
+		if (!player.getAbilities().instabuild && !state.getBlock().asItem().equals(Items.AIR)) {
+			Block.popResource(level, pos, new ItemStack(state.getBlock().asItem()));
+		}
+		if (level.destroyBlock(pos, false, player, 512)) {
+			if (!player.getAbilities().instabuild) {
+				tool.hurtAndBreak(1, player, hand);
+			}
+			PlayerBlockBreakEvents.AFTER.invoker().afterBlockBreak(level, player, pos, state, blockEntity);
+			return InteractionResult.SUCCESS_SERVER;
+		}
+		return InteractionResult.PASS;
 	}
 
 	public static void destroyClassicAxeArea(ServerLevel level, Player player, ItemStack tool) {

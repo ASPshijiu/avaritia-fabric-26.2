@@ -5,9 +5,10 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import io.github.aspshijiu.avaritia26.Avaritia26;
-import io.github.aspshijiu.avaritia26.item.EndestPearlItem;
-import io.github.aspshijiu.avaritia26.item.CrystalSwordItem;
 import io.github.aspshijiu.avaritia26.item.CrystalHoeItem;
+import io.github.aspshijiu.avaritia26.item.CrystalPickaxeItem;
+import io.github.aspshijiu.avaritia26.item.CrystalSwordItem;
+import io.github.aspshijiu.avaritia26.item.EndestPearlItem;
 import io.github.aspshijiu.avaritia26.item.EternalSingularityItem;
 import io.github.aspshijiu.avaritia26.item.InfinityAxeItem;
 import io.github.aspshijiu.avaritia26.item.InfinityArmorItem;
@@ -191,6 +192,17 @@ public final class ModItems {
 					.stacksTo(1)
 					.fireResistant()
 					.hoe(CRYSTAL_TOOL_MATERIAL, 0.0F, 25.0F)
+	);
+	public static final ResourceKey<Item> CRYSTAL_PICKAXE_KEY = key("crystal_pickaxe");
+	public static final Item CRYSTAL_PICKAXE = register(
+			CRYSTAL_PICKAXE_KEY,
+			CrystalPickaxeItem::new,
+			new Item.Properties()
+					.rarity(Rarity.EPIC)
+					.stacksTo(1)
+					.fireResistant()
+					.pickaxe(CRYSTAL_TOOL_MATERIAL, 0.0F, 25.0F)
+					.delayedComponent(DataComponents.ENCHANTMENTS, ModItems::crystalPickaxeEnchantments)
 	);
 	public static final ResourceKey<Item> INFINITY_HELMET_KEY = key("infinity_helmet");
 	public static final Item INFINITY_HELMET = register(
@@ -475,6 +487,13 @@ public final class ModItems {
 		ItemEnchantments.Mutable result = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
 		result.set(enchantments.getOrThrow(Enchantments.WIND_BURST), 5);
 		result.set(enchantments.getOrThrow(Enchantments.BREACH), 10);
+		return result.toImmutable();
+	}
+
+	private static ItemEnchantments crystalPickaxeEnchantments(HolderLookup.Provider registries) {
+		HolderLookup.RegistryLookup<Enchantment> enchantments = registries.lookupOrThrow(Registries.ENCHANTMENT);
+		ItemEnchantments.Mutable result = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
+		result.set(enchantments.getOrThrow(Enchantments.FORTUNE), 3);
 		return result.toImmutable();
 	}
 
