@@ -1,6 +1,8 @@
 package io.github.aspshijiu.avaritia26.gametest;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -198,6 +200,68 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	@GameTest
 	public void modStartsOnServer(GameTestHelper helper) {
 		helper.assertBlockPresent(Blocks.AIR, 0, 0, 0);
+		helper.succeed();
+	}
+
+	@GameTest
+	public void oneHundredMachinesStayWithinTickBudget(GameTestHelper helper) {
+		List<NeutronCollectorBlockEntity> collectors = new ArrayList<>(50);
+		List<NeutronCompressorBlockEntity> compressors = new ArrayList<>(50);
+		BlockState collectorState = ModBlocks.NEUTRON_COLLECTOR.defaultBlockState();
+		BlockState compressorState = ModBlocks.NEUTRON_COMPRESSOR.defaultBlockState();
+
+		for (int index = 0; index < 50; index++) {
+			BlockPos collectorPos = helper.absolutePos(new BlockPos(index, 0, 0));
+			NeutronCollectorBlockEntity collector = new NeutronCollectorBlockEntity(collectorPos, collectorState);
+			collector.setLevel(helper.getLevel());
+			collectors.add(collector);
+
+			BlockPos compressorPos = helper.absolutePos(new BlockPos(index, 1, 0));
+			NeutronCompressorBlockEntity compressor = new NeutronCompressorBlockEntity(compressorPos, compressorState);
+			compressor.setLevel(helper.getLevel());
+			for (int batch = 0; batch < 16; batch++) {
+				compressor.setItem(NeutronCompressorBlockEntity.INPUT_SLOT, new ItemStack(Items.OBSIDIAN, 64));
+				NeutronCompressorBlockEntity.serverTick(
+						helper.getLevel(), compressorPos, compressorState, compressor
+				);
+			}
+			helper.assertTrue(compressor.getMaterialCount() == 1000, "性能场景压缩机未装满材料");
+			compressors.add(compressor);
+		}
+
+		SingularityDefinition obsidian = SingularityManager.get(Avaritia26.id("obsidian"));
+		helper.assertTrue(obsidian != null, "性能场景缺少黑曜石奇点定义");
+		long[] samples = new long[obsidian.timeCost()];
+		for (int tick = 0; tick < samples.length; tick++) {
+			long started = System.nanoTime();
+			for (NeutronCollectorBlockEntity collector : collectors) {
+				NeutronCollectorBlockEntity.serverTick(
+						helper.getLevel(), collector.getBlockPos(), collectorState, collector
+				);
+			}
+			for (NeutronCompressorBlockEntity compressor : compressors) {
+				NeutronCompressorBlockEntity.serverTick(
+						helper.getLevel(), compressor.getBlockPos(), compressorState, compressor
+				);
+			}
+			samples[tick] = System.nanoTime() - started;
+		}
+
+		Arrays.sort(samples);
+		long p95Nanos = samples[(int) Math.ceil(samples.length * 0.95) - 1];
+		Avaritia26.LOGGER.info("100 台机器逻辑耗时 p95：{} ms/tick", p95Nanos / 1_000_000.0);
+		helper.assertTrue(
+				p95Nanos < 5_000_000L,
+				"100 台运行机器的 p95 逻辑耗时超过 5 ms/tick，实际为 " + p95Nanos / 1_000_000.0 + " ms"
+		);
+		helper.assertTrue(
+				collectors.stream().allMatch(collector -> collector.getProgress() == samples.length),
+				"收集器压力测试丢失进度"
+		);
+		helper.assertTrue(
+				compressors.stream().allMatch(compressor -> !compressor.getItem(NeutronCompressorBlockEntity.OUTPUT_SLOT).isEmpty()),
+				"压缩机压力测试未完成产出"
+		);
 		helper.succeed();
 	}
 
