@@ -335,6 +335,16 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		CompressedChestBlockEntity restored = new CompressedChestBlockEntity(helper.absolutePos(pos), helper.getBlockState(pos));
 		restored.applyComponentsFromItemStack(clone);
 		helper.assertTrue(restored.getItem(0).getCount() == 32 && restored.getItem(242).getCount() == 7, "压缩箱子物品没有保留全部内容");
+		List<ItemStack> drops = Block.getDrops(helper.getBlockState(pos), helper.getLevel(), helper.absolutePos(pos), chest);
+		helper.assertTrue(drops.size() == 1 && drops.getFirst().is(ModBlocks.COMPRESSED_CHEST_ITEM), "压缩箱子开采没有掉落自身");
+		CompressedChestBlockEntity droppedChest = new CompressedChestBlockEntity(helper.absolutePos(pos), helper.getBlockState(pos));
+		droppedChest.applyComponentsFromItemStack(drops.getFirst());
+		helper.assertTrue(
+				droppedChest.getItem(0).getCount() == 32 && droppedChest.getItem(242).getCount() == 7,
+				"压缩箱子开采掉落没有保留全部内容"
+		);
+		chest.preRemoveSideEffects(helper.absolutePos(pos), helper.getBlockState(pos));
+		helper.assertTrue(chest.getItem(0).getCount() == 32 && chest.getItem(242).getCount() == 7, "压缩箱子移除时拆散了内容");
 
 		Player player = helper.makeMockServerPlayer(GameType.SURVIVAL);
 		CompressedChestMenu menu = new CompressedChestMenu(1, player.getInventory(), chest);
@@ -418,6 +428,19 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.assertTrue(
 				restored.getItem(0).getCount() == 1_000_000 && restored.getItem(299).getCount() == 2_000_000,
 				"无尽箱方块物品没有保留 300 槽巨量内容"
+		);
+		List<ItemStack> drops = Block.getDrops(helper.getBlockState(pos), helper.getLevel(), helper.absolutePos(pos), chest);
+		helper.assertTrue(drops.size() == 1 && drops.getFirst().is(ModBlocks.INFINITY_CHEST_ITEM), "无尽箱开采没有掉落自身");
+		InfinityChestBlockEntity droppedChest = new InfinityChestBlockEntity(helper.absolutePos(pos), helper.getBlockState(pos));
+		droppedChest.applyComponentsFromItemStack(drops.getFirst());
+		helper.assertTrue(
+				droppedChest.getItem(0).getCount() == 1_000_000 && droppedChest.getItem(299).getCount() == 2_000_000,
+				"无尽箱开采掉落没有保留 300 槽巨量内容"
+		);
+		chest.preRemoveSideEffects(helper.absolutePos(pos), helper.getBlockState(pos));
+		helper.assertTrue(
+				chest.getItem(0).getCount() == 1_000_000 && chest.getItem(299).getCount() == 2_000_000,
+				"无尽箱移除时拆散了内容"
 		);
 
 		var ops = helper.getLevel().registryAccess().createSerializationContext(JsonOps.INSTANCE);

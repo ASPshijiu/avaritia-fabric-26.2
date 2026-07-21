@@ -76,6 +76,11 @@ public final class InfinityChestBlockEntity extends BaseContainerBlockEntity imp
 	}
 
 	@Override
+	public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+		// 内容由方块物品组件携带，不能像普通容器一样拆散掉落。
+	}
+
+	@Override
 	protected void applyImplicitComponents(DataComponentGetter components) {
 		super.applyImplicitComponents(components);
 		InfinityChestContents contents = components.get(ModDataComponents.INFINITY_CHEST_CONTENTS);
