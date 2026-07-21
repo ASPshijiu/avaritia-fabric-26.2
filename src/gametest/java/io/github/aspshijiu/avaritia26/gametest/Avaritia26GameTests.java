@@ -3613,6 +3613,54 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	}
 
 	@GameTest
+	public void infinityMaceCraftsBlastsAndAmplifiesSmashDamage(GameTestHelper helper) {
+		ItemStack mace = new ItemStack(ModItems.INFINITY_MACE);
+		helper.assertTrue(BuiltInRegistries.ITEM.getValue(ModItems.INFINITY_MACE_KEY)
+				== ModItems.INFINITY_MACE, "无尽重锤物品未注册");
+		helper.assertTrue(mace.getMaxStackSize() == 1 && mace.getRarity() == Rarity.EPIC
+				&& mace.has(DataComponents.DAMAGE_RESISTANT) && !mace.isDamageableItem(),
+				"无尽重锤物品属性错误");
+		helper.assertFalse(ModItems.INFINITY_MACE.isFoil(mace), "无尽重锤不应显示附魔光效");
+		var modifiers = mace.get(DataComponents.ATTRIBUTE_MODIFIERS);
+		helper.assertTrue(modifiers != null
+				&& modifiers.compute(Attributes.ATTACK_DAMAGE, 1.0, EquipmentSlot.MAINHAND) == 101.0
+				&& modifiers.compute(Attributes.ATTACK_SPEED, 4.0, EquipmentSlot.MAINHAND) == 104.0
+				&& modifiers.compute(Attributes.ENTITY_INTERACTION_RANGE, 3.0, EquipmentSlot.MAINHAND) == 8.0,
+				"无尽重锤百点攻速伤害或五格交互距离错误");
+		var enchantments = helper.getLevel().registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+		helper.assertTrue(EnchantmentHelper.getItemEnchantmentLevel(
+				enchantments.getOrThrow(Enchantments.WIND_BURST), mace) == 5, "无尽重锤风爆等级错误");
+		helper.assertTrue(EnchantmentHelper.getItemEnchantmentLevel(
+				enchantments.getOrThrow(Enchantments.BREACH), mace) == 10, "无尽重锤破甲等级错误");
+
+		CraftingInput input = infinityMaceInput();
+		assertExtremeRecipe(helper, "infinity_mace", input, ModItems.INFINITY_MACE);
+		List<ItemStack> wrongStacks = copyStacks(input.items());
+		wrongStacks.set(14, new ItemStack(Items.DIRT));
+		assertExtremeRecipeDoesNotMatch(helper, "infinity_mace",
+				CraftingInput.of(input.width(), input.height(), wrongStacks));
+
+		Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+		player.setItemInHand(InteractionHand.MAIN_HAND, mace);
+		player.setPos(Vec3.atCenterOf(helper.absolutePos(new BlockPos(10, 2, 10))));
+		ModItems.INFINITY_MACE.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+		List<WindCharge> charges = helper.getLevel().getEntitiesOfClass(
+				WindCharge.class, player.getBoundingBox().inflate(8.0));
+		helper.assertTrue(charges.size() == 3, "无尽重锤右键没有发射三枚风弹");
+		helper.assertTrue(player.getCooldowns().isOnCooldown(mace), "无尽重锤右键没有进入一秒冷却");
+
+		var warden = helper.spawnWithNoFreeWill(EntityTypes.WARDEN, new BlockPos(14, 2, 10));
+		player.fallDistance = 5.0F;
+		helper.assertTrue(net.minecraft.world.item.MaceItem.canSmashAttack(player), "重锤粉碎测试没有满足坠落条件");
+		var source = helper.getLevel().damageSources().playerAttack(player);
+		float vanillaBonus = Items.MACE.getAttackDamageBonus(warden, 0.0F, source);
+		float infinityBonus = ModItems.INFINITY_MACE.getAttackDamageBonus(warden, 0.0F, source);
+		helper.assertTrue(Math.abs(infinityBonus - vanillaBonus - warden.getHealth() * 0.25F) < 0.001F,
+				"无尽重锤粉碎攻击没有追加目标当前生命值 25% 的伤害");
+		helper.succeed();
+	}
+
+	@GameTest
 	public void everyBuiltInSingularityCompresses(GameTestHelper helper) {
 		BlockPos relativePos = new BlockPos(13, 0, 0);
 		helper.setBlock(relativePos, ModBlocks.NEUTRON_COMPRESSOR);
@@ -5458,6 +5506,29 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 						'N', new ItemStack(ModItems.NEUTRON_INGOT),
 						'P', new ItemStack(Items.HEART_OF_THE_SEA),
 						'X', new ItemStack(ModItems.INFINITY_CATALYST)
+				)
+		);
+	}
+
+	private static CraftingInput infinityMaceInput() {
+		return extremeInput(
+				List.of(
+						"     CC C",
+						"    CIIC ",
+						"    CIMIC",
+						"     CIIC",
+						"    N CC ",
+						"   D     ",
+						"  N      ",
+						" N       ",
+						"C        "
+				),
+				Map.of(
+						'C', new ItemStack(ModItems.CRYSTAL_MATRIX_INGOT),
+						'D', new ItemStack(Items.BREEZE_ROD),
+						'I', new ItemStack(ModItems.INFINITY_NUGGET),
+						'M', new ItemStack(Items.HEAVY_CORE),
+						'N', new ItemStack(ModItems.NEUTRON_INGOT)
 				)
 		);
 	}

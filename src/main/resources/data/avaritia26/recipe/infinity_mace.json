@@ -1,0 +1,23 @@
+{
+	"type": "avaritia26:extreme_shaped",
+	"category": "equipment",
+	"key": {
+		"C": "avaritia26:crystal_matrix_ingot",
+		"D": "minecraft:breeze_rod",
+		"I": "avaritia26:infinity_nugget",
+		"M": "minecraft:heavy_core",
+		"N": "avaritia26:neutron_ingot"
+	},
+	"pattern": [
+		"     CC C",
+		"    CIIC ",
+		"    CIMIC",
+		"     CIIC",
+		"    N CC ",
+		"   D     ",
+		"  N      ",
+		" N       ",
+		"C        "
+	],
+	"result": {"count": 1, "id": "avaritia26:infinity_mace"}
+}

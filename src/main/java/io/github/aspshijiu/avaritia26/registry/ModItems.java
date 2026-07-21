@@ -14,6 +14,7 @@ import io.github.aspshijiu.avaritia26.item.InfinityBucketItem;
 import io.github.aspshijiu.avaritia26.item.InfinityClockItem;
 import io.github.aspshijiu.avaritia26.item.InfinityCrossbowItem;
 import io.github.aspshijiu.avaritia26.item.InfinityHoeItem;
+import io.github.aspshijiu.avaritia26.item.InfinityMaceItem;
 import io.github.aspshijiu.avaritia26.item.InfinityPickaxeItem;
 import io.github.aspshijiu.avaritia26.item.InfinityShovelItem;
 import io.github.aspshijiu.avaritia26.item.InfinityTridentItem;
@@ -32,6 +33,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -40,6 +42,7 @@ import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.MaceItem;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.item.SmithingTemplateItem;
@@ -48,6 +51,9 @@ import net.minecraft.world.item.TridentItem;
 import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.ItemContainerContents;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.item.component.BlocksAttacks;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.DamageTypeTags;
@@ -145,6 +151,12 @@ public final class ModItems {
 					.component(DataComponents.TOOL, TridentItem.createToolProperties())
 					.component(DataComponents.WEAPON, new Weapon(0))
 					.component(ModDataComponents.INFINITY_TRIDENT_MODE, InfinityTridentItem.LOYALTY)
+	);
+	public static final ResourceKey<Item> INFINITY_MACE_KEY = key("infinity_mace");
+	public static final Item INFINITY_MACE = register(
+			INFINITY_MACE_KEY,
+			InfinityMaceItem::new,
+			infinityMaceProperties()
 	);
 	public static final ResourceKey<Item> INFINITY_HELMET_KEY = key("infinity_helmet");
 	public static final Item INFINITY_HELMET = register(
@@ -411,6 +423,25 @@ public final class ModItems {
 				.fireResistant()
 				.equippableUnswappable(EquipmentSlot.OFFHAND)
 				.delayedComponent(DataComponents.BLOCKS_ATTACKS, ModItems::infinityBlocksAttacks);
+	}
+
+	private static Item.Properties infinityMaceProperties() {
+		return new Item.Properties()
+				.rarity(Rarity.EPIC)
+				.stacksTo(1)
+				.fireResistant()
+				.attributes(InfinityMaceItem.createAttributes())
+				.component(DataComponents.TOOL, MaceItem.createToolProperties())
+				.component(DataComponents.WEAPON, new Weapon(0))
+				.delayedComponent(DataComponents.ENCHANTMENTS, ModItems::infinityMaceEnchantments);
+	}
+
+	private static ItemEnchantments infinityMaceEnchantments(HolderLookup.Provider registries) {
+		HolderLookup.RegistryLookup<Enchantment> enchantments = registries.lookupOrThrow(Registries.ENCHANTMENT);
+		ItemEnchantments.Mutable result = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
+		result.set(enchantments.getOrThrow(Enchantments.WIND_BURST), 5);
+		result.set(enchantments.getOrThrow(Enchantments.BREACH), 10);
+		return result.toImmutable();
 	}
 
 	private static BlocksAttacks infinityBlocksAttacks(HolderLookup.Provider registries) {
