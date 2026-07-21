@@ -1,0 +1,22 @@
+{
+  "type": "avaritia26:extreme_shaped",
+  "category": "equipment",
+  "key": {
+    "A": "avaritia26:crystal_matrix",
+    "B": "avaritia26:neutron_ingot",
+    "C": "avaritia26:crystal_matrix_ingot"
+  },
+  "pattern": [
+    "    CCC",
+    "   CCCC",
+    "    CCC",
+    "   B C ",
+    "  B    ",
+    " B     ",
+    "A      "
+  ],
+  "result": {
+    "count": 1,
+    "id": "avaritia26:crystal_shovel"
+  }
+}

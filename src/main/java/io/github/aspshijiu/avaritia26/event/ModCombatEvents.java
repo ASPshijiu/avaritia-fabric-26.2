@@ -30,7 +30,8 @@ public final class ModCombatEvents {
 		ServerLivingEntityEvents.ALLOW_DEATH.register(ModCombatEvents::useInfinityTotem);
 		AttackEntityCallback.EVENT.register((player, level, hand, entity, hitResult) -> {
 			if (player.getItemInHand(hand).is(ModItems.CRYSTAL_SWORD)
-					|| player.getItemInHand(hand).is(ModItems.CRYSTAL_HOE)) {
+					|| player.getItemInHand(hand).is(ModItems.CRYSTAL_HOE)
+					|| player.getItemInHand(hand).is(ModItems.CRYSTAL_SHOVEL)) {
 				player.resetAttackStrengthTicker();
 				entity.setInvulnerable(false);
 				return InteractionResult.PASS;

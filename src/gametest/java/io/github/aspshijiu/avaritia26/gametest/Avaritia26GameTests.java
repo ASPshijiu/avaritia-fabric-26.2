@@ -3860,6 +3860,59 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	}
 
 	@GameTest
+	public void crystalShovelCraftsFlattensAndGrantsSpeed(GameTestHelper helper) {
+		ItemStack shovel = new ItemStack(ModItems.CRYSTAL_SHOVEL);
+		helper.assertTrue(BuiltInRegistries.ITEM.getValue(ModItems.CRYSTAL_SHOVEL_KEY)
+				== ModItems.CRYSTAL_SHOVEL, "晶态矩阵铲物品未注册");
+		helper.assertTrue(shovel.getMaxStackSize() == 1 && shovel.getRarity() == Rarity.EPIC
+				&& shovel.has(DataComponents.DAMAGE_RESISTANT) && shovel.getMaxDamage() == 8888,
+				"晶态矩阵铲物品属性或耐久错误");
+		helper.assertTrue(shovel.is(ItemTags.SHOVELS), "晶态矩阵铲缺少原版铲标签");
+		helper.assertFalse(ModItems.CRYSTAL_SHOVEL.isFoil(shovel), "晶态矩阵铲不应显示附魔光效");
+		var modifiers = shovel.get(DataComponents.ATTRIBUTE_MODIFIERS);
+		helper.assertTrue(modifiers != null
+				&& modifiers.compute(Attributes.ATTACK_DAMAGE, 1.0, EquipmentSlot.MAINHAND) == 51.0
+				&& modifiers.compute(Attributes.ATTACK_SPEED, 4.0, EquipmentSlot.MAINHAND) == 29.0,
+				"晶态矩阵铲没有保留上游五十点伤害与二十五点攻速增幅");
+
+		CraftingInput input = crystalShovelInput();
+		assertExtremeRecipe(helper, "crystal_shovel", input, ModItems.CRYSTAL_SHOVEL);
+		List<ItemStack> wrongStacks = copyStacks(input.items());
+		wrongStacks.set(0, new ItemStack(Items.DIRT));
+		assertExtremeRecipeDoesNotMatch(helper, "crystal_shovel",
+				CraftingInput.of(input.width(), input.height(), wrongStacks));
+
+		Player player = helper.makeMockServerPlayer(GameType.SURVIVAL);
+		player.setItemInHand(InteractionHand.MAIN_HAND, shovel);
+		player.getActiveEffectsMap().put(MobEffects.SLOWNESS,
+				new MobEffectInstance(MobEffects.SLOWNESS, 200, 1));
+		player.getActiveEffectsMap().put(MobEffects.MINING_FATIGUE,
+				new MobEffectInstance(MobEffects.MINING_FATIGUE, 200, 1));
+		ModItems.CRYSTAL_SHOVEL.inventoryTick(shovel, helper.getLevel(), player, EquipmentSlot.MAINHAND);
+		helper.assertTrue(player.getEffect(MobEffects.HASTE) != null
+				&& player.getEffect(MobEffects.HASTE).getAmplifier() == 2
+				&& player.getEffect(MobEffects.SPEED) != null
+				&& player.getEffect(MobEffects.SPEED).getAmplifier() == 2,
+				"晶态矩阵铲主手时没有提供急迫 III 与速度 III");
+		helper.assertFalse(player.hasEffect(MobEffects.SLOWNESS)
+				|| player.hasEffect(MobEffects.MINING_FATIGUE),
+				"晶态矩阵铲没有清除缓慢或挖掘疲劳");
+
+		BlockPos pathPos = new BlockPos(6, 2, 6);
+		helper.setBlock(pathPos, Blocks.GRASS_BLOCK);
+		InteractionResult flattenResult = ModItems.CRYSTAL_SHOVEL.useOn(new UseOnContext(
+				player,
+				InteractionHand.MAIN_HAND,
+				new BlockHitResult(Vec3.atCenterOf(helper.absolutePos(pathPos)), Direction.UP,
+						helper.absolutePos(pathPos), false)
+		));
+		helper.assertTrue(flattenResult.consumesAction(), "晶态矩阵铲没有接管铲平操作");
+		helper.assertBlockPresent(Blocks.DIRT_PATH, pathPos);
+		helper.assertTrue(shovel.getDamageValue() == 1, "晶态矩阵铲铲平道路没有损耗一点耐久");
+		helper.succeed();
+	}
+
+	@GameTest
 	public void everyBuiltInSingularityCompresses(GameTestHelper helper) {
 		BlockPos relativePos = new BlockPos(13, 0, 0);
 		helper.setBlock(relativePos, ModBlocks.NEUTRON_COMPRESSOR);
@@ -5786,6 +5839,25 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 						'B', new ItemStack(ModItems.NEUTRON_INGOT),
 						'C', new ItemStack(ModItems.CRYSTAL_MATRIX_INGOT),
 						'D', new ItemStack(ModBlocks.NEUTRON_ITEM)
+				)
+		);
+	}
+
+	private static CraftingInput crystalShovelInput() {
+		return extremeInput(
+				List.of(
+						"    CCC",
+						"   CCCC",
+						"    CCC",
+						"   B C ",
+						"  B    ",
+						" B     ",
+						"A      "
+				),
+				Map.of(
+						'A', new ItemStack(ModBlocks.CRYSTAL_MATRIX_ITEM),
+						'B', new ItemStack(ModItems.NEUTRON_INGOT),
+						'C', new ItemStack(ModItems.CRYSTAL_MATRIX_INGOT)
 				)
 		);
 	}

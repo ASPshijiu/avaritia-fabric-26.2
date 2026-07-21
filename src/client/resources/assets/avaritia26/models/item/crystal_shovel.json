@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "avaritia26:item/tools/crystal_shovel/layer_0"
+  }
+}

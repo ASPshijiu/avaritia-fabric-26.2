@@ -7,6 +7,7 @@ import java.util.function.Function;
 import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.item.CrystalHoeItem;
 import io.github.aspshijiu.avaritia26.item.CrystalPickaxeItem;
+import io.github.aspshijiu.avaritia26.item.CrystalShovelItem;
 import io.github.aspshijiu.avaritia26.item.CrystalSwordItem;
 import io.github.aspshijiu.avaritia26.item.EndestPearlItem;
 import io.github.aspshijiu.avaritia26.item.EternalSingularityItem;
@@ -203,6 +204,16 @@ public final class ModItems {
 					.fireResistant()
 					.pickaxe(CRYSTAL_TOOL_MATERIAL, 0.0F, 25.0F)
 					.delayedComponent(DataComponents.ENCHANTMENTS, ModItems::crystalPickaxeEnchantments)
+	);
+	public static final ResourceKey<Item> CRYSTAL_SHOVEL_KEY = key("crystal_shovel");
+	public static final Item CRYSTAL_SHOVEL = register(
+			CRYSTAL_SHOVEL_KEY,
+			CrystalShovelItem::new,
+			new Item.Properties()
+					.rarity(Rarity.EPIC)
+					.stacksTo(1)
+					.fireResistant()
+					.shovel(CRYSTAL_TOOL_MATERIAL, 0.0F, 25.0F)
 	);
 	public static final ResourceKey<Item> INFINITY_HELMET_KEY = key("infinity_helmet");
 	public static final Item INFINITY_HELMET = register(
