@@ -8,45 +8,45 @@
 
 | Registry path | 中文名 | 实现 | 合成/产出 | 使用 | 功能 | 客户端 | 专服 |
 |---|---|---|---|---|---|---|---|
-| `diamond_lattice` | 钻石晶格 | 实现中 | 通过 | 不适用 | 通过 | 通过 | 通过 |
-| `crystal_matrix_ingot` | 晶态矩阵锭 | 实现中 | 通过 | 不适用 | 通过 | 通过 | 通过 |
-| `neutron_pile` | 中子堆 | 实现中 | 通过 | 不适用 | 通过 | 通过 | 通过 |
-| `neutron_nugget` | 中子粒 | 实现中 | 通过 | 不适用 | 通过 | 通过 | 通过 |
-| `neutron_ingot` | 中子锭 | 实现中 | 通过 | 不适用 | 通过 | 通过 | 通过 |
-| `infinity_catalyst` | 无尽催化剂 | 实现中 | 通过 | 不适用 | 通过 | 通过 | 通过 |
-| `infinity_ingot` | 无尽锭 | 实现中 | 通过 | 不适用 | 通过 | 通过 | 通过 |
-| `singularity` | 奇点（数据驱动） | 实现中 | 通过 | 不适用 | 通过 | 通过 | 通过 |
-| `eternal_singularity` | 永恒奇点 | 实现中 | 通过 | 不适用 | 通过 | 通过 | 通过 |
-| `record_fragment` | 唱片碎片 | 实现中 | 通过 | 不适用 | 通过 | 通过 | 通过 |
-| `endest_pearl` | 终望珍珠 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `matter_cluster` | 物质团 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `ultimate_stew` | 终极炖菜 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `cosmic_meatballs` | 寰宇肉丸 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `skull_fire_sword` | 炽焰之啄颅剑 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `infinity_sword` | 寰宇支配之剑 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `infinity_hoe` | 无尽锄 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `infinity_pickaxe` | 无尽镐 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `infinity_shovel` | 无尽铲 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `infinity_axe` | 自然荒芜之斧 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `infinity_bow` | 天堂陨落长弓 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `infinity_helmet` | 无尽头盔 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `infinity_chestplate` | 无尽胸甲 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `infinity_pants` | 无尽护腿 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `infinity_boots` | 无尽靴子 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `diamond_lattice` | 钻石晶格 | 已验证 | 通过 | 不适用 | 通过 | 通过 | 通过 |
+| `crystal_matrix_ingot` | 晶态矩阵锭 | 已验证 | 通过 | 不适用 | 通过 | 通过 | 通过 |
+| `neutron_pile` | 中子堆 | 已验证 | 通过 | 不适用 | 通过 | 通过 | 通过 |
+| `neutron_nugget` | 中子粒 | 已验证 | 通过 | 不适用 | 通过 | 通过 | 通过 |
+| `neutron_ingot` | 中子锭 | 已验证 | 通过 | 不适用 | 通过 | 通过 | 通过 |
+| `infinity_catalyst` | 无尽催化剂 | 已验证 | 通过 | 不适用 | 通过 | 通过 | 通过 |
+| `infinity_ingot` | 无尽锭 | 已验证 | 通过 | 不适用 | 通过 | 通过 | 通过 |
+| `singularity` | 奇点（数据驱动） | 已验证 | 通过 | 不适用 | 通过 | 通过 | 通过 |
+| `eternal_singularity` | 永恒奇点 | 已验证 | 通过 | 不适用 | 通过 | 通过 | 通过 |
+| `record_fragment` | 唱片碎片 | 已验证 | 通过 | 不适用 | 通过 | 通过 | 通过 |
+| `endest_pearl` | 终望珍珠 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `matter_cluster` | 物质团 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `ultimate_stew` | 终极炖菜 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `cosmic_meatballs` | 寰宇肉丸 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `skull_fire_sword` | 炽焰之啄颅剑 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `infinity_sword` | 寰宇支配之剑 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `infinity_hoe` | 无尽锄 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `infinity_pickaxe` | 无尽镐 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `infinity_shovel` | 无尽铲 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `infinity_axe` | 自然荒芜之斧 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `infinity_bow` | 天堂陨落长弓 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `infinity_helmet` | 无尽头盔 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `infinity_chestplate` | 无尽胸甲 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `infinity_pants` | 无尽护腿 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `infinity_boots` | 无尽靴子 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
 
 ## P0：经典核心方块物品
 
 | Registry path | 中文名 | 实现 | 合成/产出 | 使用 | 功能 | 客户端 | 专服 |
 |---|---|---|---|---|---|---|---|
-| `compressed_crafting_table` | 压缩工作台 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `double_compressed_crafting_table` | 二重压缩工作台 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `extreme_crafting_table` | 终极工作台 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `crystal_matrix` | 晶态矩阵块 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `neutron` | 中子块 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `infinity` | 无尽块 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `neutron_collector` | 中子收集器 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `neutron_compressor` | 中子压缩机 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `infinity_chest` | 无尽箱子 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `compressed_crafting_table` | 压缩工作台 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `double_compressed_crafting_table` | 二重压缩工作台 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `extreme_crafting_table` | 终极工作台 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `crystal_matrix` | 晶态矩阵块 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `neutron` | 中子块 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `infinity` | 无尽块 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `neutron_collector` | 中子收集器 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `neutron_compressor` | 中子压缩机 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `infinity_chest` | 无尽箱子 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
 
 ## P0：内置奇点变体
 
@@ -54,87 +54,103 @@
 
 | 奇点 ID | 输入类别 | 实现 | 压缩产出 | 显示/保存 | 客户端同步 | 专服 |
 |---|---|---|---|---|---|---|
-| `obsidian` | 黑曜石 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `blue_ice` | 蓝冰 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `coal` | 煤炭 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `copper` | 铜锭 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `iron` | 铁锭 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `lapis_lazuli` | 青金石 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `redstone` | 红石 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `glowstone` | 荧石粉 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `gold` | 金锭 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `diamond` | 钻石 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `emerald` | 绿宝石 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `quartz` | 下界石英 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `amethyst_shard` | 紫水晶碎片 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `netherite` | 下界合金锭 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `obsidian` | 黑曜石 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `blue_ice` | 蓝冰 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `coal` | 煤炭 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `copper` | 铜锭 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `iron` | 铁锭 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `lapis_lazuli` | 青金石 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `redstone` | 红石 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `glowstone` | 荧石粉 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `gold` | 金锭 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `diamond` | 钻石 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `emerald` | 绿宝石 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `quartz` | 下界石英 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `amethyst_shard` | 紫水晶碎片 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `netherite` | 下界合金锭 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
 
 ## P1：Re:Avaritia 扩展物品
 
 | Registry path | 中文/用途 | 实现 | 合成/产出 | 使用 | 功能 | 客户端 | 专服 |
 |---|---|---|---|---|---|---|---|
-| `neutron_ring` | 中子指环 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `infinity_totem` | 无尽图腾 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `infinity_ring` | 无尽指环（上游 WIP） | 实现中 | 不适用 | 不适用 | 通过 | 通过 | 通过 |
-| `infinity_umbrella` | 无尽雨伞 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `infinity_clock` | 无尽时钟 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `side_config_card` | 侧面配置卡 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `infinity_bucket` | 无尽桶 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `infinity_crossbow` | 无尽弩 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `infinity_shield` | 无尽盾 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `infinity_trident` | 无尽三叉戟 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `infinity_mace` | 无尽重锤 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `crystal_sword` | 晶态矩阵剑 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `crystal_hoe` | 晶态矩阵锄 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `crystal_pickaxe` | 晶态矩阵镐 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `crystal_shovel` | 晶态矩阵铲 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `crystal_axe` | 晶态矩阵斧 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `crystal_bow` | 晶态矩阵弓 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `blaze_sword` | 烈焰剑 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `blaze_hoe` | 烈焰锄 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `blaze_pickaxe` | 烈焰镐 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `blaze_shovel` | 烈焰铲 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `blaze_axe` | 烈焰斧 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `blaze_bow` | 烈焰弓 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `neutron_horse_armor` | 中子马铠 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `infinity_elytra` | 无尽鞘翅 | 未开始 | — | — | — | — | — |
-| `blaze_cube` | 炽骨立方 | 实现中 | 通过 | 不适用 | 通过 | 通过 | 通过 |
-| `neutron_gear` | 中子齿轮 | 实现中 | 通过 | 不适用 | 通过 | 通过 | 通过 |
-| `infinity_nugget` | 无尽粒 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `star_fuel` | 星辰燃料 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `refined_coal` | 精炼煤炭 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `full_matter_cluster` | 满物质团 | 实现中 | 通过 | 不适用 | 通过 | 通过 | 通过 |
-| `enhancement_core` | 强化核心 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `upgrade_smithing_template` | 强化锻造模板 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `infinity_upgrade` | 无尽升级件 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `forge_energy` | 能量占位物品 | 实现中 | 不适用 | 不适用 | 通过 | 通过 | 通过 |
+| `neutron_ring` | 中子指环 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `infinity_totem` | 无尽图腾 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `infinity_ring` | 无尽指环（上游 WIP） | 已验证 | 不适用 | 不适用 | 通过 | 通过 | 通过 |
+| `infinity_umbrella` | 无尽雨伞 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `infinity_clock` | 无尽时钟 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `side_config_card` | 侧面配置卡 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `infinity_bucket` | 无尽桶 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `infinity_crossbow` | 无尽弩 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `infinity_shield` | 无尽盾 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `infinity_trident` | 无尽三叉戟 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `infinity_mace` | 无尽重锤 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `crystal_sword` | 晶态矩阵剑 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `crystal_hoe` | 晶态矩阵锄 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `crystal_pickaxe` | 晶态矩阵镐 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `crystal_shovel` | 晶态矩阵铲 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `crystal_axe` | 晶态矩阵斧 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `crystal_bow` | 晶态矩阵弓 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `blaze_sword` | 烈焰剑 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `blaze_hoe` | 烈焰锄 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `blaze_pickaxe` | 烈焰镐 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `blaze_shovel` | 烈焰铲 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `blaze_axe` | 烈焰斧 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `blaze_bow` | 烈焰弓 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `neutron_horse_armor` | 中子马铠 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `infinity_elytra` | 无尽鞘翅 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `blaze_cube` | 炽骨立方 | 已验证 | 通过 | 不适用 | 通过 | 通过 | 通过 |
+| `neutron_gear` | 中子齿轮 | 已验证 | 通过 | 不适用 | 通过 | 通过 | 通过 |
+| `infinity_nugget` | 无尽粒 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `star_fuel` | 星辰燃料 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `refined_coal` | 精炼煤炭 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `full_matter_cluster` | 满物质团 | 已验证 | 通过 | 不适用 | 通过 | 通过 | 通过 |
+| `enhancement_core` | 强化核心 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `upgrade_smithing_template` | 强化锻造模板 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `infinity_upgrade` | 无尽升级件 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `forge_energy` | 能量占位物品 | 已验证 | 不适用 | 不适用 | 通过 | 通过 | 通过 |
 
 ## P1：Re:Avaritia 扩展方块物品
 
 | Registry path | 中文/用途 | 实现 | 合成/产出 | 使用 | 功能 | 客户端 | 专服 |
 |---|---|---|---|---|---|---|---|
-| `blaze_cube_block` | 炽骨立方块 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `compressed_chest` | 压缩箱子 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `soul_farmland` | 灵魂耕地 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `diamond_lattice_block` | 钻石晶格块 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `star_fuel_block` | 星辰燃料块 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `refined_coal_block` | 精炼煤炭块 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `sculk_crafting_table` | 幽匿工作台 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `nether_crafting_table` | 下界工作台 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `end_crafting_table` | 末地工作台 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `dense_neutron_collector` | 致密中子收集器 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `denser_neutron_collector` | 更致密中子收集器 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `densest_neutron_collector` | 最致密中子收集器 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `dense_neutron_compressor` | 致密中子压缩机 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `denser_neutron_compressor` | 更致密中子压缩机 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `densest_neutron_compressor` | 最致密中子压缩机 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `extreme_smithing_table` | 终焉锻造台 | 实现中 | 通过 | 通过 | 通过 | 通过 | 通过 |
-| `extreme_anvil` | 终极铁砧 | 未开始 | — | — | — | — | — |
-| `endless_cake` | 无尽蛋糕 | 未开始 | — | — | — | — | — |
+| `blaze_cube_block` | 炽骨立方块 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `compressed_chest` | 压缩箱子 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `soul_farmland` | 灵魂耕地 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `diamond_lattice_block` | 钻石晶格块 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `star_fuel_block` | 星辰燃料块 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `refined_coal_block` | 精炼煤炭块 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `sculk_crafting_table` | 幽匿工作台 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `nether_crafting_table` | 下界工作台 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `end_crafting_table` | 末地工作台 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `dense_neutron_collector` | 致密中子收集器 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `denser_neutron_collector` | 更致密中子收集器 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `densest_neutron_collector` | 最致密中子收集器 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `dense_neutron_compressor` | 致密中子压缩机 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `denser_neutron_compressor` | 更致密中子压缩机 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `densest_neutron_compressor` | 最致密中子压缩机 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `extreme_smithing_table` | 终焉锻造台 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `extreme_anvil` | 终极铁砧 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `endless_cake` | 无尽蛋糕 | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
 
 ## P1：条件式科技奇点
 
-仅在对应 `c:ingots/*` tag 非空时启用：`aluminum`、`tin`、`bronze`、`silver`、`lead`、`steel`、`nickel`、`electrum`、`invar`、`platinum`、`uranium`、`osmium`、`refined_obsidian`。每个变体仍需分别验证数据包条件、压缩、显示、保存和同步。
+仅在对应 `c:ingots/*` tag 非空时启用。生产数据包在标签为空时保持禁用；GameTest 数据包为每个标签提供独立输入，并逐项验证条件加载、压缩、显示、保存和网络同步。
+
+| 奇点 ID | 条件标签 | 实现 | 条件加载 | 压缩产出 | 显示/保存 | 客户端同步 | 专服 |
+|---|---|---|---|---|---|---|---|
+| `aluminum` | `c:ingots/aluminum` | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `tin` | `c:ingots/tin` | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `bronze` | `c:ingots/bronze` | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `silver` | `c:ingots/silver` | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `lead` | `c:ingots/lead` | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `steel` | `c:ingots/steel` | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `nickel` | `c:ingots/nickel` | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `electrum` | `c:ingots/electrum` | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `invar` | `c:ingots/invar` | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `platinum` | `c:ingots/platinum` | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `uranium` | `c:ingots/uranium` | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `osmium` | `c:ingots/osmium` | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
+| `refined_obsidian` | `c:ingots/refined_obsidian` | 已验证 | 通过 | 通过 | 通过 | 通过 | 通过 |
 
 ## 内部技术对象
 
@@ -144,7 +160,7 @@
 - `fake_end_portal_frame`：终局工具效果使用的内部方块。
 - `fake_end_portal`：终局工具效果使用的内部方块。
 - 无尽箭矢/三叉戟等自定义实体。
-- 菜单、方块实体、RecipeType、RecipeSerializer、DataComponent、payload 与渲染器。其中 `extreme_crafting`、9×9 `extreme_shaped` 和最多 81 种材料的 `extreme_shapeless` 配方核心为实现中；正确匹配、产出、乱序和额外材料拒绝已通过 GameTest。
+- 菜单、方块实体、RecipeType、RecipeSerializer、DataComponent、payload 与渲染器。其中 `extreme_crafting`、9×9 `extreme_shaped` 和最多 81 种材料的 `extreme_shapeless` 配方核心已验证；正确匹配、产出、乱序和额外材料拒绝已通过 GameTest。
 
 ## 每项验收方法
 
