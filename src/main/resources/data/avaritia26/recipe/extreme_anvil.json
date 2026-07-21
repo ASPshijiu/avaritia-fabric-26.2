@@ -1,0 +1,11 @@
+{
+  "type": "avaritia26:extreme_smithing",
+  "template": "avaritia26:upgrade_smithing_template",
+  "base": "minecraft:anvil",
+  "addition": [
+    "avaritia26:full_matter_cluster",
+    "avaritia26:enhancement_core",
+    "avaritia26:neutron"
+  ],
+  "result": {"count": 1, "id": "avaritia26:extreme_anvil"}
+}

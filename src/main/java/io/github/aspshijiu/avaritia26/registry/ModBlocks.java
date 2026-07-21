@@ -4,6 +4,7 @@ import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.block.CompressedChestBlock;
 import io.github.aspshijiu.avaritia26.block.EndCraftingTableBlock;
 import io.github.aspshijiu.avaritia26.block.ExtremeCraftingTableBlock;
+import io.github.aspshijiu.avaritia26.block.ExtremeAnvilBlock;
 import io.github.aspshijiu.avaritia26.block.ExtremeSmithingTableBlock;
 import io.github.aspshijiu.avaritia26.block.InfinityChestBlock;
 import io.github.aspshijiu.avaritia26.block.NetherCraftingTableBlock;
@@ -25,6 +26,7 @@ import net.minecraft.world.level.block.MagmaBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.material.PushReaction;
 
 public final class ModBlocks {
 	private static final SoundType END_PORTAL_SOUND = new SoundType(
@@ -500,6 +502,27 @@ public final class ModBlocks {
 			new BlockItem(
 					EXTREME_SMITHING_TABLE,
 					new Item.Properties().setId(EXTREME_SMITHING_TABLE_ITEM_KEY).rarity(Rarity.EPIC).fireResistant()
+			)
+	);
+	public static final ResourceKey<Block> EXTREME_ANVIL_KEY = blockKey("extreme_anvil");
+	public static final ExtremeAnvilBlock EXTREME_ANVIL = Registry.register(
+			BuiltInRegistries.BLOCK,
+			EXTREME_ANVIL_KEY,
+			new ExtremeAnvilBlock(BlockBehaviour.Properties.of()
+					.setId(EXTREME_ANVIL_KEY)
+					.mapColor(MapColor.METAL)
+					.sound(SoundType.ANVIL)
+					.strength(8888.0F, 8888.0F)
+					.pushReaction(PushReaction.BLOCK)
+					.requiresCorrectToolForDrops())
+	);
+	public static final ResourceKey<Item> EXTREME_ANVIL_ITEM_KEY = itemKey("extreme_anvil");
+	public static final BlockItem EXTREME_ANVIL_ITEM = Registry.register(
+			BuiltInRegistries.ITEM,
+			EXTREME_ANVIL_ITEM_KEY,
+			new BlockItem(
+					EXTREME_ANVIL,
+					new Item.Properties().setId(EXTREME_ANVIL_ITEM_KEY).rarity(Rarity.EPIC).fireResistant()
 			)
 	);
 	public static final ResourceKey<Block> INFINITY_CHEST_KEY = blockKey("infinity_chest");

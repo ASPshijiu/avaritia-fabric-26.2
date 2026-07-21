@@ -29,6 +29,7 @@
 	"container.avaritia26.nether_crafting_table": "炼狱工作台",
 	"container.avaritia26.end_crafting_table": "末地工作台",
 	"container.avaritia26.extreme_smithing_table": "终焉锻造台",
+	"block.avaritia26.extreme_anvil": "终焉之砧",
 	"container.avaritia26.infinity_chest.amount": "数量：%s / %s",
 	"container.avaritia26.neutron_collector": "中子收集器",
 	"container.avaritia26.neutron_compressor": "中子压缩机",

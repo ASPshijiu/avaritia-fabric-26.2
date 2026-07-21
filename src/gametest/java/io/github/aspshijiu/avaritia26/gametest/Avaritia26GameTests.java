@@ -8,6 +8,7 @@ import java.util.UUID;
 import com.mojang.serialization.JsonOps;
 import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.block.CompressedChestBlock;
+import io.github.aspshijiu.avaritia26.block.ExtremeAnvilBlock;
 import io.github.aspshijiu.avaritia26.block.InfinityChestBlock;
 import io.github.aspshijiu.avaritia26.block.NeutronCollectorBlock;
 import io.github.aspshijiu.avaritia26.block.NeutronCompressorBlock;
@@ -50,6 +51,7 @@ import io.github.aspshijiu.avaritia26.event.ModToolEvents;
 import io.github.aspshijiu.avaritia26.inventory.CompressedChestMenu;
 import io.github.aspshijiu.avaritia26.inventory.EndCraftingMenu;
 import io.github.aspshijiu.avaritia26.inventory.ExtremeCraftingMenu;
+import io.github.aspshijiu.avaritia26.inventory.ExtremeAnvilMenu;
 import io.github.aspshijiu.avaritia26.inventory.ExtremeSmithingMenu;
 import io.github.aspshijiu.avaritia26.inventory.InfinityChestMenu;
 import io.github.aspshijiu.avaritia26.inventory.InfinityClockMenu;
@@ -168,6 +170,7 @@ import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.item.enchantment.Repairable;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
@@ -4573,6 +4576,95 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 				&& Math.abs(landingTarget.getHealth() - (landingHealth - InfinityElytraItem.LANDING_DAMAGE)) < 0.001,
 				"无尽鞘翅落地没有对两点五格内目标造成六点虚空伤害");
 		helper.succeed();
+	}
+
+	@GameTest
+	public void extremeAnvilSmithsRepairsRenamesAndFallsThroughBlocks(GameTestHelper helper) {
+		ItemStack anvilStack = new ItemStack(ModBlocks.EXTREME_ANVIL_ITEM);
+		helper.assertTrue(BuiltInRegistries.BLOCK.getValue(ModBlocks.EXTREME_ANVIL_KEY)
+				== ModBlocks.EXTREME_ANVIL
+				&& BuiltInRegistries.ITEM.getValue(ModBlocks.EXTREME_ANVIL_ITEM_KEY)
+				== ModBlocks.EXTREME_ANVIL_ITEM,
+				"终焉之砧方块或物品未注册");
+		helper.assertTrue(anvilStack.getMaxStackSize() == 64 && anvilStack.getRarity() == Rarity.EPIC
+				&& anvilStack.has(DataComponents.DAMAGE_RESISTANT),
+				"终焉之砧物品属性错误");
+		helper.assertTrue(ModBlocks.EXTREME_ANVIL.defaultBlockState().is(BlockTags.ANVIL)
+				&& ModBlocks.EXTREME_ANVIL.defaultBlockState().is(ExtremeAnvilBlock.UNBREAKABLE_SUPPORT),
+				"终焉之砧没有加入原版铁砧或不可破坏支撑标签");
+
+		ExtremeSmithingInput smithingInput = new ExtremeSmithingInput(
+				new ItemStack(ModItems.UPGRADE_SMITHING_TEMPLATE),
+				new ItemStack(Items.ANVIL),
+				new ItemStack(ModItems.FULL_MATTER_CLUSTER),
+				new ItemStack(ModItems.ENHANCEMENT_CORE),
+				new ItemStack(ModBlocks.NEUTRON_ITEM)
+		);
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(Registries.RECIPE, Avaritia26.id("extreme_anvil"));
+		RecipeHolder<ExtremeSmithingRecipe> recipe = helper.getLevel().getServer().getRecipeManager()
+				.getRecipeFor(ModRecipes.EXTREME_SMITHING, smithingInput, helper.getLevel())
+				.filter(candidate -> candidate.id().equals(recipeKey))
+				.orElseThrow(() -> helper.assertionException("正确材料未匹配终焉之砧强化锻造配方"));
+		helper.assertTrue(recipe.value().assemble(smithingInput).is(ModBlocks.EXTREME_ANVIL_ITEM),
+				"终焉之砧强化锻造输出错误");
+		ExtremeSmithingInput wrongInput = new ExtremeSmithingInput(
+				smithingInput.template(), smithingInput.base(), smithingInput.addition1(),
+				smithingInput.addition2(), new ItemStack(Items.DIRT));
+		helper.assertFalse(recipe.value().matches(wrongInput, helper.getLevel()),
+				"终焉之砧配方不应接受错误的第三附加材料");
+
+		BlockPos anvilPos = new BlockPos(5, 2, 5);
+		helper.setBlock(anvilPos, ModBlocks.EXTREME_ANVIL);
+		Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+		ExtremeAnvilMenu menu = new ExtremeAnvilMenu(1, player.getInventory(), helper.absolutePos(anvilPos));
+		ItemStack damagedPickaxe = new ItemStack(Items.DIAMOND_PICKAXE);
+		damagedPickaxe.setDamageValue(1000);
+		menu.getSlot(0).set(damagedPickaxe);
+		menu.getSlot(1).set(new ItemStack(Items.DIAMOND, 4));
+		menu.createResult();
+		ItemStack repaired = menu.getSlot(2).getItem();
+		helper.assertTrue(!repaired.isEmpty() && repaired.getDamageValue() < damagedPickaxe.getDamageValue()
+				&& menu.getSlot(2).mayPickup(player),
+				"终焉之砧没有为零经验的生存玩家修复物品");
+		ItemStack taken = menu.getSlot(2).remove(1);
+		menu.getSlot(2).onTake(player, taken);
+		helper.assertTrue(menu.getSlot(0).getItem().isEmpty() && menu.getSlot(1).getItem().getCount() < 4,
+				"取走终焉之砧结果后没有正确消耗输入");
+
+		ItemStack firstSword = new ItemStack(Items.DIAMOND_SWORD);
+		ItemStack secondSword = new ItemStack(Items.DIAMOND_SWORD);
+		var enchantmentRegistry = helper.getLevel().registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+		var sharpness = enchantmentRegistry.getOrThrow(Enchantments.SHARPNESS);
+		ItemEnchantments.Mutable swordEnchantments = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
+		swordEnchantments.set(sharpness, 5);
+		EnchantmentHelper.setEnchantments(firstSword, swordEnchantments.toImmutable());
+		EnchantmentHelper.setEnchantments(secondSword, swordEnchantments.toImmutable());
+		menu.getSlot(0).set(firstSword);
+		menu.getSlot(1).set(secondSword);
+		menu.createResult();
+		helper.assertTrue(EnchantmentHelper.getItemEnchantmentLevel(sharpness, menu.getSlot(2).getItem()) == 6,
+				"终焉之砧没有突破原版等级上限合并锋利 V 为锋利 VI");
+		helper.assertTrue(menu.setItemName("终焉测试剑")
+				&& menu.getSlot(2).getItem().getHoverName().getString().equals("终焉测试剑")
+				&& !menu.setItemName("x".repeat(51)),
+				"终焉之砧重命名或五十字符服务端边界错误");
+		menu.removed(player);
+
+		BlockPos breakableSupport = new BlockPos(10, 4, 10);
+		BlockPos fallingAnvil = breakableSupport.above();
+		BlockPos safeSupport = new BlockPos(13, 4, 10);
+		BlockPos safeAnvil = safeSupport.above();
+		helper.setBlock(breakableSupport, Blocks.STONE);
+		helper.setBlock(fallingAnvil, ModBlocks.EXTREME_ANVIL);
+		helper.setBlock(safeSupport, Blocks.BEDROCK);
+		helper.setBlock(safeAnvil, ModBlocks.EXTREME_ANVIL);
+		helper.runAfterDelay(3, () -> {
+			helper.assertFalse(helper.getBlockState(breakableSupport).is(Blocks.STONE),
+					"终焉之砧下落时没有摧毁普通支撑方块");
+			helper.assertBlockPresent(Blocks.BEDROCK, safeSupport);
+			helper.assertBlockPresent(ModBlocks.EXTREME_ANVIL, safeAnvil);
+			helper.succeed();
+		});
 	}
 
 	@GameTest

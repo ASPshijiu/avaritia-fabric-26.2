@@ -4,6 +4,7 @@ import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.inventory.CompressedChestMenu;
 import io.github.aspshijiu.avaritia26.inventory.EndCraftingMenu;
 import io.github.aspshijiu.avaritia26.inventory.ExtremeCraftingMenu;
+import io.github.aspshijiu.avaritia26.inventory.ExtremeAnvilMenu;
 import io.github.aspshijiu.avaritia26.inventory.ExtremeSmithingMenu;
 import io.github.aspshijiu.avaritia26.inventory.InfinityChestMenu;
 import io.github.aspshijiu.avaritia26.inventory.InfinityClockMenu;
@@ -68,6 +69,11 @@ public final class ModMenus {
 			BuiltInRegistries.MENU,
 			Avaritia26.id("extreme_smithing"),
 			new ExtendedMenuType<>(ExtremeSmithingMenu::new, BlockPos.STREAM_CODEC)
+	);
+	public static final ExtendedMenuType<ExtremeAnvilMenu, BlockPos> EXTREME_ANVIL = Registry.register(
+			BuiltInRegistries.MENU,
+			Avaritia26.id("extreme_anvil"),
+			new ExtendedMenuType<>(ExtremeAnvilMenu::new, BlockPos.STREAM_CODEC)
 	);
 	public static final ExtendedMenuType<InfinityChestMenu, BlockPos> INFINITY_CHEST = Registry.register(
 			BuiltInRegistries.MENU,

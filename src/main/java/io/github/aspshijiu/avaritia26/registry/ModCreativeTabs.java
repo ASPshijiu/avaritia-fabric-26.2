@@ -102,6 +102,7 @@ public final class ModCreativeTabs {
 				output.accept(ModBlocks.END_CRAFTING_TABLE_ITEM);
 				output.accept(ModBlocks.EXTREME_CRAFTING_TABLE_ITEM);
 				output.accept(ModBlocks.EXTREME_SMITHING_TABLE_ITEM);
+				output.accept(ModBlocks.EXTREME_ANVIL_ITEM);
 				output.accept(ModBlocks.INFINITY_CHEST_ITEM);
 				output.accept(ModBlocks.COMPRESSED_CHEST_ITEM);
 				output.accept(ModBlocks.SOUL_FARMLAND_ITEM);
