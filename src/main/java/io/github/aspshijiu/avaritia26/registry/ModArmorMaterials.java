@@ -20,6 +20,10 @@ public final class ModArmorMaterials {
 			EquipmentAssets.ROOT_ID,
 			Avaritia26.id("neutron_horse_armor")
 	);
+	public static final ResourceKey<EquipmentAsset> INFINITY_ELYTRA_ASSET = ResourceKey.create(
+			EquipmentAssets.ROOT_ID,
+			Avaritia26.id("infinity_elytra")
+	);
 
 	public static final ArmorMaterial INFINITY = new ArmorMaterial(
 			9999,

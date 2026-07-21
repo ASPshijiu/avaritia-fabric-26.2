@@ -72,6 +72,7 @@ import io.github.aspshijiu.avaritia26.item.InfinityArmorItem;
 import io.github.aspshijiu.avaritia26.item.InfinityBucketItem;
 import io.github.aspshijiu.avaritia26.item.InfinityClockItem;
 import io.github.aspshijiu.avaritia26.item.InfinityCrossbowItem;
+import io.github.aspshijiu.avaritia26.item.InfinityElytraItem;
 import io.github.aspshijiu.avaritia26.item.InfinityMaceItem;
 import io.github.aspshijiu.avaritia26.item.InfinityTridentItem;
 import io.github.aspshijiu.avaritia26.item.InfinityUmbrellaItem;
@@ -4503,6 +4504,75 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 							+ "，击退抗性=" + horse.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE));
 			helper.succeed();
 		});
+	}
+
+	@GameTest
+	public void infinityElytraSmithsGlidesAndStrikesNearbyTargets(GameTestHelper helper) {
+		ItemStack elytra = new ItemStack(ModItems.INFINITY_ELYTRA);
+		helper.assertTrue(BuiltInRegistries.ITEM.getValue(ModItems.INFINITY_ELYTRA_KEY)
+				== ModItems.INFINITY_ELYTRA, "无尽鞘翅物品未注册");
+		helper.assertTrue(elytra.getMaxStackSize() == 1 && elytra.getRarity() == Rarity.EPIC
+				&& elytra.has(DataComponents.DAMAGE_RESISTANT) && !elytra.isDamageableItem()
+				&& elytra.has(DataComponents.GLIDER),
+				"无尽鞘翅的堆叠、稀有度、防火、无限耐久或滑翔组件错误");
+		Equippable equippable = elytra.get(DataComponents.EQUIPPABLE);
+		helper.assertTrue(equippable != null && equippable.slot() == EquipmentSlot.CHEST
+				&& equippable.assetId().filter(ModArmorMaterials.INFINITY_ELYTRA_ASSET::equals).isPresent()
+				&& !equippable.damageOnHurt(),
+				"无尽鞘翅没有使用胸甲槽、自定义翅膀资源或仍会受击损耗");
+
+		ExtremeSmithingInput input = new ExtremeSmithingInput(
+				new ItemStack(ModItems.UPGRADE_SMITHING_TEMPLATE),
+				new ItemStack(Items.ELYTRA),
+				new ItemStack(ModBlocks.CRYSTAL_MATRIX_ITEM),
+				new ItemStack(ModItems.ENHANCEMENT_CORE),
+				new ItemStack(ModBlocks.NEUTRON_ITEM)
+		);
+		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(
+				Registries.RECIPE, Avaritia26.id("infinity_elytra"));
+		RecipeHolder<ExtremeSmithingRecipe> recipe = helper.getLevel().getServer().getRecipeManager()
+				.getRecipeFor(ModRecipes.EXTREME_SMITHING, input, helper.getLevel())
+				.filter(candidate -> candidate.id().equals(recipeKey))
+				.orElseThrow(() -> helper.assertionException("正确材料未匹配无尽鞘翅强化锻造配方"));
+		helper.assertTrue(recipe.value().assemble(input).is(ModItems.INFINITY_ELYTRA),
+				"无尽鞘翅强化锻造输出错误");
+		ExtremeSmithingInput wrongAddition = new ExtremeSmithingInput(
+				input.template(), input.base(), input.addition1(), input.addition2(), new ItemStack(Items.DIRT));
+		helper.assertFalse(recipe.value().matches(wrongAddition, helper.getLevel()),
+				"无尽鞘翅配方不应接受错误的第三附加材料");
+
+		Player wearer = helper.makeMockPlayer(GameType.SURVIVAL);
+		wearer.setPos(Vec3.atCenterOf(helper.absolutePos(new BlockPos(7, 4, 7))));
+		wearer.setItemSlot(EquipmentSlot.CHEST, elytra.copy());
+		wearer.setOnGround(false);
+		helper.assertTrue(wearer.tryToStartFallFlying() && wearer.isFallFlying(),
+				"无尽鞘翅的原生滑翔组件无法启动飞行");
+
+		var collisionTarget = helper.spawnWithNoFreeWill(EntityTypes.WARDEN, new BlockPos(8, 4, 7));
+		var farTarget = helper.spawnWithNoFreeWill(EntityTypes.WARDEN, new BlockPos(14, 4, 7));
+		Player nearbyPlayer = helper.makeMockPlayer(GameType.SURVIVAL);
+		nearbyPlayer.setPos(Vec3.atCenterOf(helper.absolutePos(new BlockPos(7, 4, 8))));
+		float playerHealth = nearbyPlayer.getHealth();
+		int struck = InfinityElytraItem.applyFlightTick(helper.getLevel(), wearer);
+		helper.assertTrue(struck >= 1 && collisionTarget.getHealth() < collisionTarget.getMaxHealth()
+				&& collisionTarget.getDeltaMovement().lengthSqr() > 0.0,
+				"无尽鞘翅没有对三格内非玩家目标造成百点撞击伤害与击退");
+		helper.assertTrue(farTarget.getHealth() == farTarget.getMaxHealth(),
+				"无尽鞘翅伤害了范围外目标");
+		helper.assertTrue(nearbyPlayer.getHealth() == playerHealth,
+				"无尽鞘翅飞行撞击不应伤害玩家");
+		helper.assertTrue(Math.abs(wearer.getDeltaMovement().length() - InfinityElytraItem.FLIGHT_SPEED) < 0.001,
+				"无尽鞘翅没有把飞行速度维持在每刻一点五格");
+
+		collisionTarget.discard();
+		farTarget.discard();
+		nearbyPlayer.setPos(Vec3.atCenterOf(helper.absolutePos(new BlockPos(14, 4, 14))));
+		var landingTarget = helper.spawnWithNoFreeWill(EntityTypes.WARDEN, new BlockPos(8, 4, 7));
+		float landingHealth = landingTarget.getHealth();
+		helper.assertTrue(InfinityElytraItem.applyLandingImpact(helper.getLevel(), wearer) >= 1
+				&& Math.abs(landingTarget.getHealth() - (landingHealth - InfinityElytraItem.LANDING_DAMAGE)) < 0.001,
+				"无尽鞘翅落地没有对两点五格内目标造成六点虚空伤害");
+		helper.succeed();
 	}
 
 	@GameTest

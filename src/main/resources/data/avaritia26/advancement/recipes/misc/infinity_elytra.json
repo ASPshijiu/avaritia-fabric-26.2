@@ -1,0 +1,10 @@
+{
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": { "recipe": "avaritia26:infinity_elytra" },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [["has_the_recipe"]],
+  "rewards": { "recipes": ["avaritia26:infinity_elytra"] }
+}

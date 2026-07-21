@@ -25,6 +25,7 @@ import io.github.aspshijiu.avaritia26.item.InfinityBowItem;
 import io.github.aspshijiu.avaritia26.item.InfinityBucketItem;
 import io.github.aspshijiu.avaritia26.item.InfinityClockItem;
 import io.github.aspshijiu.avaritia26.item.InfinityCrossbowItem;
+import io.github.aspshijiu.avaritia26.item.InfinityElytraItem;
 import io.github.aspshijiu.avaritia26.item.InfinityHoeItem;
 import io.github.aspshijiu.avaritia26.item.InfinityMaceItem;
 import io.github.aspshijiu.avaritia26.item.InfinityPickaxeItem;
@@ -75,6 +76,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.item.component.Weapon;
 import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.item.equipment.Equippable;
+import net.minecraft.util.Unit;
 
 public final class ModItems {
 	private static final TagKey<Block> INCORRECT_FOR_CRYSTAL_TOOL = TagKey.create(
@@ -334,6 +336,21 @@ public final class ModItems {
 					.enchantable(10)
 					.horseArmor(ModArmorMaterials.NEUTRON_HORSE_ARMOR)
 					.delayedComponent(DataComponents.ENCHANTMENTS, ModItems::neutronHorseArmorEnchantments)
+	);
+	public static final ResourceKey<Item> INFINITY_ELYTRA_KEY = key("infinity_elytra");
+	public static final InfinityElytraItem INFINITY_ELYTRA = register(
+			INFINITY_ELYTRA_KEY,
+			InfinityElytraItem::new,
+			new Item.Properties()
+					.rarity(Rarity.EPIC)
+					.stacksTo(1)
+					.fireResistant()
+					.component(DataComponents.GLIDER, Unit.INSTANCE)
+					.component(DataComponents.EQUIPPABLE, Equippable.builder(EquipmentSlot.CHEST)
+							.setEquipSound(SoundEvents.ARMOR_EQUIP_ELYTRA)
+							.setAsset(ModArmorMaterials.INFINITY_ELYTRA_ASSET)
+							.setDamageOnHurt(false)
+							.build())
 	);
 	public static final ResourceKey<Item> INFINITY_HELMET_KEY = key("infinity_helmet");
 	public static final Item INFINITY_HELMET = register(
