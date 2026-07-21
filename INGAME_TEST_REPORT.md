@@ -96,9 +96,18 @@
 | `skull_fire_sword` | 在终极工作台实际摆入完整 9×9 骨头、原木、烈焰粉、下界之星与晶态矩阵锭图案，打开 GUI 点击取出；生存模式实际击杀普通骷髅；再让生命值 1 的骷髅以 100% 掉落率头戴普通骷髅头并实际击杀；读取攻击前后耐久；用 `/give` 验证 2 个分槽；执行熔岩和保存重进 | 中文名“炽焰之啄颅剑”、模型、斜体说明、7 攻击伤害与 1.6 攻速正确；普通骷髅必定产生凋灵骷髅头；死亡当刻掉落的普通骷髅头被转换，现场无普通头颅且有凋灵头颅；每次命中正常消耗 1 耐久；2 把剑分占两格；按普通物品语义被熔岩销毁；重进后损伤 1 的剑和组件保持 | 完整工作台输入/空台、`SKULL_FIRE_SWORD_GUARANTEED_SKULL_OK`、26.2 `equipment`/`drop_chances`、三条新鲜掉落回执、损伤 1/2、分槽、熔岩和 `SKULL_FIRE_SWORD_PERSISTENCE_OK` 均有游戏内日志/画面证据；无模组错误 | 通过 |
 | `infinity_sword` | 在终极工作台实际摆入完整 9×9 无尽锭、无尽催化剂、中子锭和晶态矩阵锭图案，打开 GUI 点击取出；生存模式手持实际点击 500 生命值监守者；读取命中前后物品组件；用 `/give` 验证 2 个分槽；投入封闭熔岩并保存退出、重新进入 | 中文名“寰宇支配之剑”、动态模型、100 攻击伤害与 1.6 攻速正确；一次实际命中终结监守者；命中前后均无损伤组件且物品不消耗；2 把剑分占两格；熔岩中物品仍存在；重进后保持 | 完整工作台输入/空台、监守者近距离画面、`INFINITY_SWORD_WARDEN_KILL_OK`、命中前后 `SelectedItem`、分槽、`INFINITY_SWORD_FIRE_RESISTANT_OK` 和 `INFINITY_SWORD_PERSISTENCE_OK` 均有游戏内日志/画面证据；无模组错误 | 通过 |
 
+| Registry path | 实际操作 | 画面/结果 | 日志 | 结论 |
+|---|---|---|---|---|
+| `blaze_sword` | 在终极工作台实际摆入完整配方并点击取出；生存模式实际攻击铁傀儡、带无敌标记的劫掠兽和普通骷髅；实际潜行右键开启火球模式，分别射击铁傀儡、黑曜石、竖直 5×5 沙墙和普通石头；执行两把分槽、按 `Q` 投入熔岩、保存退出和重新进入 | 修复后中文名“烈焰剑”可与“炽焰之啄颅剑”区分；近战使铁傀儡生命 100→74 并点燃，解除劫掠兽无敌后使其生命 100→73，击杀骷髅后玩家实际拾取凋灵骷髅头；火球使铁傀儡生命 100→49 并燃烧，把黑曜石熔成熔岩、命中点周围沙子烧成玻璃并在普通方块周围点火；使用损伤、两把分槽、耐火和模式保存均正确 | `BLAZE_SWORD_INVULNERABLE_CLEAR_OK`、`BLAZE_SWORD_SKULL_DROP_OK`、各火球方块/实体回执、`BLAZE_SWORD_FIRE_RESISTANT_OK`、`BLAZE_SWORD_PERSISTENCE_OK` 和修复后名称 `BLAZE_SWORD_ZH_NAME_RETEST_OK` 均有游戏内日志/画面证据；名称修复提交 `1c024fd` | 通过 |
+| `blaze_hoe` | 在终极工作台实际摆入配方并点击取出；关闭模式时右键泥土；实际潜行右键开启熔炼模式并连续处理灵魂沙、灵魂土；实际开采沙子和成熟马铃薯；实际攻击抗火铁傀儡；执行两把分槽、按 `Q` 投入熔岩、保存重进 | 普通泥土变为耕地；熔炼模式完成灵魂沙→灵魂土→灵魂耕地，沙子掉落玻璃，成熟马铃薯仍掉落普通马铃薯而非烤马铃薯；铁傀儡生命 100→74 且 `Fire:767s`，使用后损伤 2；两把各占一格，熔岩中存活，重进后 `blaze_tool_mode:1b` 保持 | 方块、掉落、生命/点燃、损伤、`BLAZE_HOE_FIRE_RESISTANT_OK`、`BLAZE_HOE_FIRE_REENTER_OK` 和 `BLAZE_HOE_PERSISTENCE_OK` 均有游戏内日志/画面证据；无模组错误 | 通过 |
+| `blaze_pickaxe` | 在终极工作台实际摆入配方并点击取出；用新镐在关闭模式下实际开采金矿，再潜行右键开启熔炼模式并开采另一金矿；实际攻击抗火铁傀儡；执行两把分槽、按 `Q` 投入熔岩、保存重进 | 关闭模式只掉落粗金且没有金锭，开启模式后直接掉落金锭；铁傀儡生命 100→74 且 `Fire:770s`；开采后损伤 1；两把分槽、耐火和 `blaze_tool_mode:1b` 保存正确 | `BLAZE_PICKAXE_NORMAL_RAW_GOLD_OK`、熔炼金锭回执、`BLAZE_PICKAXE_MELEE_DAMAGE_OK`、`BLAZE_PICKAXE_FIRE_RESISTANT_OK`、`BLAZE_PICKAXE_FIRE_REENTER_OK` 和 `BLAZE_PICKAXE_PERSISTENCE_OK` 均有游戏内日志/画面证据；无模组错误 | 通过 |
+| `blaze_shovel` | 在终极工作台实际摆入配方并点击取出；关闭模式时实际把泥土铲成土径；潜行右键开启转化模式后逐块右键泥土、沙、石头、深板岩、黑曜石、草方块、灰化土、红/棕蘑菇、浮冰、信标、石砖、砖块、火把、灯笼、营火和枯萎的灌木；实际攻击抗火铁傀儡；执行两把分槽、按 `Q` 投入熔岩、保存重进 | 普通铲平能力正确；17 组映射全部得到预期结果，其中信标实际右键会直接变为远古残骸而不再先打开界面；铁傀儡生命 100→74 且 `Fire:768s`；普通使用损伤 1；两把分槽、耐火和转化模式保存正确 | 17 组逐块回执、`BLAZE_SHOVEL_BEACON_FIXED_OK`、`BLAZE_SHOVEL_MELEE_DAMAGE_OK`、`BLAZE_SHOVEL_FIRE_RESISTANT_OK`、`BLAZE_SHOVEL_FIRE_REENTER_OK` 和 `BLAZE_SHOVEL_PERSISTENCE_OK` 均有游戏内日志/画面证据；信标交互修复提交 `523a9c2` | 通过 |
+| `blaze_axe` | 在终极工作台实际摆入配方并点击取出；关闭模式时实际给橡木原木去皮；潜行右键开启熔炼模式后实际开采橡木原木；实际攻击抗火铁傀儡；执行两把分槽、按 `Q` 投入熔岩、保存重进 | 原版去皮能力正确；熔炼模式把原木变为木炭并额外掉落精炼煤炭，使用后损伤 2；铁傀儡生命 100→74 且 `Fire:769s`；两把分槽、耐火和 `blaze_tool_mode:1b` 保存正确 | `BLAZE_AXE_NORMAL_STRIP_OK`、`BLAZE_AXE_LOG_TO_CHARCOAL_OK`、`BLAZE_AXE_REFINED_COAL_BONUS_OK`、`BLAZE_AXE_MELEE_DAMAGE_OK`、`BLAZE_AXE_FIRE_RESISTANT_OK`、`BLAZE_AXE_FIRE_REENTER_OK` 和 `BLAZE_AXE_PERSISTENCE_OK` 均有游戏内日志/画面证据；无模组错误 | 通过 |
+| `blaze_bow` | 在终极工作台实际摆入配方并点击取出；关闭模式时实际蓄力发射普通燃烧箭命中铁傀儡；潜行右键开启燃烧弹模式，向实心墙实际发射并在命中点附近布置两个无敌目标、一个范围外目标；读取发射者与目标效果；执行两把分槽、按 `Q` 投入熔岩、保存重进 | 普通箭使铁傀儡生命 100→21 并获得燃烧效果；燃烧弹给两个范围内目标施加燃烧 IV，读取时持续时间 436/422 tick，范围外目标和发射者没有该效果；弓不消耗耐久；两把分槽、耐火和 `blaze_bow_burning:1b` 保存正确 | 普通箭生命/效果、`BLAZE_BOW_BALL_TARGET_A_OK`、`BLAZE_BOW_BALL_TARGET_B_OK`、`BLAZE_BOW_BALL_CLOSE_OK`、`BLAZE_BOW_BALL_FAR_SAFE_OK`、`BLAZE_BOW_OWNER_SAFE_OK`、`BLAZE_BOW_FIRE_RESISTANT_OK`、`BLAZE_BOW_FIRE_REENTER_OK` 和 `BLAZE_BOW_PERSISTENCE_OK` 均有游戏内日志/画面证据；无模组错误 | 通过 |
+
 ## 当前进度
 
-- 已完成全部适用人工操作：70 项，均已完成真实客户端操作并通过。
+- 已完成并通过真实客户端逐项操作：76 项。
 - 其余 [FEATURE_MATRIX.md](FEATURE_MATRIX.md) 中的玩家物品、方块物品与奇点变体：待实测。
 - 专用服务器双客户端同时在线：待实测。
 
