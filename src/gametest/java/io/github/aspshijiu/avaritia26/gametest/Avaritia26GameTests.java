@@ -34,6 +34,7 @@ import io.github.aspshijiu.avaritia26.component.SideConfiguration;
 import io.github.aspshijiu.avaritia26.crafting.NoConsumeCatalystShapedRecipe;
 import io.github.aspshijiu.avaritia26.entity.EndestPearlEntity;
 import io.github.aspshijiu.avaritia26.entity.BladeSlashEntity;
+import io.github.aspshijiu.avaritia26.entity.BlazeFireballEntity;
 import io.github.aspshijiu.avaritia26.entity.GapingVoidEntity;
 import io.github.aspshijiu.avaritia26.entity.HeavenArrowEntity;
 import io.github.aspshijiu.avaritia26.entity.HeavenSubArrowEntity;
@@ -57,6 +58,7 @@ import io.github.aspshijiu.avaritia26.inventory.NeutronRingMenu;
 import io.github.aspshijiu.avaritia26.inventory.SculkCraftingMenu;
 import io.github.aspshijiu.avaritia26.item.MatterClusterItem;
 import io.github.aspshijiu.avaritia26.item.CrystalBowItem;
+import io.github.aspshijiu.avaritia26.item.BlazeSwordItem;
 import io.github.aspshijiu.avaritia26.item.CrystalSwordItem;
 import io.github.aspshijiu.avaritia26.item.NeutronRingItem;
 import io.github.aspshijiu.avaritia26.item.InfinityArmorItem;
@@ -4040,6 +4042,82 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	}
 
 	@GameTest
+	public void blazeSwordCraftsSwitchesModeAndTransformsWithFireballs(GameTestHelper helper) {
+		ItemStack sword = new ItemStack(ModItems.BLAZE_SWORD);
+		helper.assertTrue(BuiltInRegistries.ITEM.getValue(ModItems.BLAZE_SWORD_KEY)
+				== ModItems.BLAZE_SWORD, "烈焰剑物品未注册");
+		helper.assertTrue(sword.getMaxStackSize() == 1 && sword.getRarity() == Rarity.EPIC
+				&& sword.has(DataComponents.DAMAGE_RESISTANT) && sword.getMaxDamage() == 7777,
+				"烈焰剑物品属性或耐久错误");
+		helper.assertTrue(sword.is(ItemTags.SWORDS), "烈焰剑缺少原版剑标签");
+		helper.assertFalse(ModItems.BLAZE_SWORD.isFoil(sword), "烈焰剑不应显示附魔光效");
+		var modifiers = sword.get(DataComponents.ATTRIBUTE_MODIFIERS);
+		helper.assertTrue(modifiers != null
+				&& modifiers.compute(Attributes.ATTACK_DAMAGE, 1.0, EquipmentSlot.MAINHAND) == 26.0
+				&& modifiers.compute(Attributes.ATTACK_SPEED, 4.0, EquipmentSlot.MAINHAND) == 29.0,
+				"烈焰剑没有保留上游二十五点伤害与攻速增幅");
+		var enchantments = helper.getLevel().registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+		var fireAspect = enchantments.getOrThrow(Enchantments.FIRE_ASPECT);
+		helper.assertTrue(EnchantmentHelper.getItemEnchantmentLevel(fireAspect, sword) == 10,
+				"烈焰剑没有自带火焰附加 X");
+
+		CraftingInput input = blazeSwordInput();
+		assertExtremeRecipe(helper, "blaze_sword", input, ModItems.BLAZE_SWORD);
+		List<ItemStack> wrongStacks = copyStacks(input.items());
+		wrongStacks.set(4, new ItemStack(Items.DIRT));
+		assertExtremeRecipeDoesNotMatch(helper, "blaze_sword",
+				CraftingInput.of(input.width(), input.height(), wrongStacks));
+
+		Player player = helper.makeMockServerPlayer(GameType.SURVIVAL);
+		player.setItemInHand(InteractionHand.MAIN_HAND, sword);
+		player.setShiftKeyDown(true);
+		ModItems.BLAZE_SWORD.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+		player.setShiftKeyDown(false);
+		helper.assertTrue(BlazeSwordItem.isFireballEnabled(sword), "烈焰剑没有开启火球模式");
+
+		BlazeFireballEntity entityFireball = ModItems.BLAZE_SWORD.createFireball(helper.getLevel(), player);
+		var ravager = helper.spawnWithNoFreeWill(EntityTypes.RAVAGER, new BlockPos(7, 2, 7));
+		float healthBefore = ravager.getHealth();
+		entityFireball.applyEntityImpact(helper.getLevel(), ravager);
+		helper.assertTrue(BlazeFireballEntity.DAMAGE == 50.0F
+				&& ravager.getRemainingFireTicks() >= 100 && ravager.getHealth() < healthBefore,
+				"烈焰剑火球命中状态错误：原始伤害=" + BlazeFireballEntity.DAMAGE
+						+ "，燃烧刻=" + ravager.getRemainingFireTicks()
+						+ "，生命=" + healthBefore + "→" + ravager.getHealth());
+		helper.assertTrue(entityFireball.ignoreExplosion(null), "烈焰剑火球没有忽略爆炸");
+
+		ravager.setInvulnerable(true);
+		InteractionResult attackResult = AttackEntityCallback.EVENT.invoker().interact(
+				player, helper.getLevel(), InteractionHand.MAIN_HAND, ravager, new EntityHitResult(ravager));
+		helper.assertFalse(attackResult.consumesAction(), "烈焰剑近战不应接管原版攻击流程");
+		helper.assertFalse(ravager.isInvulnerable(), "烈焰剑近战没有解除目标无敌状态");
+
+		BlockPos skeletonPos = new BlockPos(7, 2, 12);
+		var skeleton = helper.spawnWithNoFreeWill(EntityTypes.SKELETON, skeletonPos);
+		skeleton.hurtServer(helper.getLevel(), player.damageSources().playerAttack(player), 100.0F);
+		List<ItemEntity> skulls = skullDropsNear(helper, skeletonPos);
+		helper.assertTrue(skulls.size() == 1 && skulls.getFirst().getItem().is(Items.WITHER_SKELETON_SKULL),
+				"烈焰剑击杀骷髅没有保证掉落凋灵骷髅头");
+
+		BlockPos obsidianPos = helper.absolutePos(new BlockPos(10, 2, 7));
+		helper.getLevel().setBlockAndUpdate(obsidianPos, Blocks.OBSIDIAN.defaultBlockState());
+		ModItems.BLAZE_SWORD.createFireball(helper.getLevel(), player)
+				.applyBlockImpact(helper.getLevel(), obsidianPos);
+		helper.assertTrue(helper.getLevel().getBlockState(obsidianPos).is(Blocks.LAVA),
+				"烈焰剑火球没有把黑曜石熔成熔岩");
+
+		BlockPos sandPos = helper.absolutePos(new BlockPos(13, 2, 7));
+		helper.getLevel().setBlockAndUpdate(sandPos, Blocks.SAND.defaultBlockState());
+		helper.getLevel().setBlockAndUpdate(sandPos.east(), Blocks.SAND.defaultBlockState());
+		ModItems.BLAZE_SWORD.createFireball(helper.getLevel(), player)
+				.applyBlockImpact(helper.getLevel(), sandPos);
+		helper.assertTrue(helper.getLevel().getBlockState(sandPos).is(Blocks.GLASS)
+				&& helper.getLevel().getBlockState(sandPos.east()).is(Blocks.GLASS),
+				"烈焰剑火球没有把范围沙子烧成玻璃");
+		helper.succeed();
+	}
+
+	@GameTest
 	public void everyBuiltInSingularityCompresses(GameTestHelper helper) {
 		BlockPos relativePos = new BlockPos(13, 0, 0);
 		helper.setBlock(relativePos, ModBlocks.NEUTRON_COMPRESSOR);
@@ -6025,6 +6103,19 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 						'B', new ItemStack(ModItems.NEUTRON_INGOT),
 						'C', new ItemStack(ModItems.CRYSTAL_MATRIX_INGOT),
 						'D', new ItemStack(ModItems.DIAMOND_LATTICE)
+				)
+		);
+	}
+
+	private static CraftingInput blazeSwordInput() {
+		return extremeInput(
+				List.of("   DC", "A DCD", "ADCD ", " ED  ", "B AA "),
+				Map.of(
+						'A', new ItemStack(Items.BONE_BLOCK),
+						'B', new ItemStack(ModItems.DIAMOND_LATTICE),
+						'C', new ItemStack(ModItems.BLAZE_CUBE),
+						'D', new ItemStack(Items.BLAZE_POWDER),
+						'E', new ItemStack(Items.SOUL_SOIL)
 				)
 		);
 	}

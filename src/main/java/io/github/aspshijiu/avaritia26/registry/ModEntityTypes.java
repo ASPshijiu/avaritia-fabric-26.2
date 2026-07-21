@@ -2,6 +2,7 @@ package io.github.aspshijiu.avaritia26.registry;
 
 import io.github.aspshijiu.avaritia26.Avaritia26;
 import io.github.aspshijiu.avaritia26.entity.BladeSlashEntity;
+import io.github.aspshijiu.avaritia26.entity.BlazeFireballEntity;
 import io.github.aspshijiu.avaritia26.entity.EndestPearlEntity;
 import io.github.aspshijiu.avaritia26.entity.GapingVoidEntity;
 import io.github.aspshijiu.avaritia26.entity.HeavenArrowEntity;
@@ -17,6 +18,16 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 
 public final class ModEntityTypes {
+	public static final ResourceKey<EntityType<?>> BLAZE_FIREBALL_KEY = key("blaze_fireball");
+	public static final EntityType<BlazeFireballEntity> BLAZE_FIREBALL = Registry.register(
+			BuiltInRegistries.ENTITY_TYPE,
+			BLAZE_FIREBALL_KEY,
+			EntityType.Builder.<BlazeFireballEntity>of(BlazeFireballEntity::new, MobCategory.MISC)
+					.sized(0.3125F, 0.3125F)
+					.clientTrackingRange(4)
+					.updateInterval(10)
+					.build(BLAZE_FIREBALL_KEY)
+	);
 	public static final ResourceKey<EntityType<?>> BLADE_SLASH_KEY = key("blade_slash");
 	public static final EntityType<BladeSlashEntity> BLADE_SLASH = Registry.register(
 			BuiltInRegistries.ENTITY_TYPE,

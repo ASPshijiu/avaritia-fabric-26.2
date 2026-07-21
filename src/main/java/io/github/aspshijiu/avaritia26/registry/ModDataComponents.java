@@ -70,6 +70,14 @@ public final class ModDataComponents {
 					.networkSynchronized(ByteBufCodecs.BOOL)
 					.build()
 	);
+	public static final DataComponentType<Boolean> BLAZE_TOOL_MODE = Registry.register(
+			BuiltInRegistries.DATA_COMPONENT_TYPE,
+			Avaritia26.id("blaze_tool_mode"),
+			DataComponentType.<Boolean>builder()
+					.persistent(Codec.BOOL)
+					.networkSynchronized(ByteBufCodecs.BOOL)
+					.build()
+	);
 	public static final DataComponentType<SideConfiguration> SIDE_CONFIGURATION = Registry.register(
 			BuiltInRegistries.DATA_COMPONENT_TYPE,
 			Avaritia26.id("side_configuration"),

@@ -34,6 +34,10 @@ public final class ModCombatEvents {
 		ServerLivingEntityEvents.AFTER_DAMAGE.register(ModCombatEvents::applyCrystalAxeJumpDamage);
 		AttackEntityCallback.EVENT.register((player, level, hand, entity, hitResult) -> {
 			ItemStack weapon = player.getItemInHand(hand);
+			if (weapon.is(ModItems.BLAZE_SWORD)) {
+				entity.setInvulnerable(false);
+				return InteractionResult.PASS;
+			}
 			if (weapon.is(ModItems.CRYSTAL_SWORD)
 					|| weapon.is(ModItems.CRYSTAL_HOE)
 					|| weapon.is(ModItems.CRYSTAL_SHOVEL)
@@ -157,7 +161,8 @@ public final class ModCombatEvents {
 	private static void dropWitherSkeletonSkull(LivingEntity deadEntity, DamageSource source) {
 		if (!(deadEntity instanceof AbstractSkeleton)
 				|| !(source.getEntity() instanceof Player player)
-				|| !player.getMainHandItem().is(ModItems.SKULL_FIRE_SWORD)
+				|| (!player.getMainHandItem().is(ModItems.SKULL_FIRE_SWORD)
+				&& !player.getMainHandItem().is(ModItems.BLAZE_SWORD))
 				|| !(deadEntity.level() instanceof ServerLevel level)) {
 			return;
 		}

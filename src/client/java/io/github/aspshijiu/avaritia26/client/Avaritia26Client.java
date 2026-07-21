@@ -15,6 +15,7 @@ import io.github.aspshijiu.avaritia26.client.screen.NeutronCollectorScreen;
 import io.github.aspshijiu.avaritia26.client.screen.NeutronCompressorScreen;
 import io.github.aspshijiu.avaritia26.client.screen.NeutronRingScreen;
 import io.github.aspshijiu.avaritia26.client.screen.SculkCraftingScreen;
+import io.github.aspshijiu.avaritia26.entity.BlazeFireballEntity;
 import io.github.aspshijiu.avaritia26.entity.EndestPearlEntity;
 import io.github.aspshijiu.avaritia26.entity.GapingVoidEntity;
 import io.github.aspshijiu.avaritia26.entity.UmbrellaProjectileEntity;
@@ -60,6 +61,8 @@ public final class Avaritia26Client implements ClientModInitializer {
 			}
 		});
 		EntityRendererRegistry.register(ModEntityTypes.ENDEST_PEARL, ThrownItemRenderer<EndestPearlEntity>::new);
+		EntityRendererRegistry.register(ModEntityTypes.BLAZE_FIREBALL,
+				ThrownItemRenderer<BlazeFireballEntity>::new);
 		EntityRendererRegistry.register(ModEntityTypes.BLADE_SLASH, BladeSlashRenderer::new);
 		EntityRendererRegistry.register(ModEntityTypes.GAPING_VOID, NoopRenderer<GapingVoidEntity>::new);
 		EntityRendererRegistry.register(ModEntityTypes.HEAVEN_ARROW, context -> new HeavenArrowRenderer<>(context));

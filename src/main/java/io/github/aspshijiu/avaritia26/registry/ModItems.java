@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import io.github.aspshijiu.avaritia26.Avaritia26;
+import io.github.aspshijiu.avaritia26.item.BlazeSwordItem;
 import io.github.aspshijiu.avaritia26.item.CrystalAxeItem;
 import io.github.aspshijiu.avaritia26.item.CrystalBowItem;
 import io.github.aspshijiu.avaritia26.item.CrystalHoeItem;
@@ -76,8 +77,17 @@ public final class ModItems {
 	private static final TagKey<Item> REPAIRS_CRYSTAL_TOOL = TagKey.create(
 			Registries.ITEM, Avaritia26.id("repairs_crystal_tool")
 	);
+	private static final TagKey<Block> INCORRECT_FOR_BLAZE_TOOL = TagKey.create(
+			Registries.BLOCK, Avaritia26.id("incorrect_for_blaze_tool")
+	);
+	private static final TagKey<Item> REPAIRS_BLAZE_TOOL = TagKey.create(
+			Registries.ITEM, Avaritia26.id("repairs_blaze_tool")
+	);
 	public static final ToolMaterial CRYSTAL_TOOL_MATERIAL = new ToolMaterial(
 			INCORRECT_FOR_CRYSTAL_TOOL, 8888, 50.0F, 50.0F, 888, REPAIRS_CRYSTAL_TOOL
+	);
+	public static final ToolMaterial BLAZE_TOOL_MATERIAL = new ToolMaterial(
+			INCORRECT_FOR_BLAZE_TOOL, 7777, 25.0F, 25.0F, 77, REPAIRS_BLAZE_TOOL
 	);
 	public static final ResourceKey<Item> NEUTRON_RING_KEY = key("neutron_ring");
 	public static final Item NEUTRON_RING = register(
@@ -238,6 +248,18 @@ public final class ModItems {
 					.enchantable(888)
 					.component(ModDataComponents.CRYSTAL_BLADE_SLASH, false)
 					.delayedComponent(DataComponents.ENCHANTMENTS, ModItems::crystalBowEnchantments)
+	);
+	public static final ResourceKey<Item> BLAZE_SWORD_KEY = key("blaze_sword");
+	public static final BlazeSwordItem BLAZE_SWORD = register(
+			BLAZE_SWORD_KEY,
+			BlazeSwordItem::new,
+			new Item.Properties()
+					.rarity(Rarity.EPIC)
+					.stacksTo(1)
+					.fireResistant()
+					.sword(BLAZE_TOOL_MATERIAL, 0.0F, 25.0F)
+					.component(ModDataComponents.BLAZE_TOOL_MODE, false)
+					.delayedComponent(DataComponents.ENCHANTMENTS, ModItems::blazeToolEnchantments)
 	);
 	public static final ResourceKey<Item> INFINITY_HELMET_KEY = key("infinity_helmet");
 	public static final Item INFINITY_HELMET = register(
@@ -537,6 +559,13 @@ public final class ModItems {
 		ItemEnchantments.Mutable result = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
 		result.set(enchantments.getOrThrow(Enchantments.INFINITY), 1);
 		result.set(enchantments.getOrThrow(Enchantments.MULTISHOT), 1);
+		return result.toImmutable();
+	}
+
+	private static ItemEnchantments blazeToolEnchantments(HolderLookup.Provider registries) {
+		HolderLookup.RegistryLookup<Enchantment> enchantments = registries.lookupOrThrow(Registries.ENCHANTMENT);
+		ItemEnchantments.Mutable result = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
+		result.set(enchantments.getOrThrow(Enchantments.FIRE_ASPECT), 10);
 		return result.toImmutable();
 	}
 
