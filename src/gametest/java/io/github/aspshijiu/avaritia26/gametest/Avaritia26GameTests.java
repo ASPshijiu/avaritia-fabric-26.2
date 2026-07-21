@@ -399,8 +399,21 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	@GameTest
 	public void builtInSingularitiesLoadAndRoundTrip(GameTestHelper helper) {
 		Map<String, ExpectedSingularity> expected = Map.ofEntries(
+				Map.entry("aluminum", new ExpectedSingularity(Items.APPLE, 13_290_714, 10_132_646)),
 				Map.entry("obsidian", new ExpectedSingularity(Items.OBSIDIAN, 3_876_692, 1_051_676)),
 				Map.entry("blue_ice", new ExpectedSingularity(Items.BLUE_ICE, 9_353_470, 7_052_795)),
+				Map.entry("tin", new ExpectedSingularity(Items.BAMBOO, 10_534_589, 5_404_809)),
+				Map.entry("bronze", new ExpectedSingularity(Items.BRICK, 14_262_083, 12_282_683)),
+				Map.entry("silver", new ExpectedSingularity(Items.CLAY_BALL, 12_635_602, 6_254_204)),
+				Map.entry("lead", new ExpectedSingularity(Items.FEATHER, 7_110_034, 3_290_466)),
+				Map.entry("steel", new ExpectedSingularity(Items.FLINT, 5_658_198, 2_302_755)),
+				Map.entry("nickel", new ExpectedSingularity(Items.LEATHER, 14_800_792, 11_638_636)),
+				Map.entry("electrum", new ExpectedSingularity(Items.PAPER, 16_118_158, 10_390_846)),
+				Map.entry("invar", new ExpectedSingularity(Items.STICK, 12_371_387, 6_125_687)),
+				Map.entry("platinum", new ExpectedSingularity(Items.STRING, 7_334_639, 5_748_924)),
+				Map.entry("uranium", new ExpectedSingularity(Items.WHEAT, 13_826_513, 10_929_572)),
+				Map.entry("osmium", new ExpectedSingularity(Items.BONE, 15_134_455, 12_633_293)),
+				Map.entry("refined_obsidian", new ExpectedSingularity(Items.BOWL, 11_116_984, 9_271_479)),
 				Map.entry("coal", new ExpectedSingularity(Items.COAL, 3_553_081, 2_498_084)),
 				Map.entry("copper", new ExpectedSingularity(Items.COPPER_INGOT, 16_422_780, 12_342_320)),
 				Map.entry("iron", new ExpectedSingularity(Items.IRON_INGOT, 14_803_425, 7_105_644)),
@@ -415,7 +428,7 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 				Map.entry("netherite", new ExpectedSingularity(Items.NETHERITE_INGOT, 4_471_355, 1_709_590))
 		);
 
-		helper.assertTrue(SingularityManager.values().size() == expected.size(), "内置奇点定义数量错误");
+		helper.assertTrue(SingularityManager.values().size() == expected.size(), "内置与条件式奇点定义数量错误");
 		helper.assertTrue(
 				BuiltInRegistries.ITEM.getValue(ModItems.SINGULARITY_KEY) == ModItems.SINGULARITY,
 				"奇点共用物品没有注册"
@@ -454,10 +467,10 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		List<SingularityDefinition> definitions = SingularityManager.values().stream()
 				.filter(SingularityDefinition::recipeEnabled)
 				.toList();
-		helper.assertTrue(definitions.size() == 14, "无尽催化剂测试应当动态读取 14 个内置奇点");
+		helper.assertTrue(definitions.size() == 27, "无尽催化剂测试应当动态读取 14 个内置和 13 个条件式奇点");
 		definitions.stream().map(SingularityItem::createStack).forEach(ingredients::add);
 
-		CraftingInput input = CraftingInput.of(7, 3, ingredients);
+		CraftingInput input = paddedExtremeInput(ingredients);
 		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(
 				Registries.RECIPE,
 				Avaritia26.id("infinity_catalyst")
@@ -1894,11 +1907,11 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		List<SingularityDefinition> definitions = SingularityManager.values().stream()
 				.filter(SingularityDefinition::recipeEnabled)
 				.toList();
-		helper.assertTrue(definitions.size() == 14, "永恒奇点测试应当动态读取 14 个内置奇点");
+		helper.assertTrue(definitions.size() == 27, "永恒奇点测试应当动态读取 14 个内置和 13 个条件式奇点");
 		List<ItemStack> singularities = definitions.stream()
 				.map(SingularityItem::createStack)
 				.collect(java.util.stream.Collectors.toCollection(java.util.ArrayList::new));
-		CraftingInput input = CraftingInput.of(7, 2, singularities);
+		CraftingInput input = paddedExtremeInput(singularities);
 		ResourceKey<Recipe<?>> recipeKey = ResourceKey.create(
 				Registries.RECIPE,
 				Avaritia26.id("eternal_singularity")
@@ -1930,14 +1943,14 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		missing.removeLast();
 		missing.add(ItemStack.EMPTY);
 		helper.assertFalse(
-				recipe.value().matches(CraftingInput.of(7, 2, missing), helper.getLevel()),
+				recipe.value().matches(paddedExtremeInput(missing), helper.getLevel()),
 				"缺少奇点不应匹配永恒奇点配方"
 		);
 
 		List<ItemStack> duplicate = copyStacks(singularities);
 		duplicate.set(duplicate.size() - 1, duplicate.getFirst().copy());
 		helper.assertFalse(
-				recipe.value().matches(CraftingInput.of(7, 2, duplicate), helper.getLevel()),
+				recipe.value().matches(paddedExtremeInput(duplicate), helper.getLevel()),
 				"重复奇点不应匹配永恒奇点配方"
 		);
 
@@ -1956,14 +1969,14 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		);
 		tamperedStacks.set(0, SingularityItem.createStack(tampered));
 		helper.assertFalse(
-				recipe.value().matches(CraftingInput.of(7, 2, tamperedStacks), helper.getLevel()),
+				recipe.value().matches(paddedExtremeInput(tamperedStacks), helper.getLevel()),
 				"失效奇点快照不应匹配永恒奇点配方"
 		);
 
 		List<ItemStack> extra = copyStacks(singularities);
 		extra.add(new ItemStack(Items.DIRT));
 		helper.assertFalse(
-				recipe.value().matches(CraftingInput.of(5, 3, extra), helper.getLevel()),
+				recipe.value().matches(paddedExtremeInput(extra), helper.getLevel()),
 				"额外材料不应匹配永恒奇点配方"
 		);
 		helper.succeed();
@@ -6006,12 +6019,7 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 			List<ItemStack> ingredients,
 			String scenario
 	) {
-		List<ItemStack> padded = copyStacks(ingredients);
-		int height = (padded.size() + 8) / 9;
-		while (padded.size() < 9 * height) {
-			padded.add(ItemStack.EMPTY);
-		}
-		CraftingInput input = CraftingInput.of(9, height, padded);
+		CraftingInput input = paddedExtremeInput(ingredients);
 		helper.assertFalse(
 				helper.getLevel().getServer().getRecipeManager()
 						.getRecipeFor(ModRecipes.EXTREME_CRAFTING, input, helper.getLevel())
@@ -6019,6 +6027,15 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 						.isPresent(),
 				scenario + "不应匹配无尽催化剂配方"
 		);
+	}
+
+	private static CraftingInput paddedExtremeInput(List<ItemStack> ingredients) {
+		List<ItemStack> padded = copyStacks(ingredients);
+		int height = (padded.size() + 8) / 9;
+		while (padded.size() < 9 * height) {
+			padded.add(ItemStack.EMPTY);
+		}
+		return CraftingInput.of(9, height, padded);
 	}
 
 	private static List<ItemStack> copyStacks(List<ItemStack> stacks) {

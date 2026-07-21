@@ -48,8 +48,12 @@ public record SingularityDefinition(
 		if (timeCost < 1 || timeCost > 72_000) {
 			throw new IllegalArgumentException("奇点压缩时间必须在 1 到 72000 tick 之间");
 		}
-		if (ingredient.isEmpty()) {
-			throw new IllegalArgumentException("奇点输入不能是空配料");
+		try {
+			if (ingredient.isEmpty()) {
+				throw new IllegalArgumentException("奇点输入不能是空配料");
+			}
+		} catch (IllegalStateException ignored) {
+			// Tag ingredients are decoded before tags are bound during data-pack reload.
 		}
 	}
 
