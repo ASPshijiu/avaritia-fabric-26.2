@@ -115,6 +115,7 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
@@ -147,6 +148,7 @@ import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEnder
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.CraftingMenu;
+import net.minecraft.world.inventory.FurnaceMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUseAnimation;
@@ -189,6 +191,8 @@ import net.minecraft.world.level.block.MagmaBlock;
 import net.minecraft.world.level.block.NetherWartBlock;
 import net.minecraft.world.level.block.SugarCaneBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
+import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
@@ -1277,6 +1281,19 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		CraftingInput alternateInput = CraftingInput.of(3, 3, alternateStacks);
 		assertExtremeRecipe(helper, "star_fuel_alternate", alternateInput, ModItems.STAR_FUEL);
 		assertWrongExtremeRecipe(helper, "star_fuel_alternate", alternateInput, "星辰燃料替代配方不应接受错误材料");
+		helper.succeed();
+	}
+
+	@GameTest
+	public void longFuelDurationsSurviveFurnaceSaveRoundTrip(GameTestHelper helper) {
+		assertFuelDurationRoundTrip(helper, new BlockPos(24, 0, 0), new ItemStack(ModItems.STAR_FUEL), Integer.MAX_VALUE);
+		assertFuelDurationRoundTrip(
+				helper, new BlockPos(25, 0, 0), new ItemStack(ModBlocks.STAR_FUEL_BLOCK_ITEM), Integer.MAX_VALUE
+		);
+		assertFuelDurationRoundTrip(helper, new BlockPos(26, 0, 0), new ItemStack(ModItems.REFINED_COAL), 160_000);
+		assertFuelDurationRoundTrip(
+				helper, new BlockPos(27, 0, 0), new ItemStack(ModBlocks.REFINED_COAL_BLOCK_ITEM), 1_440_000
+		);
 		helper.succeed();
 	}
 
@@ -7177,6 +7194,48 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 				new ItemStack(ModItems.NEUTRON_NUGGET), ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY,
 				ItemStack.EMPTY, ItemStack.EMPTY
 		));
+	}
+
+	private static void assertFuelDurationRoundTrip(
+			GameTestHelper helper, BlockPos relativePos, ItemStack fuel, int expectedDuration
+	) {
+		helper.setBlock(relativePos, Blocks.FURNACE);
+		FurnaceBlockEntity furnace = helper.getBlockEntity(relativePos, FurnaceBlockEntity.class);
+		furnace.setItem(0, new ItemStack(Items.RAW_IRON));
+		furnace.setItem(1, fuel);
+		AbstractFurnaceBlockEntity.serverTick(
+				helper.getLevel(), helper.absolutePos(relativePos), helper.getBlockState(relativePos), furnace
+		);
+		Player player = helper.makeMockPlayer(GameType.CREATIVE);
+		AbstractContainerMenu menu = furnace.createMenu(1, player.getInventory(), player);
+		helper.assertTrue(menu instanceof FurnaceMenu, "熔炉没有创建原版菜单");
+		FurnaceMenu furnaceMenu = (FurnaceMenu) menu;
+		helper.assertTrue(furnaceMenu.isLit(), fuel.getItem() + " 燃烧时客户端菜单没有点亮");
+		helper.assertTrue(furnaceMenu.getLitProgress() > 0.99F, fuel.getItem() + " 的客户端燃烧进度比例错误");
+
+		CompoundTag saved = furnace.saveWithFullMetadata(helper.getLevel().registryAccess());
+		helper.assertTrue(
+				saved.getIntOr("lit_time_remaining", 0) == expectedDuration,
+				fuel.getItem() + " 的熔炉剩余燃烧时间保存时溢出"
+		);
+		helper.assertTrue(
+				saved.getIntOr("lit_total_time", 0) == expectedDuration,
+				fuel.getItem() + " 的熔炉总燃烧时间保存时溢出"
+		);
+
+		BlockEntity loaded = BlockEntity.loadStatic(
+				helper.absolutePos(relativePos), helper.getBlockState(relativePos), saved, helper.getLevel().registryAccess()
+		);
+		helper.assertTrue(loaded instanceof FurnaceBlockEntity, "熔炉燃料保存数据无法重新加载");
+		CompoundTag roundTrip = loaded.saveWithFullMetadata(helper.getLevel().registryAccess());
+		helper.assertTrue(
+				roundTrip.getIntOr("lit_time_remaining", 0) == expectedDuration,
+				fuel.getItem() + " 的熔炉剩余燃烧时间重载后变化"
+		);
+		helper.assertTrue(
+				roundTrip.getIntOr("lit_total_time", 0) == expectedDuration,
+				fuel.getItem() + " 的熔炉总燃烧时间重载后变化"
+		);
 	}
 
 	private static void assertEffect(

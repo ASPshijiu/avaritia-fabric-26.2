@@ -25,6 +25,9 @@
 			"io.github.aspshijiu.avaritia26.client.Avaritia26Client"
 		]
 	},
+	"mixins": [
+		"avaritia26.mixins.json"
+	],
 	"depends": {
 		"fabricloader": ">=0.19.3",
 		"minecraft": "~26.2",
