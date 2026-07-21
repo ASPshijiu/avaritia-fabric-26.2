@@ -7305,6 +7305,10 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 
 		helper.setBlock(relativePos, block);
 		helper.assertBlockPresent(block, relativePos);
+		helper.assertTrue(
+				helper.getBlockState(relativePos).is(BlockTags.MINEABLE_WITH_AXE),
+				name + "启用了正确工具掉落但缺少斧开采标签"
+		);
 		List<ItemStack> drops = Block.getDrops(
 				helper.getBlockState(relativePos),
 				helper.getLevel(),

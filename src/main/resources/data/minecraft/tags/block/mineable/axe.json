@@ -1,4 +1,8 @@
 {
   "replace": false,
-  "values": ["avaritia26:compressed_chest"]
+  "values": [
+    "avaritia26:compressed_chest",
+    "avaritia26:compressed_crafting_table",
+    "avaritia26:double_compressed_crafting_table"
+  ]
 }
