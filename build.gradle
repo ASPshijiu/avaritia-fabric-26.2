@@ -89,6 +89,11 @@ tasks.register("validateResources") {
 		if (english != chinese) {
 			throw new GradleException("中英文翻译键不一致；缺少中文=${english - chinese}，缺少英文=${chinese - english}")
 		}
+		def itemDefinitions = idsUnder("src/client/resources/assets/avaritia26/items")
+		def missingItemTranslations = itemDefinitions.collect { "item.avaritia26.${it}".toString() }.findAll { !english.contains(it) }
+		if (!missingItemTranslations.isEmpty()) {
+			throw new GradleException("物品定义缺少翻译键：${missingItemTranslations}")
+		}
 
 		def clientRoot = file("src/client/resources/assets/avaritia26")
 		def checkModel = { String id, File source ->
@@ -126,7 +131,7 @@ tasks.register("validateResources") {
 		parsed.findAll { source, ignored -> source.toPath().startsWith(clientRoot.toPath()) }
 			.each { source, value -> walk(value, source) }
 
-		logger.lifecycle("资源校验通过：${jsonFiles.size()} 个 JSON、${recipes.size()} 个配方、${blockstates.size()} 个方块、${english.size()} 个双语键")
+		logger.lifecycle("资源校验通过：${jsonFiles.size()} 个 JSON、${recipes.size()} 个配方、${blockstates.size()} 个方块、${itemDefinitions.size()} 个物品、${english.size()} 个双语键")
 	}
 }
 
