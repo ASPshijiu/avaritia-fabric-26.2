@@ -3253,18 +3253,20 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		UmbrellaProjectileEntity stormProjectile = new UmbrellaProjectileEntity(
 				helper.getLevel(), player, UmbrellaProjectileEntity.Mode.STORM);
 		stormProjectile.applyImpact(helper.getLevel(), lightningPos);
-		helper.assertTrue(!helper.getLevel().getEntitiesOfClass(
-				LightningBolt.class,
-				new AABB(lightningPos).inflate(1.0)
-		).isEmpty(), "雷暴弹没有生成闪电");
+		helper.runAfterDelay(1, () -> {
+			helper.assertTrue(!helper.getLevel().getEntitiesOfClass(
+					LightningBolt.class,
+					new AABB(lightningPos).inflate(1.0)
+			).isEmpty(), "雷暴弹没有生成闪电");
 
-		ModItems.INFINITY_UMBRELLA.inventoryTick(umbrella, helper.getLevel(), player, EquipmentSlot.MAINHAND);
-		helper.assertTrue(player.hasEffect(MobEffects.SLOW_FALLING), "手持无尽雨伞没有获得缓降");
-		player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-		player.getInventory().setItem(9, umbrella);
-		ModItems.INFINITY_UMBRELLA.inventoryTick(umbrella, helper.getLevel(), player, null);
-		helper.assertFalse(player.hasEffect(MobEffects.SLOW_FALLING), "收起无尽雨伞后缓降没有移除");
-		helper.succeed();
+			ModItems.INFINITY_UMBRELLA.inventoryTick(umbrella, helper.getLevel(), player, EquipmentSlot.MAINHAND);
+			helper.assertTrue(player.hasEffect(MobEffects.SLOW_FALLING), "手持无尽雨伞没有获得缓降");
+			player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+			player.getInventory().setItem(9, umbrella);
+			ModItems.INFINITY_UMBRELLA.inventoryTick(umbrella, helper.getLevel(), player, null);
+			helper.assertFalse(player.hasEffect(MobEffects.SLOW_FALLING), "收起无尽雨伞后缓降没有移除");
+			helper.succeed();
+		});
 	}
 
 	@GameTest
