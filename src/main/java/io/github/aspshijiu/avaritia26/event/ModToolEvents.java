@@ -52,6 +52,9 @@ public final class ModToolEvents {
 		AttackBlockCallback.EVENT.register(ModToolEvents::breakWithInfinityTool);
 		UseBlockCallback.EVENT.register((player, level, hand, hitResult) -> {
 			ItemStack tool = player.getItemInHand(hand);
+			if (tool.is(ModItems.SIDE_CONFIG_CARD)) {
+				return ModItems.SIDE_CONFIG_CARD.useOn(new UseOnContext(player, hand, hitResult));
+			}
 			if (!tool.is(ModItems.BLAZE_SHOVEL)
 					|| !BlazeShovelItem.isTransformationEnabled(tool)
 					|| !BlazeShovelItem.TRANSFORMATIONS.containsKey(level.getBlockState(hitResult.getBlockPos()).getBlock())) {
