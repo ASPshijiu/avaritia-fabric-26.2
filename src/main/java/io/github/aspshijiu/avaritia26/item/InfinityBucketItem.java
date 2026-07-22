@@ -75,6 +75,7 @@ public final class InfinityBucketItem extends Item {
 		}
 		Entry selected = getContents(stack).selected();
 		if (selected == null) {
+			player.sendSystemMessage(Component.empty(), true);
 			return;
 		}
 		player.sendSystemMessage(Component.translatable(
