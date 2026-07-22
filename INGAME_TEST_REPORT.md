@@ -101,6 +101,7 @@
 | `infinity_pants` | 在终极工作台实际摆入配方并点击取出；和平难度站入真实火焰取得燃烧计时后离开火源，实际右键穿戴；组成完整套装执行保存重进、熔岩和两件分槽 | 单件提供 12 护甲和 1 韧性；穿戴前 `Fire:162s`，穿戴后下一 tick 变为 `Fire:-20s` 并立即熄灭；物品不损耗、耐火、两件分槽，装备状态重进后保持 | `INFINITY_PANTS_EXTREME_CRAFT_OK`、`INFINITY_PANTS_EXTINGUISH_OK`、`INFINITY_PANTS_FIRE_RESISTANT_OK`、`INFINITY_PANTS_STACK_ONE_OK` 和 `INFINITY_ARMOR_SAVE_RELOAD_OK` 均有游戏内日志/画面证据；无模组错误 | 通过 |
 | `infinity_boots` | 在终极工作台实际摆入配方并点击取出；实际右键穿戴；用 Minecraft 自身跳跃键执行跳跃；布置一格高的基岩台阶并持续按前进键 2 秒；组成完整套装后摘下一件执行伤害对照、保存重进、熔岩和分槽 | 单件提供 6 护甲和 1 韧性，移动速度 0.25、跳跃力度 0.82、跨步高度 1.0625；真实跳跃从 Y=150 升至 152.177；未按跳跃时从 Z=340.5 行进至 360.529 并越过 Z=344 的整格台阶；摘下靴子后玩家实际承受 5 点伤害，证明不完整套装不再免伤；耐火、分槽和保存正确 | 属性读取、跳跃位置、`INFINITY_BOOTS_ACTUAL_SPEED_AND_STEP_OK`、`INFINITY_ARMOR_INCOMPLETE_TAKES_DAMAGE_OK`、`INFINITY_BOOTS_FIRE_RESISTANT_OK`、`INFINITY_BOOTS_STACK_ONE_OK` 和 `INFINITY_ARMOR_SAVE_RELOAD_OK` 均有游戏内日志/画面证据；无模组错误 | 通过 |
 | `crystal_sword` | 在终极工作台实际摆入完整配方并点击取出；生存模式实际攻击铁傀儡；潜行右键开关斩击模式，向两个目标和黑曜石墙实际攻击；在原版铁砧用水晶矩阵锭修复；执行两把分槽、按 `Q` 投入熔岩、保存退出和重新进入 | 普通攻击使铁傀儡生命 100→49；斩击穿透两个目标并各造成 200 点伤害，但不能穿过黑曜石墙；关闭模式后不产生斩击；损伤 100→0 且消耗 1 个锭、1 级经验；两把各占一格，物品耐火，重进后损伤 7 与斩击模式保持 | `CRYSTAL_SWORD_EXTREME_CRAFT_OK`、斩击目标/墙体、`CRYSTAL_SWORD_ANVIL_REPAIR_OK`、`CRYSTAL_SWORD_FIRE_RESISTANT_OK`、`CRYSTAL_SWORD_STACK_ONE_OK` 和 `CRYSTAL_SWORD_SAVE_RELOAD_OK` 均有游戏内日志/画面证据；攻击伤害修复提交 `b887ee6` | 通过 |
+| `crystal_axe` | 在终极工作台实际合成；普通攻击铁傀儡；实际给橡木原木去皮；从空中真实点击目标验证坠落加伤；在原版铁砧修复；执行两把分槽、熔岩和保存重进；另启本地专用服务器及两个真实 Fabric 客户端，攻击方手持晶态斧，防御方副手持盾并实际举盾后由攻击方窗口真实点击命中 | 单人功能均正确；坠落攻击使 200 生命铁傀儡降至 69.5，基础暴击与额外 54 点伤害共同生效。专服中举起的盾牌在命中后立刻落下，服务器实体数据确认副手盾牌损伤为 168；冷却期间再次发送实际举盾输入不能举盾，等待 1,200 tick 后可重新举盾，双方画面同步正确 | `CRYSTAL_AXE_EXTREME_CRAFT_OK`、`CRYSTAL_AXE_FINAL_FALLING_PLUS_54_DAMAGE_OK`、`CRYSTAL_AXE_ANVIL_REPAIR_OK`、`CRYSTAL_AXE_FIRE_RESISTANT_OK`、`CRYSTAL_AXE_STACK_ONE_OK` 和 `CRYSTAL_AXE_SAVE_RELOAD_OK` 均有游戏内证据；专服实际画面与 `data get entity Player191 equipment` 回执 `minecraft:damage: 168` 均已核对；初次坠落加伤未触发，修复提交 `928c0f3` 后重测通过 | 通过 |
 | `crystal_hoe` | 在终极工作台实际摆入配方并点击取出；生存模式右键耕作 3×3 泥土并另测顶部被覆盖方块；让耕地吸水、种植并催熟作物；实际开采干草块并攻击铁傀儡；在原版铁砧修复；执行分槽、熔岩和保存重进 | 3×3 范围内 8 个可耕方块全部变为最大湿度耕地，被覆盖方块保持原状；作物生长不消耗耐久；干草块快速破坏并掉落；铁傀儡生命 100→49；修复消耗 1 个锭和 1 级经验；两把分槽、耐火、损伤 7 保存均正确 | `CRYSTAL_HOE_EXTREME_CRAFT_OK`、范围耕作/覆盖对照、`CRYSTAL_HOE_ANVIL_REPAIR_OK`、`CRYSTAL_HOE_FIRE_RESISTANT_OK`、`CRYSTAL_HOE_STACK_ONE_OK` 和 `CRYSTAL_HOE_SAVE_RELOAD_OK` 均有游戏内日志/画面证据；攻击伤害修复提交 `b887ee6` | 通过 |
 | `crystal_pickaxe` | 在终极工作台实际摆入配方并点击取出；潜行右键开关精准采集模式，分别实际开采钻石矿；实际开采基岩、末地传送门框架、末地传送门、强化深板岩、普通石头和黑曜石；实际攻击铁傀儡；在原版铁砧修复；执行分槽、熔岩和保存重进 | 开启模式掉落钻石矿，关闭后按时运掉落钻石；可破坏并获得四类原版不可破坏目标；普通石头和黑曜石均以真实持续按键完成开采并正常掉落。曾受非和平难度怪物干扰的黑曜石结果已作废，重新明确切到和平并满血后独立复测通过；铁傀儡生命 100→49；修复、两把分槽、耐火、损伤 7 与模式保存正确 | `CRYSTAL_PICKAXE_EXTREME_CRAFT_OK`、各方块掉落、`INPUT_HARNESS_HOLD_ATTACK_OBSIDIAN_OK`、两次“目前难度为和平”、`CRYSTAL_PICKAXE_ANVIL_REPAIR_OK`、`CRYSTAL_PICKAXE_FIRE_RESISTANT_OK`、`CRYSTAL_PICKAXE_STACK_ONE_OK` 和 `CRYSTAL_PICKAXE_SAVE_RELOAD_OK` 均有游戏内日志/画面证据 | 通过 |
 | `crystal_shovel` | 在终极工作台实际摆入配方并点击取出；手持观察常驻效果并施加缓慢、挖掘疲劳对照；实际右键六类可铲平方块和顶部被覆盖方块；实际开采沙子并攻击铁傀儡；在原版铁砧修复；执行分槽、熔岩和保存重进 | 手持获得急迫 III、速度 III，并清除缓慢和挖掘疲劳；草方块、泥土、砂土、灰化土、菌丝体、缠根泥土均变为土径，顶部覆盖时拒绝转换且不耗耐久；沙子正常掉落；铁傀儡生命 100→49；修复、两把分槽、耐火和损伤 7 保存正确 | `CRYSTAL_SHOVEL_EXTREME_CRAFT_OK`、效果及六类方块回执、`CRYSTAL_SHOVEL_ANVIL_REPAIR_OK`、`CRYSTAL_SHOVEL_FIRE_RESISTANT_OK`、`CRYSTAL_SHOVEL_STACK_ONE_OK` 和 `CRYSTAL_SHOVEL_SAVE_RELOAD_OK` 均有游戏内日志/画面证据；攻击伤害修复提交 `b887ee6` | 通过 |
@@ -122,18 +123,12 @@
 | `infinity_bucket` | 明确游戏内“难度未变，它原来就是和平”后，在终焉锻造台实际放入升级模板、空桶、熔岩桶、增强核心和细雪桶并取出；手持桶连续吸取水、熔岩，潜行右键切换已存流体，再对石头先后放出水与熔岩；保存退出重进；按 `Q` 丢入熔岩、等待并取回；实际获得 2 个新桶；在游戏内以临时联调命令通过 Fabric `FluidStorage` 向主手空桶写入、再抽取 1000 mB 水 | 锻造材料消耗且成品“远海鲸吞之桶”进入快捷栏；行动栏依次显示水/熔岩各 1,000 mB，切换及放置正确；重进后读到桶内水与熔岩均为 1,000 mB；熔岩中等待后掉落实体仍存在且可拾回；两新桶分别占用独立快捷栏格；Fabric 写入和抽取均回执 1000 mB，写入后行动栏显示水，抽取后清空 | 初次实测发现放出最后 1,000 mB 后行动栏仍显示旧流体；提交前修复空内容分支并重启客户端，复测提示已清除。`/data` 读取掉落实体确认两个流体组件均存在；无模组异常 | 通过 |
 | `side_config_card` | 在原版工作台实际摆入 5 个铁锭、钻石晶格和金锭并取出；明确游戏内“难度未变，它原来就是和平”后，潜行右键中子收集机读取配置，再以已配置卡右键机器应用配置；潜行空中使用清空卡片配置 | 配方材料消耗和卡片模型正确；读取后卡片出现附魔光泽并显示“配置已保存到卡片”；修复后应用显示“配置已应用到机器”，不再打开机器 GUI；空中清空显示“配置已清除”，卡片光泽消失 | 首次实测发现 26.2 先处理机器 GUI，提交本次 `UseBlockCallback` 拦截后复测通过；同时补全此前未实现的潜行空中清空路径。仅有测试账户连接 Mojang 服务的超时，无模组异常 | 通过 |
 
-## 进行中项目
-
-| Registry path | 已完成实际操作 | 尚未完成 | 当前结论 |
-|---|---|---|---|
-| `crystal_axe` | 在终极工作台实际合成；普通攻击铁傀儡；实际给橡木原木去皮；从空中真实点击目标验证坠落加伤；在原版铁砧修复；执行两把分槽、熔岩和保存重进 | 必须在专用服务器双客户端中由一名玩家持盾、另一名玩家用晶态斧实际攻击，验证盾牌禁用及双方同步 | 单人部分通过；最初实测发现坠落加伤未触发，提交 `928c0f3` 后重新从空中攻击，200 生命铁傀儡降至 69.5，确认基础暴击与额外 54 点伤害共同生效；`CRYSTAL_AXE_EXTREME_CRAFT_OK`、`CRYSTAL_AXE_FINAL_FALLING_PLUS_54_DAMAGE_OK`、`CRYSTAL_AXE_ANVIL_REPAIR_OK`、`CRYSTAL_AXE_FIRE_RESISTANT_OK`、`CRYSTAL_AXE_STACK_ONE_OK` 和 `CRYSTAL_AXE_SAVE_RELOAD_OK` 均有游戏内证据 |
-
 ## 当前进度
 
-- 已完成并通过真实客户端逐项操作：93 项。
-- 晶态矩阵斧：单人部分已通过，专用服务器双客户端破盾验证待完成。
+- 已完成并通过真实客户端逐项操作：94 项。
+- 晶态矩阵斧：单人和专用服务器双客户端破盾验证均已通过。
 - 其余 [FEATURE_MATRIX.md](FEATURE_MATRIX.md) 中的玩家物品、方块物品与奇点变体：待实测。
-- 专用服务器双客户端同时在线：待实测。
+- 专用服务器双客户端同时在线：已在晶态矩阵斧破盾场景实测。
 
 ## 每项必须覆盖的实际操作
 
