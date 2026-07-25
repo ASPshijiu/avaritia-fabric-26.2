@@ -4658,7 +4658,7 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 
 		var enchantments = helper.getLevel().registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
 		helper.assertTrue(EnchantmentHelper.getItemEnchantmentLevel(
-				enchantments.getOrThrow(Enchantments.FROST_WALKER), armor) == 10,
+				enchantments.getOrThrow(ModItems.NEUTRON_HORSE_FROST_WALKER), armor) == 10,
 				"中子马铠没有自带冰霜行者 X");
 		helper.assertTrue(EnchantmentHelper.getItemEnchantmentLevel(
 				enchantments.getOrThrow(Enchantments.PROTECTION), armor) == 10,
@@ -4712,6 +4712,13 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 					"中子马铠属性错误：护甲=" + horse.getAttributeValue(Attributes.ARMOR)
 							+ "，韧性=" + horse.getAttributeValue(Attributes.ARMOR_TOUGHNESS)
 							+ "，击退抗性=" + horse.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE));
+			BlockPos waterPos = horse.blockPosition().below();
+			helper.getLevel().setBlockAndUpdate(waterPos, Blocks.WATER.defaultBlockState());
+			helper.getLevel().setBlockAndUpdate(waterPos.above(), Blocks.AIR.defaultBlockState());
+			horse.setOnGround(true);
+			EnchantmentHelper.runLocationChangedEffects(helper.getLevel(), horse);
+			helper.assertTrue(helper.getLevel().getBlockState(waterPos).is(Blocks.FROSTED_ICE),
+					"中子马铠冰霜行者 X 没有把马蹄下方的水冻结");
 			helper.succeed();
 		});
 	}

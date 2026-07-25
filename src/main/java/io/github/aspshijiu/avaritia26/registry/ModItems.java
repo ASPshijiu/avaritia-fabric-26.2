@@ -327,6 +327,9 @@ public final class ModItems {
 					.component(ModDataComponents.BLAZE_BOW_BURNING, false)
 	);
 	public static final ResourceKey<Item> NEUTRON_HORSE_ARMOR_KEY = key("neutron_horse_armor");
+	public static final ResourceKey<Enchantment> NEUTRON_HORSE_FROST_WALKER = ResourceKey.create(
+			Registries.ENCHANTMENT, Avaritia26.id("horse_frost_walker")
+	);
 	public static final NeutronHorseArmorItem NEUTRON_HORSE_ARMOR = register(
 			NEUTRON_HORSE_ARMOR_KEY,
 			NeutronHorseArmorItem::new,
@@ -664,7 +667,7 @@ public final class ModItems {
 	private static ItemEnchantments neutronHorseArmorEnchantments(HolderLookup.Provider registries) {
 		HolderLookup.RegistryLookup<Enchantment> enchantments = registries.lookupOrThrow(Registries.ENCHANTMENT);
 		ItemEnchantments.Mutable result = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
-		result.set(enchantments.getOrThrow(Enchantments.FROST_WALKER), 10);
+		result.set(enchantments.getOrThrow(NEUTRON_HORSE_FROST_WALKER), 10);
 		result.set(enchantments.getOrThrow(Enchantments.PROTECTION), 10);
 		result.set(enchantments.getOrThrow(Enchantments.FEATHER_FALLING), 4);
 		return result.toImmutable();
