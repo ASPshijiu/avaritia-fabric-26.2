@@ -82,6 +82,11 @@ public final class EternalSingularityRecipe implements Recipe<CraftingInput> {
 	}
 
 	@Override
+	public boolean isSpecial() {
+		return true;
+	}
+
+	@Override
 	public String group() {
 		return "eternal_singularity";
 	}

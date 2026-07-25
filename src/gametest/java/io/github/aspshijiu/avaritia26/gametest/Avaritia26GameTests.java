@@ -574,6 +574,7 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		ItemStack result = recipe.value().assemble(input);
 		helper.assertTrue(result.is(ModItems.INFINITY_CATALYST) && result.getCount() == 1, "无尽催化剂输出错误");
 		helper.assertTrue(recipe.value() instanceof InfinityCatalystRecipe, "无尽催化剂没有使用动态配方类型");
+		helper.assertTrue(recipe.value().isSpecial(), "无尽催化剂动态配方应跳过不支持组件区分的原版自动填充");
 		RegistryFriendlyByteBuf recipeBuffer = new RegistryFriendlyByteBuf(
 				Unpooled.buffer(),
 				helper.getLevel().registryAccess()
@@ -2066,6 +2067,7 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		ItemStack result = recipe.value().assemble(input);
 		helper.assertTrue(result.is(ModItems.ETERNAL_SINGULARITY) && result.getCount() == 1, "永恒奇点输出错误");
 		helper.assertTrue(recipe.value() instanceof EternalSingularityRecipe, "永恒奇点没有使用动态配方类型");
+		helper.assertTrue(recipe.value().isSpecial(), "永恒奇点动态配方应跳过不支持组件区分的原版自动填充");
 		RegistryFriendlyByteBuf recipeBuffer = new RegistryFriendlyByteBuf(
 				Unpooled.buffer(),
 				helper.getLevel().registryAccess()

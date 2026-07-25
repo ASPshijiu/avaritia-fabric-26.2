@@ -107,6 +107,11 @@ public final class InfinityCatalystRecipe implements Recipe<CraftingInput> {
 	}
 
 	@Override
+	public boolean isSpecial() {
+		return true;
+	}
+
+	@Override
 	public String group() {
 		return "infinity_catalyst";
 	}
