@@ -30,6 +30,7 @@ public final class InfinityUmbrellaItem extends Item {
 	private static final int MODE_COUNT = 4;
 	private static final int MIN_DURATION = 10 * 60 * 20;
 	private static final int MAX_DURATION = 20 * 60 * 20;
+	private static final int HELD_EFFECT_DURATION = 20;
 	private static final List<String> MODE_KEYS = List.of("normal", "sun", "rain", "storm");
 
 	public InfinityUmbrellaItem(Properties properties) {
@@ -63,19 +64,30 @@ public final class InfinityUmbrellaItem extends Item {
 			return;
 		}
 		if (player.getMainHandItem() == stack || player.getOffhandItem() == stack) {
-			MobEffectInstance effect = new MobEffectInstance(MobEffects.SLOW_FALLING, 20, 0, false, false);
+			MobEffectInstance effect = new MobEffectInstance(
+					MobEffects.SLOW_FALLING, HELD_EFFECT_DURATION, 0, false, false);
 			if (player instanceof ServerPlayer serverPlayer && serverPlayer.connection == null) {
 				player.getActiveEffectsMap().put(MobEffects.SLOW_FALLING, effect);
 			} else {
 				player.addEffect(effect);
 			}
-		} else {
+		} else if (!isHoldingUmbrella(player)) {
+			// 只移除本物品施加的短时无粒子效果，药水等其他来源的缓降必须保留
+			MobEffectInstance active = player.getEffect(MobEffects.SLOW_FALLING);
+			if (active == null || active.getDuration() > HELD_EFFECT_DURATION || active.isVisible()) {
+				return;
+			}
 			if (player instanceof ServerPlayer serverPlayer && serverPlayer.connection == null) {
 				player.getActiveEffectsMap().remove(MobEffects.SLOW_FALLING);
 			} else {
 				player.removeEffect(MobEffects.SLOW_FALLING);
 			}
 		}
+	}
+
+	private static boolean isHoldingUmbrella(Player player) {
+		return player.getMainHandItem().getItem() instanceof InfinityUmbrellaItem
+				|| player.getOffhandItem().getItem() instanceof InfinityUmbrellaItem;
 	}
 
 	public static int getMode(ItemStack stack) {

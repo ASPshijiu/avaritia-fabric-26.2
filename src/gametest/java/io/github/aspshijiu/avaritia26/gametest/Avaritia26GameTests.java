@@ -3271,6 +3271,11 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 			player.getInventory().setItem(9, umbrella);
 			ModItems.INFINITY_UMBRELLA.inventoryTick(umbrella, helper.getLevel(), player, null);
 			helper.assertFalse(player.hasEffect(MobEffects.SLOW_FALLING), "收起无尽雨伞后缓降没有移除");
+			player.getActiveEffectsMap().put(MobEffects.SLOW_FALLING,
+					new MobEffectInstance(MobEffects.SLOW_FALLING, 1800, 0, false, true));
+			ModItems.INFINITY_UMBRELLA.inventoryTick(umbrella, helper.getLevel(), player, null);
+			helper.assertTrue(player.hasEffect(MobEffects.SLOW_FALLING), "背包中的雨伞不应清除药水来源的缓降");
+			player.getActiveEffectsMap().remove(MobEffects.SLOW_FALLING);
 			helper.succeed();
 		});
 	}
