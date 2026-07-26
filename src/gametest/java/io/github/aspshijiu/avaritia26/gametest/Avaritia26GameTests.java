@@ -408,7 +408,8 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.setBlock(pos, ModBlocks.INFINITY_CHEST);
 		InfinityChestBlockEntity chest = helper.getBlockEntity(pos, InfinityChestBlockEntity.class);
 		helper.assertTrue(chest.getContainerSize() == 300, "无尽箱容量应为 300 槽");
-		helper.assertTrue(chest.getMaxStackSize() == Integer.MAX_VALUE, "无尽箱每槽上限应为 int 最大值");
+		helper.assertTrue(chest.getMaxStackSize() == InfinityChestBlockEntity.MAX_STACK_SIZE,
+				"无尽箱每槽上限应为防溢出容量常量");
 		chest.setItem(0, new ItemStack(Items.DIAMOND, 1_000_000));
 		chest.setItem(299, new ItemStack(Items.NETHERITE_INGOT, 2_000_000));
 		BlockEntity loaded = BlockEntity.loadStatic(
@@ -479,13 +480,21 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		Player player = helper.makeMockServerPlayer(GameType.SURVIVAL);
 		InfinityChestMenu menu = new InfinityChestMenu(1, player.getInventory(), chest);
 		helper.assertTrue(menu.slots.size() == 336, "无尽箱菜单应包含 300 个箱子槽和 36 个玩家槽");
-		helper.assertTrue(menu.getSlot(299).getMaxStackSize(new ItemStack(Items.DIAMOND)) == Integer.MAX_VALUE, "无尽箱最后一个槽位不可访问巨量堆叠");
+		helper.assertTrue(menu.getSlot(299).getMaxStackSize(new ItemStack(Items.DIAMOND)) == InfinityChestBlockEntity.MAX_STACK_SIZE, "无尽箱最后一个槽位不可访问巨量堆叠");
 		player.getInventory().setItem(0, new ItemStack(Items.DIAMOND, 64));
 		menu.quickMoveStack(player, InfinityChestMenu.PLAYER_SLOT_START + 27);
 		helper.assertTrue(chest.getItem(0).getCount() == 1_000_064, "玩家物品没有合并进无尽箱巨量堆叠");
 		menu.quickMoveStack(player, 0);
 		helper.assertTrue(chest.getItem(0).getCount() == 1_000_000, "从无尽箱快捷取出没有按普通物品堆叠上限取出");
 		helper.assertTrue(player.getInventory().countItem(Items.DIAMOND) == 64, "无尽箱快捷取出数量错误");
+
+		chest.setItem(1, new ItemStack(Items.EMERALD, InfinityChestBlockEntity.MAX_STACK_SIZE - 10));
+		player.getInventory().setItem(1, new ItemStack(Items.EMERALD, 64));
+		menu.quickMoveStack(player, InfinityChestMenu.PLAYER_SLOT_START + 28);
+		helper.assertTrue(chest.getItem(1).getCount() == InfinityChestBlockEntity.MAX_STACK_SIZE
+				&& chest.getItem(2).is(Items.EMERALD) && chest.getItem(2).getCount() == 54
+				&& player.getInventory().getItem(1).isEmpty(),
+				"无尽箱接近容量上限时 shift 合并发生溢出丢失");
 		menu.removed(player);
 		helper.succeed();
 	}

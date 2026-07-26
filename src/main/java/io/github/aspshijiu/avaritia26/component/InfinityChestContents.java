@@ -19,6 +19,9 @@ import net.minecraft.world.item.ItemStack;
 
 public final class InfinityChestContents {
 	public static final int SLOTS = 300;
+	// 槽容量比 Integer.MAX_VALUE 留出余量：原版 moveItemStackTo 用 int 加法合并堆叠，
+	// 槽内计数只要不超过该值，加上任意一次移动的堆叠（≤99）都不可能溢出
+	public static final int MAX_STACK_SIZE = Integer.MAX_VALUE - 512;
 	public static final InfinityChestContents EMPTY = new InfinityChestContents(List.of());
 	private static final Codec<ItemStack> HUGE_STACK_CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			BuiltInRegistries.ITEM.holderByNameCodec().fieldOf("id").forGetter(ItemStack::typeHolder),
@@ -58,7 +61,11 @@ public final class InfinityChestContents {
 				throw new IllegalArgumentException("无尽箱内容包含无效或重复槽位 " + entry.slot());
 			}
 			occupied[entry.slot()] = true;
-			copies.add(new Entry(entry.slot(), entry.stack().copy()));
+			ItemStack copy = entry.stack().copy();
+			if (copy.getCount() > MAX_STACK_SIZE) {
+				copy.setCount(MAX_STACK_SIZE);
+			}
+			copies.add(new Entry(entry.slot(), copy));
 		}
 		copies.sort(Comparator.comparingInt(Entry::slot));
 		this.entries = List.copyOf(copies);

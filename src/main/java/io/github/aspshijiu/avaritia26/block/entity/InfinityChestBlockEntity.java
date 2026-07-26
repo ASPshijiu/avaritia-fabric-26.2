@@ -22,7 +22,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 
 public final class InfinityChestBlockEntity extends BaseContainerBlockEntity implements ExtendedMenuProvider<BlockPos> {
 	public static final int SIZE = InfinityChestContents.SLOTS;
-	public static final int MAX_STACK_SIZE = Integer.MAX_VALUE;
+	public static final int MAX_STACK_SIZE = InfinityChestContents.MAX_STACK_SIZE;
 	private NonNullList<ItemStack> items = NonNullList.withSize(SIZE, ItemStack.EMPTY);
 
 	public InfinityChestBlockEntity(BlockPos pos, BlockState state) {
