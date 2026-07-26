@@ -22,6 +22,7 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 
 public final class BlazeShovelItem extends ShovelItem {
 	public static final Map<Block, Block> TRANSFORMATIONS = Map.ofEntries(
@@ -71,13 +72,15 @@ public final class BlazeShovelItem extends ShovelItem {
 		}
 		Level level = context.getLevel();
 		BlockPos pos = context.getClickedPos();
-		Block result = TRANSFORMATIONS.get(level.getBlockState(pos).getBlock());
+		BlockState state = level.getBlockState(pos);
+		Block result = TRANSFORMATIONS.get(state.getBlock());
 		if (result == null) {
 			return InteractionResult.PASS;
 		}
 		level.playSound(context.getPlayer(), pos, SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 1.0F, 1.0F);
 		if (!level.isClientSide()) {
-			level.setBlockAndUpdate(pos, result.defaultBlockState());
+			// 保留悬挂/朝向/含水等原方块状态，避免灯笼等转换后掉落
+			level.setBlockAndUpdate(pos, result.withPropertiesOf(state));
 		}
 		return InteractionResult.SUCCESS;
 	}

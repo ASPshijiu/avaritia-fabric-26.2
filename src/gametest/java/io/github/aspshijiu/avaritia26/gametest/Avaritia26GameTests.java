@@ -192,6 +192,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BubbleColumnBlock;
 import net.minecraft.world.level.block.CraftingTableBlock;
 import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.world.level.block.LanternBlock;
 import net.minecraft.world.level.block.FarmlandBlock;
 import net.minecraft.world.level.block.MagmaBlock;
 import net.minecraft.world.level.block.NetherWartBlock;
@@ -4584,6 +4585,17 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 				new BlockHitResult(Vec3.atCenterOf(absoluteBeaconPos), Direction.UP, absoluteBeaconPos, false));
 		helper.assertTrue(beaconResult.consumesAction() && helper.getBlockState(beaconPos).is(Blocks.ANCIENT_DEBRIS),
 				"烈焰铲转化模式应在信标菜单打开前把信标转化为远古残骸");
+
+		BlockPos lanternPos = new BlockPos(3, 2, 12);
+		helper.setBlock(lanternPos.above(), Blocks.STONE);
+		helper.setBlock(lanternPos, Blocks.LANTERN.defaultBlockState().setValue(LanternBlock.HANGING, true));
+		BlockPos absoluteLanternPos = helper.absolutePos(lanternPos);
+		ModItems.BLAZE_SHOVEL.useOn(new UseOnContext(
+				player, InteractionHand.MAIN_HAND,
+				new BlockHitResult(Vec3.atCenterOf(absoluteLanternPos), Direction.UP, absoluteLanternPos, false)));
+		BlockState soulLantern = helper.getBlockState(lanternPos);
+		helper.assertTrue(soulLantern.is(Blocks.SOUL_LANTERN) && soulLantern.getValue(LanternBlock.HANGING),
+				"烈焰铲转化悬挂灯笼应保留 hanging 状态");
 		helper.succeed();
 	}
 
