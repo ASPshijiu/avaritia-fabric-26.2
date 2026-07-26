@@ -1472,29 +1472,32 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 				skeleton.hurtServer(helper.getLevel(), helper.getLevel().damageSources().playerAttack(player), 100.0F),
 				"炽焰之啄颅剑击杀测试没有造成伤害"
 		);
-		List<ItemEntity> guaranteedSkulls = skullDropsNear(helper, guaranteedDropPos);
-		helper.assertTrue(
-				guaranteedSkulls.size() == 1 && guaranteedSkulls.getFirst().getItem().is(Items.WITHER_SKELETON_SKULL),
-				"炽焰之啄颅剑击杀普通骷髅应当保证掉落一个凋灵骷髅头"
-		);
-
 		BlockPos convertedDropPos = new BlockPos(12, 1, 0);
 		ItemEntity ordinarySkull = helper.spawnItem(Items.SKELETON_SKULL, convertedDropPos);
 		var secondSkeleton = helper.spawnWithNoFreeWill(EntityTypes.SKELETON, convertedDropPos);
 		secondSkeleton.hurtServer(helper.getLevel(), helper.getLevel().damageSources().playerAttack(player), 100.0F);
-		List<ItemEntity> convertedSkulls = skullDropsNear(helper, convertedDropPos);
-		helper.assertTrue(convertedSkulls.size() == 1, "已有普通骷髅头时不应额外生成第二个头颅");
-		helper.assertTrue(
-				ordinarySkull.getItem().is(Items.WITHER_SKELETON_SKULL),
-				"炽焰之啄颅剑没有把普通骷髅头烧成凋灵骷髅头"
-		);
 
 		BlockPos normalWeaponPos = new BlockPos(17, 1, 0);
 		player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.DIAMOND_SWORD));
 		var thirdSkeleton = helper.spawnWithNoFreeWill(EntityTypes.SKELETON, normalWeaponPos);
 		thirdSkeleton.hurtServer(helper.getLevel(), helper.getLevel().damageSources().playerAttack(player), 100.0F);
-		helper.assertTrue(skullDropsNear(helper, normalWeaponPos).isEmpty(), "普通钻石剑不应触发啄颅掉落");
-		helper.succeed();
+
+		// 同 tick 内 spawn 的物品实体可能尚未进入实体索引，延迟 1 tick 再做数量断言
+		helper.runAfterDelay(1, () -> {
+			List<ItemEntity> guaranteedSkulls = skullDropsNear(helper, guaranteedDropPos);
+			helper.assertTrue(
+					guaranteedSkulls.size() == 1 && guaranteedSkulls.getFirst().getItem().is(Items.WITHER_SKELETON_SKULL),
+					"炽焰之啄颅剑击杀普通骷髅应当保证掉落一个凋灵骷髅头"
+			);
+			List<ItemEntity> convertedSkulls = skullDropsNear(helper, convertedDropPos);
+			helper.assertTrue(convertedSkulls.size() == 1, "已有普通骷髅头时不应额外生成第二个头颅");
+			helper.assertTrue(
+					ordinarySkull.getItem().is(Items.WITHER_SKELETON_SKULL),
+					"炽焰之啄颅剑没有把普通骷髅头烧成凋灵骷髅头"
+			);
+			helper.assertTrue(skullDropsNear(helper, normalWeaponPos).isEmpty(), "普通钻石剑不应触发啄颅掉落");
+			helper.succeed();
+		});
 	}
 
 	@GameTest
@@ -3913,17 +3916,20 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		int lightningBefore = helper.getLevel().getEntitiesOfClass(
 				LightningBolt.class, warden.getBoundingBox().inflate(8.0)).size();
 		projectile.applyEntityImpact(warden);
-		int lightningAfter = helper.getLevel().getEntitiesOfClass(
-				LightningBolt.class, warden.getBoundingBox().inflate(8.0)).size();
 		helper.assertTrue(warden.isDeadOrDying(), "无尽三叉戟投射物没有造成无限伤害");
-		helper.assertTrue(lightningAfter - lightningBefore == 2, "无尽三叉戟命中没有召唤两道闪电");
 
 		projectile.setPos(player.getEyePosition());
 		projectile.tick();
 		helper.assertTrue(projectile.isRemoved()
 				&& player.getInventory().contains(new ItemStack(ModItems.INFINITY_TRIDENT)),
 				"无尽三叉戟命中后没有忠诚返还给投掷者");
-		helper.succeed();
+		// 同 tick 内 spawn 的闪电实体可能尚未进入实体索引，延迟 1 tick 再计数
+		helper.runAfterDelay(1, () -> {
+			int lightningAfter = helper.getLevel().getEntitiesOfClass(
+					LightningBolt.class, warden.getBoundingBox().inflate(8.0)).size();
+			helper.assertTrue(lightningAfter - lightningBefore == 2, "无尽三叉戟命中没有召唤两道闪电");
+			helper.succeed();
+		});
 	}
 
 	@GameTest
@@ -4436,9 +4442,6 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		BlockPos skeletonPos = new BlockPos(7, 2, 12);
 		var skeleton = helper.spawnWithNoFreeWill(EntityTypes.SKELETON, skeletonPos);
 		skeleton.hurtServer(helper.getLevel(), player.damageSources().playerAttack(player), 100.0F);
-		List<ItemEntity> skulls = skullDropsNear(helper, skeletonPos);
-		helper.assertTrue(skulls.size() == 1 && skulls.getFirst().getItem().is(Items.WITHER_SKELETON_SKULL),
-				"烈焰剑击杀骷髅没有保证掉落凋灵骷髅头");
 
 		BlockPos obsidianPos = helper.absolutePos(new BlockPos(10, 2, 7));
 		helper.getLevel().setBlockAndUpdate(obsidianPos, Blocks.OBSIDIAN.defaultBlockState());
@@ -4455,7 +4458,20 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.assertTrue(helper.getLevel().getBlockState(sandPos).is(Blocks.GLASS)
 				&& helper.getLevel().getBlockState(sandPos.east()).is(Blocks.GLASS),
 				"烈焰剑火球没有把范围沙子烧成玻璃");
-		helper.succeed();
+		// 同 tick 内 spawn 的物品实体可能尚未进入实体索引，延迟 1 tick 再做数量断言
+		helper.runAfterDelay(1, () -> {
+			List<ItemEntity> skulls = skullDropsNear(helper, skeletonPos);
+			helper.assertTrue(skulls.size() == 1 && skulls.getFirst().getItem().is(Items.WITHER_SKELETON_SKULL),
+					"烈焰剑击杀骷髅没有保证掉落凋灵骷髅头 DEBUG count=" + skulls.size()
+							+ " items=" + skulls.stream().map(entity -> entity.getItem() + "@" + entity.position()).toList()
+							+ " nearAll=" + helper.getLevel().getEntitiesOfClass(ItemEntity.class,
+									new AABB(helper.absolutePos(skeletonPos)).inflate(4.0)).stream()
+									.map(entity -> entity.getItem().toString()).toList()
+							+ " skeletonAlive=" + skeleton.isAlive()
+							+ " skeletonHealth=" + skeleton.getHealth()
+							+ " mainHand=" + player.getMainHandItem());
+			helper.succeed();
+		});
 	}
 
 	@GameTest
