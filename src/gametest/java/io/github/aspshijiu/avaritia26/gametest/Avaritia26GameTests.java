@@ -134,6 +134,7 @@ import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.Filterable;
@@ -3687,7 +3688,13 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		assertCrossbowProjectile(helper, player, crossbow, Items.EGG, ThrownEgg.class, "鸡蛋");
 		assertCrossbowProjectile(helper, player, crossbow, ModItems.ENDEST_PEARL, EndestPearlEntity.class, "终望珍珠");
 		assertCrossbowProjectile(helper, player, crossbow, Items.WIND_CHARGE, WindCharge.class, "风弹");
-		assertCrossbowProjectile(helper, player, crossbow, Items.TNT, HeavenArrowEntity.class, "TNT");
+		helper.assertTrue(InfinityCrossbowItem.isAmmo(new ItemStack(Items.TNT)), "无尽弩没有识别 TNT 弹药");
+		List<PrimedTnt> singleTnt = InfinityCrossbowItem.createTnt(helper.getLevel(), player, crossbow);
+		helper.assertTrue(singleTnt.size() == 1
+				&& singleTnt.getFirst().getDeltaMovement().lengthSqr() > 0.0
+				&& singleTnt.getFirst().getOwner() == player,
+				"无尽弩没有为 TNT 创建带初速的点燃 TNT");
+		singleTnt.forEach(PrimedTnt::discard);
 
 		ItemStack enderPearls = new ItemStack(Items.ENDER_PEARL, 16);
 		player.setItemInHand(InteractionHand.OFF_HAND, enderPearls);

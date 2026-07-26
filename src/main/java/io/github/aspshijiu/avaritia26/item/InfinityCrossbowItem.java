@@ -18,7 +18,9 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.FireworkRocketEntity;
 import net.minecraft.world.entity.projectile.Projectile;
@@ -38,10 +40,12 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.ChargedProjectiles;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 public final class InfinityCrossbowItem extends CrossbowItem {
 	private static final int CHARGE_TICKS = 10;
 	private static final float[] MULTI_ANGLES = {-20.0F, -10.0F, 0.0F, 10.0F, 20.0F};
+	private static final double TNT_VELOCITY = 1.5;
 
 	public InfinityCrossbowItem(Properties properties) {
 		super(properties);
@@ -195,9 +199,32 @@ public final class InfinityCrossbowItem extends CrossbowItem {
 		return projectiles;
 	}
 
+	// TNT 不是 Projectile，无法走 createProjectiles，单独按同样的角度扇形发射
+	public static List<PrimedTnt> createTnt(ServerLevel level, Player player, ItemStack crossbow) {
+		float[] angles = isMulti(crossbow) ? MULTI_ANGLES : new float[]{0.0F};
+		List<PrimedTnt> charges = new ArrayList<>(angles.length);
+		for (float angle : angles) {
+			PrimedTnt tnt = new PrimedTnt(level, player.getX(), player.getEyeY() - 0.1, player.getZ(), player);
+			float yaw = (player.getYRot() + angle) * ((float) Math.PI / 180.0F);
+			float pitch = player.getXRot() * ((float) Math.PI / 180.0F);
+			Vec3 direction = new Vec3(
+					-Mth.sin(yaw) * Mth.cos(pitch),
+					-Mth.sin(pitch),
+					Mth.cos(yaw) * Mth.cos(pitch)
+			);
+			tnt.setDeltaMovement(direction.normalize().scale(TNT_VELOCITY));
+			charges.add(tnt);
+		}
+		return charges;
+	}
+
 	private void fire(ServerLevel level, Player player, ItemStack crossbow, ItemStack ammo) {
-		for (Projectile projectile : createProjectiles(level, player, ammo, crossbow)) {
-			level.addFreshEntity(projectile);
+		if (ammo.is(Items.TNT)) {
+			createTnt(level, player, crossbow).forEach(level::addFreshEntity);
+		} else {
+			for (Projectile projectile : createProjectiles(level, player, ammo, crossbow)) {
+				level.addFreshEntity(projectile);
+			}
 		}
 		playSound(level, player, ammo);
 		player.getCooldowns().addCooldown(crossbow, isMulti(crossbow) ? 200 : 20);
@@ -232,6 +259,9 @@ public final class InfinityCrossbowItem extends CrossbowItem {
 		}
 		if (ammo.is(Items.WIND_CHARGE)) {
 			return SoundEvents.WIND_CHARGE_THROW;
+		}
+		if (ammo.is(Items.TNT)) {
+			return SoundEvents.TNT_PRIMED;
 		}
 		return SoundEvents.CROSSBOW_SHOOT;
 	}
