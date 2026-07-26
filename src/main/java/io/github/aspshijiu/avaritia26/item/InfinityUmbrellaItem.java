@@ -51,11 +51,14 @@ public final class InfinityUmbrellaItem extends Item {
 			player.swing(hand, true);
 			return InteractionResult.SUCCESS;
 		}
+		if (getMode(stack) == NORMAL) {
+			return InteractionResult.PASS;
+		}
 		if (level instanceof ServerLevel serverLevel) {
 			activate(serverLevel, player, getMode(stack));
 			player.swing(hand, true);
 		}
-		return InteractionResult.PASS;
+		return InteractionResult.SUCCESS;
 	}
 
 	@Override
