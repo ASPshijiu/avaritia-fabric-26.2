@@ -374,6 +374,24 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		CompressedChestMenu menu = new CompressedChestMenu(1, player.getInventory(), chest);
 		helper.assertTrue(menu.slots.size() == 279, "压缩箱子菜单应包含 243 个箱子槽和 36 个玩家槽");
 		menu.removed(player);
+
+		Player creativePlayer = helper.makeMockServerPlayer(GameType.CREATIVE);
+		ModBlocks.COMPRESSED_CHEST.playerWillDestroy(
+				helper.getLevel(), helper.absolutePos(pos), helper.getBlockState(pos), creativePlayer);
+		List<ItemEntity> creativeDrops = helper.getLevel().getEntitiesOfClass(
+				ItemEntity.class,
+				new AABB(helper.absolutePos(pos)).inflate(1.0),
+				entity -> entity.getItem().is(ModBlocks.COMPRESSED_CHEST_ITEM)
+		);
+		helper.assertTrue(!creativeDrops.isEmpty(), "创造模式破坏非空压缩箱应生成掉落物");
+		CompressedChestBlockEntity creativeRestored =
+				new CompressedChestBlockEntity(helper.absolutePos(pos), helper.getBlockState(pos));
+		creativeRestored.applyComponentsFromItemStack(creativeDrops.getFirst().getItem());
+		helper.assertTrue(
+				creativeRestored.getItem(0).getCount() == 32 && creativeRestored.getItem(242).getCount() == 7,
+				"创造模式破坏压缩箱的掉落物没有保留全部内容"
+		);
+		creativeDrops.forEach(ItemEntity::discard);
 		helper.succeed();
 	}
 
@@ -517,6 +535,18 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 				&& player.getInventory().getItem(1).isEmpty(),
 				"无尽箱接近容量上限时 shift 合并发生溢出丢失");
 		menu.removed(player);
+
+		Player creativePlayer = helper.makeMockServerPlayer(GameType.CREATIVE);
+		ModBlocks.INFINITY_CHEST.playerWillDestroy(
+				helper.getLevel(), helper.absolutePos(pos), helper.getBlockState(pos), creativePlayer);
+		List<ItemEntity> creativeDrops = helper.getLevel().getEntitiesOfClass(
+				ItemEntity.class,
+				new AABB(helper.absolutePos(pos)).inflate(1.0),
+				entity -> entity.getItem().is(ModBlocks.INFINITY_CHEST_ITEM)
+						&& entity.getItem().has(ModDataComponents.INFINITY_CHEST_CONTENTS)
+		);
+		helper.assertTrue(!creativeDrops.isEmpty(), "创造模式破坏非空无尽箱应生成带内容组件的掉落物");
+		creativeDrops.forEach(ItemEntity::discard);
 		helper.succeed();
 	}
 

@@ -6,6 +6,7 @@ import com.mojang.serialization.MapCodec;
 import io.github.aspshijiu.avaritia26.block.entity.InfinityChestBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -66,5 +67,20 @@ public final class InfinityChestBlock extends BaseEntityBlock {
 			stack.applyComponents(chest.collectComponents());
 		}
 		return stack;
+	}
+
+	@Override
+	public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+		// 创造模式破坏不产生战利品，仿照原版潜影盒为非空箱子主动生成带内容组件的掉落物
+		if (!level.isClientSide() && player.preventsBlockDrops()
+				&& level.getBlockEntity(pos) instanceof InfinityChestBlockEntity chest && !chest.isEmpty()) {
+			ItemStack stack = new ItemStack(this);
+			stack.applyComponents(chest.collectComponents());
+			ItemEntity itemEntity = new ItemEntity(
+					level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack);
+			itemEntity.setDefaultPickUpDelay();
+			level.addFreshEntity(itemEntity);
+		}
+		return super.playerWillDestroy(level, pos, state, player);
 	}
 }
