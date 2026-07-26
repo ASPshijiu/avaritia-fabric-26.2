@@ -8,7 +8,7 @@
 
 `JAVA_HOME=/opt/homebrew/opt/openjdk@25 ./gradlew clean build` 通过，包含：
 
-- 88/88 GameTest 通过。
+- 88/88 GameTest 通过（审计修复轮后套件扩充为 90 项，最新一次 Windows `gradlew build` 全部通过，见 CHANGELOG 未发布小节）。
 - 568 个 JSON 全部可解析。
 - 96 个生产配方与 96 个配方解锁进度一一对应。
 - 27 个玩家可获得方块与 27 个方块战利品表一一对应。
