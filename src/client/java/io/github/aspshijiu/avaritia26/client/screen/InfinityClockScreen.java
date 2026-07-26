@@ -43,6 +43,10 @@ public final class InfinityClockScreen extends AbstractContainerScreen<InfinityC
 
 	@Override
 	public boolean keyPressed(KeyEvent event) {
+		if (event.isEscape()) {
+			minecraft.player.closeContainer();
+			return true;
+		}
 		if (event.key() == GLFW.GLFW_KEY_ENTER && timeInput.isFocused()) {
 			try {
 				setTime(Integer.parseInt(timeInput.getValue()));
@@ -51,7 +55,8 @@ public final class InfinityClockScreen extends AbstractContainerScreen<InfinityC
 				return true;
 			}
 		}
-		return super.keyPressed(event);
+		// 输入框聚焦时吞掉普通按键，防止穿透到容器快捷键（关界面/换物品/丢物品）
+		return timeInput.keyPressed(event) || timeInput.canConsumeInput() || super.keyPressed(event);
 	}
 
 	@Override
