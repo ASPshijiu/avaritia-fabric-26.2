@@ -116,7 +116,7 @@ tasks.register("validateResources") {
 		walk = { value, File source ->
 			if (value instanceof Map) {
 				value.each { key, child ->
-					if ((key == "model" || key == "parent") && child instanceof String) {
+					if ((key == "model" || key == "parent" || key == "base") && child instanceof String) {
 						checkModel(child, source)
 					}
 					if (key == "textures" && child instanceof Map) {
@@ -130,6 +130,23 @@ tasks.register("validateResources") {
 		}
 		parsed.findAll { source, ignored -> source.toPath().startsWith(clientRoot.toPath()) }
 			.each { source, value -> walk(value, source) }
+
+		def equipmentDir = new File(clientRoot, "equipment")
+		parsed.findAll { source, ignored -> source.parentFile == equipmentDir }
+			.each { source, value ->
+				(value.layers ?: [:]).each { layerType, entries ->
+					entries.each { entry ->
+						def texture = entry.texture
+						if (texture instanceof String && texture.startsWith("avaritia26:")) {
+							def path = texture.substring("avaritia26:".length())
+							def target = new File(clientRoot, "textures/entity/equipment/${layerType}/${path}.png")
+							if (!target.isFile()) {
+								throw new GradleException("缺少装备贴图 textures/entity/equipment/${layerType}/${path}.png，引用自 ${project.relativePath(source)}")
+							}
+						}
+					}
+				}
+			}
 
 		logger.lifecycle("资源校验通过：${jsonFiles.size()} 个 JSON、${recipes.size()} 个配方、${blockstates.size()} 个方块、${itemDefinitions.size()} 个物品、${english.size()} 个双语键")
 	}
