@@ -267,6 +267,10 @@ public final class ModToolEvents {
 		List<ItemStack> blockDrops = player.getAbilities().instabuild
 				? List.of()
 				: Block.getDrops(state, level, pos, blockEntity, player, tool);
+		if (player.getAbilities().instabuild) {
+			// 创造模式不收集掉落，必须走 playerWillDestroy 让箱子类方块保全内容（同原版挖掘顺序）
+			state.getBlock().playerWillDestroy(level, pos, state, player);
+		}
 		if (level.destroyBlock(pos, false, player, 512)) {
 			drops.addAll(blockDrops);
 			PlayerBlockBreakEvents.AFTER.invoker().afterBlockBreak(level, player, pos, state, blockEntity);
