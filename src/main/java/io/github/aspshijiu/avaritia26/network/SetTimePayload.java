@@ -36,10 +36,12 @@ public record SetTimePayload(int time) implements CustomPacketPayload {
 	}
 
 	public static void setTime(MinecraftServer server, int time) {
+		// 网络包的 time 是任意 int，必须归一化到一天内，防止负数或超大时间被持久化
+		int timeOfDay = Math.floorMod(time, 24000);
 		server.getAllLevels().forEach(level ->
 				level.dimensionType().defaultClock().ifPresent(clock -> {
 					long day = level.clockManager().getTotalTicks(clock) / 24000L;
-					level.clockManager().setTotalTicks(clock, day * 24000L + time);
+					level.clockManager().setTotalTicks(clock, day * 24000L + timeOfDay);
 				})
 		);
 	}

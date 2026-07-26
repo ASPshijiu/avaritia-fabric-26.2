@@ -3335,6 +3335,10 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		SetTimePayload.setTime(helper.getLevel().getServer(), 6000);
 		helper.assertTrue(Math.floorMod(helper.getLevel().clockManager().getTotalTicks(worldClock), 24000L) == 6000L,
 				"无尽时钟没有设置到正午");
+		SetTimePayload.setTime(helper.getLevel().getServer(), -1);
+		helper.assertTrue(Math.floorMod(helper.getLevel().clockManager().getTotalTicks(worldClock), 24000L) == 23999L
+				&& helper.getLevel().clockManager().getTotalTicks(worldClock) >= 0L,
+				"无尽时钟没有把越界时间归一化到一天之内");
 		helper.getLevel().clockManager().setTotalTicks(worldClock, originalTime);
 
 		BlockPos collectorPos = new BlockPos(14, 1, 5);

@@ -36,7 +36,15 @@ public final class InfinityClockScreen extends AbstractContainerScreen<InfinityC
 					.build());
 		}
 		timeInput = new EditBox(font, leftPos + 38, topPos + 52, 113, 16, Component.empty());
-		timeInput.setMaxLength(10);
+		timeInput.setMaxLength(5);
+		timeInput.setResponder(value -> {
+			String digits = value.chars().filter(Character::isDigit)
+					.collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+					.toString();
+			if (!digits.equals(value)) {
+				timeInput.setValue(digits);
+			}
+		});
 		timeInput.setHint(Component.translatable("screen.avaritia26.infinity_clock.custom_time"));
 		addRenderableWidget(timeInput);
 	}
