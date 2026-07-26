@@ -75,9 +75,11 @@ public final class InfinityUmbrellaItem extends Item {
 				player.addEffect(effect);
 			}
 		} else if (!isHoldingUmbrella(player)) {
-			// 只移除本物品施加的短时无粒子效果，药水等其他来源的缓降必须保留
+			// 只移除本物品施加的短时无粒子效果，药水/命令等其他来源的缓降必须保留
+			// 注意无限时长的 duration 为 -1，不能只靠 > HELD_EFFECT_DURATION 判断
 			MobEffectInstance active = player.getEffect(MobEffects.SLOW_FALLING);
-			if (active == null || active.getDuration() > HELD_EFFECT_DURATION || active.isVisible()) {
+			if (active == null || active.isInfiniteDuration()
+					|| active.getDuration() > HELD_EFFECT_DURATION || active.isVisible()) {
 				return;
 			}
 			if (player instanceof ServerPlayer serverPlayer && serverPlayer.connection == null) {
