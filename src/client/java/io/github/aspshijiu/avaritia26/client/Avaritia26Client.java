@@ -23,11 +23,14 @@ import io.github.aspshijiu.avaritia26.entity.EndestPearlEntity;
 import io.github.aspshijiu.avaritia26.entity.GapingVoidEntity;
 import io.github.aspshijiu.avaritia26.entity.UmbrellaProjectileEntity;
 import io.github.aspshijiu.avaritia26.network.OpenNeutronRingPayload;
+import io.github.aspshijiu.avaritia26.network.SyncSingularitiesPayload;
 import io.github.aspshijiu.avaritia26.registry.ModEntityTypes;
 import io.github.aspshijiu.avaritia26.registry.ModMenus;
+import io.github.aspshijiu.avaritia26.singularity.SingularityManager;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.minecraft.client.KeyMapping;
@@ -64,6 +67,10 @@ public final class Avaritia26Client implements ClientModInitializer {
 				ClientPlayNetworking.send(OpenNeutronRingPayload.INSTANCE);
 			}
 		});
+		ClientPlayNetworking.registerGlobalReceiver(SyncSingularitiesPayload.TYPE, (payload, context) ->
+				context.client().execute(() -> SingularityManager.replaceFromNetwork(payload.definitions())));
+		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) ->
+				client.execute(SingularityManager::clearFromNetwork));
 		EntityRendererRegistry.register(ModEntityTypes.ENDEST_PEARL, ThrownItemRenderer<EndestPearlEntity>::new);
 		EntityRendererRegistry.register(ModEntityTypes.BLAZE_FIREBALL,
 				ThrownItemRenderer<BlazeFireballEntity>::new);

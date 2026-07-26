@@ -8,6 +8,7 @@ import io.github.aspshijiu.avaritia26.event.ModToolEvents;
 import io.github.aspshijiu.avaritia26.network.OpenNeutronRingPayload;
 import io.github.aspshijiu.avaritia26.network.RenameExtremeAnvilPayload;
 import io.github.aspshijiu.avaritia26.network.SetTimePayload;
+import io.github.aspshijiu.avaritia26.network.SyncSingularitiesPayload;
 import io.github.aspshijiu.avaritia26.registry.ModBlockEntities;
 import io.github.aspshijiu.avaritia26.registry.ModBlocks;
 import io.github.aspshijiu.avaritia26.registry.ModCreativeTabs;
@@ -42,6 +43,7 @@ public final class Avaritia26 implements ModInitializer {
 		OpenNeutronRingPayload.initialize();
 		SetTimePayload.initialize();
 		RenameExtremeAnvilPayload.initialize();
+		SyncSingularitiesPayload.initialize();
 		ModEntityTypes.initialize();
 		ModSounds.initialize();
 		ModBlocks.initialize();

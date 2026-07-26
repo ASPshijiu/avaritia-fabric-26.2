@@ -91,6 +91,7 @@ import io.github.aspshijiu.avaritia26.registry.ModItems;
 import io.github.aspshijiu.avaritia26.registry.ModMenus;
 import io.github.aspshijiu.avaritia26.registry.ModMobEffects;
 import io.github.aspshijiu.avaritia26.network.SetTimePayload;
+import io.github.aspshijiu.avaritia26.network.SyncSingularitiesPayload;
 import io.github.aspshijiu.avaritia26.registry.ModArmorMaterials;
 import io.github.aspshijiu.avaritia26.singularity.SingularityDefinition;
 import io.github.aspshijiu.avaritia26.singularity.SingularityManager;
@@ -547,6 +548,38 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		);
 		helper.assertTrue(!creativeDrops.isEmpty(), "创造模式破坏非空无尽箱应生成带内容组件的掉落物");
 		creativeDrops.forEach(ItemEntity::discard);
+		helper.succeed();
+	}
+
+	@GameTest
+	public void singularityDefinitionsSyncPayloadRoundTrip(GameTestHelper helper) {
+		List<SingularityDefinition> before = SingularityManager.values();
+		List<SingularityDefinition> all = SingularityManager.allDefinitions();
+		helper.assertTrue(!before.isEmpty() && all.size() >= before.size(), "服务端没有加载任何奇点定义");
+		RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(
+				Unpooled.buffer(), helper.getLevel().registryAccess());
+		try {
+			SyncSingularitiesPayload.STREAM_CODEC.encode(buffer, new SyncSingularitiesPayload(all));
+			SyncSingularitiesPayload decoded = SyncSingularitiesPayload.STREAM_CODEC.decode(buffer);
+			helper.assertTrue(decoded.definitions().size() == all.size(), "奇点同步包网络往返丢失定义");
+			SingularityManager.replaceFromNetwork(decoded.definitions());
+			List<SingularityDefinition> after = SingularityManager.values();
+			helper.assertTrue(after.size() == before.size()
+					&& after.stream().map(SingularityDefinition::name).toList()
+							.equals(before.stream().map(SingularityDefinition::name).toList()),
+					"客户端替换奇点定义后可见列表与服务端不一致");
+			for (int index = 0; index < after.size(); index++) {
+				SingularityDefinition expected = before.get(index);
+				SingularityDefinition actual = after.get(index);
+				helper.assertTrue(expected.count() == actual.count()
+						&& expected.timeCost() == actual.timeCost()
+						&& expected.overlayColor() == actual.overlayColor()
+						&& expected.recipeEnabled() == actual.recipeEnabled(),
+						"奇点 " + expected.name() + " 同步往返后字段不一致");
+			}
+		} finally {
+			buffer.release();
+		}
 		helper.succeed();
 	}
 

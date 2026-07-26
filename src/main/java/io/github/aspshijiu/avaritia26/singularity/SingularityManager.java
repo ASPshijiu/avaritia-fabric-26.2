@@ -47,6 +47,24 @@ public final class SingularityManager extends SimplePreparableReloadListener<Map
 				.toList();
 	}
 
+	public static List<SingularityDefinition> allDefinitions() {
+		return List.copyOf(definitions.values());
+	}
+
+	/** 客户端收到服务端同步时整体替换定义；集成服务器下内容与本地加载一致。 */
+	public static void replaceFromNetwork(List<SingularityDefinition> loaded) {
+		Map<Identifier, SingularityDefinition> replaced = new HashMap<>();
+		for (SingularityDefinition definition : loaded) {
+			replaced.put(definition.name(), definition);
+		}
+		definitions = Map.copyOf(replaced);
+	}
+
+	/** 断开连接时清空，避免上一个存档/服务器的定义跨会话残留。 */
+	public static void clearFromNetwork() {
+		definitions = Map.of();
+	}
+
 	@Override
 	protected Map<Identifier, SingularityDefinition> prepare(ResourceManager resourceManager, ProfilerFiller profiler) {
 		Map<Identifier, SingularityDefinition> loaded = new HashMap<>();
