@@ -4808,6 +4808,15 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.assertTrue(ModBlocks.EXTREME_ANVIL.defaultBlockState().is(BlockTags.ANVIL)
 				&& ModBlocks.EXTREME_ANVIL.defaultBlockState().is(ExtremeAnvilBlock.UNBREAKABLE_SUPPORT),
 				"终焉之砧没有加入原版铁砧或不可破坏支撑标签");
+		helper.assertTrue(ModBlocks.NEUTRON_COLLECTOR.defaultBlockState().is(ExtremeAnvilBlock.UNBREAKABLE_SUPPORT)
+				&& ModBlocks.DENSE_NEUTRON_COLLECTOR.defaultBlockState().is(ExtremeAnvilBlock.UNBREAKABLE_SUPPORT)
+				&& ModBlocks.DENSER_NEUTRON_COLLECTOR.defaultBlockState().is(ExtremeAnvilBlock.UNBREAKABLE_SUPPORT)
+				&& ModBlocks.DENSEST_NEUTRON_COLLECTOR.defaultBlockState().is(ExtremeAnvilBlock.UNBREAKABLE_SUPPORT)
+				&& ModBlocks.NEUTRON_COMPRESSOR.defaultBlockState().is(ExtremeAnvilBlock.UNBREAKABLE_SUPPORT)
+				&& ModBlocks.DENSE_NEUTRON_COMPRESSOR.defaultBlockState().is(ExtremeAnvilBlock.UNBREAKABLE_SUPPORT)
+				&& ModBlocks.DENSER_NEUTRON_COMPRESSOR.defaultBlockState().is(ExtremeAnvilBlock.UNBREAKABLE_SUPPORT)
+				&& ModBlocks.DENSEST_NEUTRON_COMPRESSOR.defaultBlockState().is(ExtremeAnvilBlock.UNBREAKABLE_SUPPORT),
+				"中子收集器/压缩机全家族应在不可破坏支撑标签内");
 
 		ExtremeSmithingInput smithingInput = new ExtremeSmithingInput(
 				new ItemStack(ModItems.UPGRADE_SMITHING_TEMPLATE),
