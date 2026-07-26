@@ -321,7 +321,7 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.succeed();
 	}
 
-	@GameTest
+	@GameTest(maxTicks = 60)
 	public void compressedChestCraftsStoresAndPreservesContents(GameTestHelper helper) {
 		helper.assertTrue(BuiltInRegistries.BLOCK.getValue(ModBlocks.COMPRESSED_CHEST_KEY) == ModBlocks.COMPRESSED_CHEST, "压缩箱子方块注册错误");
 		helper.assertTrue(BuiltInRegistries.ITEM.getValue(ModBlocks.COMPRESSED_CHEST_ITEM_KEY) == ModBlocks.COMPRESSED_CHEST_ITEM, "压缩箱子物品注册错误");
@@ -397,7 +397,7 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		});
 	}
 
-	@GameTest
+	@GameTest(maxTicks = 60)
 	public void infinityChestSmithsStoresHugeStacksAndPreservesContents(GameTestHelper helper) {
 		helper.assertTrue(BuiltInRegistries.BLOCK.getValue(ModBlocks.INFINITY_CHEST_KEY) == ModBlocks.INFINITY_CHEST, "无尽箱方块注册错误");
 		helper.assertTrue(BuiltInRegistries.ITEM.getValue(ModBlocks.INFINITY_CHEST_ITEM_KEY) == ModBlocks.INFINITY_CHEST_ITEM, "无尽箱物品注册错误");
@@ -1418,7 +1418,7 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.succeed();
 	}
 
-	@GameTest
+	@GameTest(maxTicks = 60)
 	public void skullFireSwordCraftsAndBeheadsSkeletons(GameTestHelper helper) {
 		ItemStack sword = new ItemStack(ModItems.SKULL_FIRE_SWORD);
 		helper.assertTrue(
@@ -1633,7 +1633,7 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.succeed();
 	}
 
-	@GameTest
+	@GameTest(maxTicks = 60)
 	public void infinityPickaxeCraftsSwitchesAndBreaksClassicVolume(GameTestHelper helper) {
 		ItemStack pickaxe = new ItemStack(ModItems.INFINITY_PICKAXE);
 		helper.assertTrue(
@@ -1751,7 +1751,7 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		});
 	}
 
-	@GameTest
+	@GameTest(maxTicks = 60)
 	public void infinityShovelCraftsFlattensAndDestroysClassicVolume(GameTestHelper helper) {
 		ItemStack shovel = new ItemStack(ModItems.INFINITY_SHOVEL);
 		helper.assertTrue(
@@ -3360,6 +3360,12 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		ModItems.INFINITY_UMBRELLA.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
 		helper.assertFalse(helper.getLevel().getWeatherData().isRaining()
 				|| helper.getLevel().getWeatherData().isThundering(), "晴天模式没有清除恶劣天气");
+		helper.assertTrue(ModItems.INFINITY_UMBRELLA.use(helper.getLevel(), player, InteractionHand.MAIN_HAND)
+				.consumesAction(), "天气模式非潜行使用应消费本次交互");
+		InfinityUmbrellaItem.setMode(umbrella, InfinityUmbrellaItem.NORMAL);
+		helper.assertFalse(ModItems.INFINITY_UMBRELLA.use(helper.getLevel(), player, InteractionHand.MAIN_HAND)
+				.consumesAction(), "普通模式非潜行使用不应消费交互");
+		InfinityUmbrellaItem.setMode(umbrella, InfinityUmbrellaItem.SUN);
 
 		player.setXRot(0.0F);
 		BlockPos lavaPos = helper.absolutePos(new BlockPos(10, 2, 5));
@@ -3724,7 +3730,7 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.succeed();
 	}
 
-	@GameTest
+	@GameTest(maxTicks = 60)
 	public void infinityCrossbowCraftsChargesAndFiresEveryAmmoType(GameTestHelper helper) {
 		ItemStack crossbow = new ItemStack(ModItems.INFINITY_CROSSBOW);
 		helper.assertTrue(BuiltInRegistries.ITEM.getValue(ModItems.INFINITY_CROSSBOW_KEY)
@@ -3766,9 +3772,11 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.assertTrue(InfinityCrossbowItem.isAmmo(new ItemStack(Items.TNT)), "无尽弩没有识别 TNT 弹药");
 		List<PrimedTnt> singleTnt = InfinityCrossbowItem.createTnt(helper.getLevel(), player, crossbow);
 		helper.assertTrue(singleTnt.size() == 1
-				&& singleTnt.getFirst().getDeltaMovement().lengthSqr() > 0.0
+				&& Math.abs(singleTnt.getFirst().getDeltaMovement().length() - 1.5) < 0.001
+				&& singleTnt.getFirst().getDeltaMovement().normalize()
+						.dot(player.getLookAngle().normalize()) > 0.99
 				&& singleTnt.getFirst().getOwner() == player,
-				"无尽弩没有为 TNT 创建带初速的点燃 TNT");
+				"无尽弩没有为 TNT 创建沿视线 1.5 初速的点燃 TNT");
 		singleTnt.forEach(PrimedTnt::discard);
 
 		ItemStack enderPearls = new ItemStack(Items.ENDER_PEARL, 16);
@@ -3819,7 +3827,23 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		defaultProjectiles.forEach(Projectile::discard);
 		ModItems.INFINITY_CROSSBOW.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
 		helper.assertTrue(player.getOffhandItem().is(Items.DIRT), "无尽弩默认天堂箭不应修改副手物品");
-		helper.succeed();
+
+		player.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(Items.TNT, 3));
+		ModItems.INFINITY_CROSSBOW.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+		ModItems.INFINITY_CROSSBOW.onUseTick(helper.getLevel(), player, crossbow, 1);
+		ChargedProjectiles tntCharge = crossbow.getOrDefault(
+				DataComponents.CHARGED_PROJECTILES, ChargedProjectiles.EMPTY);
+		helper.assertTrue(!tntCharge.isEmpty() && tntCharge.itemCopies().getFirst().is(Items.TNT),
+				"无尽弩没有装填副手 TNT");
+		ModItems.INFINITY_CROSSBOW.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+		helper.assertFalse(crossbow.has(DataComponents.CHARGED_PROJECTILES), "无尽弩发射 TNT 后没有清除装填状态");
+		helper.assertTrue(player.getOffhandItem().getCount() == 3, "无尽弩发射 TNT 不应消耗副手弹药");
+		helper.succeedWhen(() -> {
+			List<PrimedTnt> fired = helper.getLevel().getEntitiesOfClass(
+					PrimedTnt.class, player.getBoundingBox().inflate(8.0));
+			helper.assertTrue(!fired.isEmpty(), "无尽弩 fire 路径没有向世界发射点燃的 TNT");
+			fired.forEach(PrimedTnt::discard);
+		});
 	}
 
 	@GameTest
@@ -3859,7 +3883,7 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.succeed();
 	}
 
-	@GameTest
+	@GameTest(maxTicks = 60)
 	public void infinityTridentCraftsSwitchesModesStrikesAndReturns(GameTestHelper helper) {
 		ItemStack trident = new ItemStack(ModItems.INFINITY_TRIDENT);
 		helper.assertTrue(BuiltInRegistries.ITEM.getValue(ModItems.INFINITY_TRIDENT_KEY)
@@ -3983,7 +4007,7 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.succeed();
 	}
 
-	@GameTest
+	@GameTest(maxTicks = 60)
 	public void crystalSwordCraftsSwitchesModeAndFiresPiercingSlash(GameTestHelper helper) {
 		ItemStack sword = new ItemStack(ModItems.CRYSTAL_SWORD);
 		helper.assertTrue(BuiltInRegistries.ITEM.getValue(ModItems.CRYSTAL_SWORD_KEY)
@@ -4392,7 +4416,7 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.succeed();
 	}
 
-	@GameTest
+	@GameTest(maxTicks = 60)
 	public void blazeSwordCraftsSwitchesModeAndTransformsWithFireballs(GameTestHelper helper) {
 		ItemStack sword = new ItemStack(ModItems.BLAZE_SWORD);
 		helper.assertTrue(BuiltInRegistries.ITEM.getValue(ModItems.BLAZE_SWORD_KEY)
@@ -4462,14 +4486,13 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.assertTrue(helper.getLevel().getBlockState(sandPos).is(Blocks.GLASS)
 				&& helper.getLevel().getBlockState(sandPos.east()).is(Blocks.GLASS),
 				"烈焰剑火球没有把范围沙子烧成玻璃");
-		// 刚 spawn 的物品实体入索引的时机不确定，用轮询直到断言满足或超时
+		// 结构区块实体就绪时机不确定，轮询直到断言满足或超时；失败信息附现场以便定位
 		helper.succeedWhen(() -> {
 			List<ItemEntity> skulls = skullDropsNear(helper, skeletonPos);
 			helper.assertTrue(skulls.size() == 1 && skulls.getFirst().getItem().is(Items.WITHER_SKELETON_SKULL),
-					"烈焰剑击杀骷髅没有保证掉落凋灵骷髅头 DEBUG count=" + skulls.size()
-							+ " items=" + skulls.stream().map(entity -> entity.getItem() + "@" + entity.position()).toList()
-							+ " skeletonAlive=" + skeleton.isAlive()
-							+ " mainHand=" + player.getMainHandItem());
+					"烈焰剑击杀骷髅没有保证掉落凋灵骷髅头（现场：数量=" + skulls.size()
+							+ "，物品=" + skulls.stream().map(entity -> entity.getItem().toString()).toList()
+							+ "，骷髅存活=" + skeleton.isAlive() + "）");
 		});
 	}
 
@@ -4805,7 +4828,7 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.succeed();
 	}
 
-	@GameTest
+	@GameTest(maxTicks = 60)
 	public void neutronHorseArmorSmithsEquipsAndProtectsHorse(GameTestHelper helper) {
 		ItemStack armor = new ItemStack(ModItems.NEUTRON_HORSE_ARMOR);
 		helper.assertTrue(BuiltInRegistries.ITEM.getValue(ModItems.NEUTRON_HORSE_ARMOR_KEY)
@@ -4886,7 +4909,7 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		});
 	}
 
-	@GameTest
+	@GameTest(maxTicks = 60)
 	public void infinityElytraSmithsGlidesAndStrikesNearbyTargets(GameTestHelper helper) {
 		ItemStack elytra = new ItemStack(ModItems.INFINITY_ELYTRA);
 		helper.assertTrue(BuiltInRegistries.ITEM.getValue(ModItems.INFINITY_ELYTRA_KEY)
@@ -4955,7 +4978,36 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 				"无尽鞘翅落地没有对两点五格内目标造成六点虚空伤害");
 		helper.assertTrue(nearbyPlayer.getHealth() == playerHealthBeforeLanding,
 				"无尽鞘翅落地冲击不应伤害玩家");
-		helper.succeed();
+		landingTarget.discard();
+
+		// 追踪窗口：滑翔登记后在宽限期内落地触发冲击
+		ItemStack wornElytra = wearer.getItemBySlot(EquipmentSlot.CHEST);
+		wearer.stopFallFlying();
+		wearer.setOnGround(false);
+		helper.assertTrue(wearer.tryToStartFallFlying() && wearer.isFallFlying(), "无尽鞘翅无法再次启动滑翔");
+		ModItems.INFINITY_ELYTRA.inventoryTick(wornElytra, helper.getLevel(), wearer, EquipmentSlot.CHEST);
+		wearer.stopFallFlying();
+		wearer.setOnGround(true);
+		var promptTarget = helper.spawnWithNoFreeWill(EntityTypes.WARDEN, new BlockPos(8, 4, 7));
+		float promptHealth = promptTarget.getHealth();
+		ModItems.INFINITY_ELYTRA.inventoryTick(wornElytra, helper.getLevel(), wearer, EquipmentSlot.CHEST);
+		helper.assertTrue(promptTarget.getHealth() < promptHealth, "宽限期内落地没有触发落地冲击");
+		promptTarget.discard();
+
+		// 超过宽限期的旧登记不应误触发落地冲击（死亡/断线/空中卸下场景的核心保护）
+		wearer.setOnGround(false);
+		helper.assertTrue(wearer.tryToStartFallFlying() && wearer.isFallFlying(), "无尽鞘翅无法第三次启动滑翔");
+		ModItems.INFINITY_ELYTRA.inventoryTick(wornElytra, helper.getLevel(), wearer, EquipmentSlot.CHEST);
+		wearer.stopFallFlying();
+		helper.runAfterDelay(25, () -> {
+			wearer.setPos(Vec3.atCenterOf(helper.absolutePos(new BlockPos(7, 4, 7))));
+			wearer.setOnGround(true);
+			var staleTarget = helper.spawnWithNoFreeWill(EntityTypes.WARDEN, new BlockPos(8, 4, 7));
+			float staleHealth = staleTarget.getHealth();
+			ModItems.INFINITY_ELYTRA.inventoryTick(wornElytra, helper.getLevel(), wearer, EquipmentSlot.CHEST);
+			helper.assertTrue(staleTarget.getHealth() == staleHealth, "超过宽限期的旧登记误触发了落地冲击");
+			helper.succeed();
+		});
 	}
 
 	@GameTest

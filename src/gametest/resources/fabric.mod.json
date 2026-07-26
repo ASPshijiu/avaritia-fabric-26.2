@@ -8,5 +8,8 @@
 		"fabric-gametest": [
 			"io.github.aspshijiu.avaritia26.gametest.Avaritia26GameTests"
 		]
-	}
+	},
+	"mixins": [
+		"avaritia26-gametest.mixins.json"
+	]
 }

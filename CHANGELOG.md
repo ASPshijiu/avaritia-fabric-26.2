@@ -24,8 +24,8 @@
 ### 工程质量
 
 - `validateResources` 新增 equipment 各层 `texture` 键与物品定义特殊模型 `base` 键的存在性校验。
-- 三个依赖同 tick 实体查询的 GameTest 断言延迟 1 tick，消除偶发误报。
-- 修正 FEATURE_MATRIX 中的 GameTest 计数与不存在的 `fake_*` 内部方块声明。
+- 时序敏感的 GameTest 实体断言改为 succeedWhen 轮询/延迟执行，大幅降低偶发误报；结构区块实体加载竞态的残留限制见 TEST_REPORT。
+- 修正 FEATURE_MATRIX/INGAME_TEST_REPORT 中的 GameTest 计数与不存在的 `fake_*` 内部方块声明。
 
 ## 1.0.0-rc.1 - 2026-07-21
 
