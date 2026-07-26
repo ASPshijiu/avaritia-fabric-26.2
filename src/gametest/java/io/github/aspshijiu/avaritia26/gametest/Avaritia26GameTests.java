@@ -63,6 +63,7 @@ import io.github.aspshijiu.avaritia26.inventory.NeutronCollectorMenu;
 import io.github.aspshijiu.avaritia26.inventory.NeutronCompressorMenu;
 import io.github.aspshijiu.avaritia26.inventory.NeutronRingMenu;
 import io.github.aspshijiu.avaritia26.inventory.SculkCraftingMenu;
+import io.github.aspshijiu.avaritia26.inventory.WideContainerData;
 import io.github.aspshijiu.avaritia26.item.BlazeAxeItem;
 import io.github.aspshijiu.avaritia26.item.BlazeBowItem;
 import io.github.aspshijiu.avaritia26.item.BlazeHoeItem;
@@ -149,6 +150,7 @@ import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEgg;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEnderpearl;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.CraftingMenu;
 import net.minecraft.world.inventory.FurnaceMenu;
 import net.minecraft.world.item.Item;
@@ -207,6 +209,23 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 	@GameTest
 	public void modStartsOnServer(GameTestHelper helper) {
 		helper.assertBlockPresent(Blocks.AIR, 0, 0, 0);
+		helper.succeed();
+	}
+
+	@GameTest
+	public void wideContainerDataSurvivesShortTruncation(GameTestHelper helper) {
+		int[] values = {0, 1, 32_767, 32_768, 72_000, 1_000_000, Integer.MAX_VALUE - 512};
+		for (int value : values) {
+			SimpleContainerData logical = new SimpleContainerData(1);
+			logical.set(0, value);
+			WideContainerData wide = new WideContainerData(logical);
+			SimpleContainerData clientSide = new SimpleContainerData(wide.getCount());
+			for (int index = 0; index < wide.getCount(); index++) {
+				clientSide.set(index, (short) wide.get(index));
+			}
+			helper.assertTrue(WideContainerData.combine(clientSide, 0) == value,
+					"宽数据槽经 short 截断同步后无法还原 " + value);
+		}
 		helper.succeed();
 	}
 

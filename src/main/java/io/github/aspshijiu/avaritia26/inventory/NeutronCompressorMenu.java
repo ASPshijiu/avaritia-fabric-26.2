@@ -27,7 +27,7 @@ public final class NeutronCompressorMenu extends AbstractContainerMenu {
 				containerId,
 				inventory,
 				new SimpleContainer(2),
-				new SimpleContainerData(4)
+				new SimpleContainerData(WideContainerData.wideCount(4))
 		);
 	}
 
@@ -39,7 +39,7 @@ public final class NeutronCompressorMenu extends AbstractContainerMenu {
 	) {
 		super(ModMenus.NEUTRON_COMPRESSOR, containerId);
 		checkContainerSize(container, 2);
-		checkContainerDataCount(data, 4);
+		checkContainerDataCount(data, WideContainerData.wideCount(4));
 		this.container = container;
 		this.data = data;
 		container.startOpen(inventory.player);
@@ -60,19 +60,19 @@ public final class NeutronCompressorMenu extends AbstractContainerMenu {
 	}
 
 	public int progress() {
-		return data.get(0);
+		return WideContainerData.combine(data, 0);
 	}
 
 	public int timeRequired() {
-		return data.get(1);
+		return WideContainerData.combine(data, 1);
 	}
 
 	public int materialCount() {
-		return data.get(2);
+		return WideContainerData.combine(data, 2);
 	}
 
 	public int materialsRequired() {
-		return data.get(3);
+		return WideContainerData.combine(data, 3);
 	}
 
 	@Override

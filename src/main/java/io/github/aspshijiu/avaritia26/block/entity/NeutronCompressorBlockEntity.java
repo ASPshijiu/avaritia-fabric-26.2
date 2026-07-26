@@ -5,6 +5,7 @@ import io.github.aspshijiu.avaritia26.component.SideConfiguration;
 import io.github.aspshijiu.avaritia26.crafting.CompressorRecipe;
 import io.github.aspshijiu.avaritia26.crafting.ModRecipes;
 import io.github.aspshijiu.avaritia26.inventory.NeutronCompressorMenu;
+import io.github.aspshijiu.avaritia26.inventory.WideContainerData;
 import io.github.aspshijiu.avaritia26.item.SingularityItem;
 import io.github.aspshijiu.avaritia26.registry.ModBlockEntities;
 import io.github.aspshijiu.avaritia26.singularity.SingularityDefinition;
@@ -289,7 +290,7 @@ public final class NeutronCompressorBlockEntity extends BlockEntity
 
 	@Override
 	public AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
-		return new NeutronCompressorMenu(containerId, inventory, this, data);
+		return new NeutronCompressorMenu(containerId, inventory, this, new WideContainerData(data));
 	}
 
 	@Override
