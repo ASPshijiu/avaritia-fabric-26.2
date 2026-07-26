@@ -67,10 +67,20 @@ public final class Avaritia26Client implements ClientModInitializer {
 				ClientPlayNetworking.send(OpenNeutronRingPayload.INSTANCE);
 			}
 		});
+		// 集成服务器与客户端共享同一张静态奇点表且以服务端数据包加载为权威，
+		// 单人场景下跳过网络写入，避免客户端线程与仍在运行的服务端 tick 竞争
 		ClientPlayNetworking.registerGlobalReceiver(SyncSingularitiesPayload.TYPE, (payload, context) ->
-				context.client().execute(() -> SingularityManager.replaceFromNetwork(payload.definitions())));
+				context.client().execute(() -> {
+					if (!context.client().hasSingleplayerServer()) {
+						SingularityManager.replaceFromNetwork(payload.definitions());
+					}
+				}));
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) ->
-				client.execute(SingularityManager::clearFromNetwork));
+				client.execute(() -> {
+					if (!client.hasSingleplayerServer()) {
+						SingularityManager.clearFromNetwork();
+					}
+				}));
 		EntityRendererRegistry.register(ModEntityTypes.ENDEST_PEARL, ThrownItemRenderer<EndestPearlEntity>::new);
 		EntityRendererRegistry.register(ModEntityTypes.BLAZE_FIREBALL,
 				ThrownItemRenderer<BlazeFireballEntity>::new);
