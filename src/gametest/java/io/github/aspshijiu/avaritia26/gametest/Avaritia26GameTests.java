@@ -135,6 +135,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.Filterable;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.entity.projectile.FireworkRocketEntity;
 import net.minecraft.world.entity.projectile.Projectile;
@@ -166,6 +167,7 @@ import net.minecraft.world.item.component.BlocksAttacks;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.component.UseCooldown;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.item.component.WrittenBookContent;
 import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.item.equipment.Equippable;
 import net.minecraft.world.item.crafting.CraftingInput;
@@ -2805,6 +2807,24 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.assertTrue(table.isEmpty(), "幽匿工作台合成后没有正确消耗九格输入");
 		helper.assertTrue(player.getInventory().getNonEquipmentItems().stream()
 				.anyMatch(stack -> stack.is(ModItems.DIAMOND_LATTICE)), "幽匿工作台快速合成没有把产物移入背包");
+
+		ItemStack originalBook = new ItemStack(Items.WRITTEN_BOOK);
+		originalBook.set(DataComponents.WRITTEN_BOOK_CONTENT, new WrittenBookContent(
+				Filterable.passThrough("原书"), "author", 0, List.of(), true));
+		table.setItem(0, originalBook);
+		table.setItem(1, new ItemStack(Items.WRITABLE_BOOK));
+		SculkCraftingMenu cloneMenu = new SculkCraftingMenu(
+				2,
+				player.getInventory(),
+				table,
+				net.minecraft.world.inventory.ContainerLevelAccess.create(helper.getLevel(), absoluteTablePos)
+		);
+		helper.assertTrue(cloneMenu.slots.getFirst().getItem().is(Items.WRITTEN_BOOK),
+				"幽匿工作台没有匹配原版书本复制配方");
+		cloneMenu.quickMoveStack(player, SculkCraftingMenu.RESULT_SLOT);
+		helper.assertTrue(table.getItem(0).is(Items.WRITTEN_BOOK),
+				"幽匿工作台书本复制后应保留原书（配方自定义剩余物）");
+		table.setItem(1, ItemStack.EMPTY);
 
 		table.setItem(0, new ItemStack(Items.ECHO_SHARD, 2));
 		table.setItem(8, new ItemStack(Blocks.SCULK_CATALYST));

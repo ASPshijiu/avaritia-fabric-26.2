@@ -176,9 +176,15 @@ public class SculkCraftingMenu extends AbstractContainerMenu {
 		if (!(player instanceof ServerPlayer serverPlayer) || serverPlayer.connection != null) {
 			resultSlots.awardUsedRecipes(player, craftSlots.getItems());
 		}
-		NonNullList<ItemStack> remaining = currentRecipe.value() instanceof NoConsumeCatalystShapedRecipe recipe
-				? recipe.getRemainingItems(currentInput.input())
-				: CraftingRecipe.defaultCraftingReminder(currentInput.input());
+		// 原版类型配方走实例方法，保留 BookCloning/BannerDuplicate 等覆写的自定义剩余物
+		NonNullList<ItemStack> remaining;
+		if (currentRecipe.value() instanceof NoConsumeCatalystShapedRecipe recipe) {
+			remaining = recipe.getRemainingItems(currentInput.input());
+		} else if (currentRecipe.value() instanceof CraftingRecipe craftingRecipe) {
+			remaining = craftingRecipe.getRemainingItems(currentInput.input());
+		} else {
+			remaining = CraftingRecipe.defaultCraftingReminder(currentInput.input());
+		}
 		consuming = true;
 		try {
 			for (int row = 0; row < currentInput.input().height(); row++) {
