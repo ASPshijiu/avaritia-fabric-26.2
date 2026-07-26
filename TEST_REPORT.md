@@ -9,7 +9,7 @@
 `JAVA_HOME=/opt/homebrew/opt/openjdk@25 ./gradlew clean build` 通过，包含：
 
 - 88/88 GameTest 通过（审计修复轮后套件扩充为 90 项，最新一次 Windows `gradlew build` 全部通过，见 CHANGELOG 未发布小节）。
-- 已知测试基建限制：并行批次的结构偶尔落在实体子区块尚未就绪的区块中，导致该结构内实体不 tick 或刚 spawn 的实体暂时查询不到，曾表现为个别测试约 10% 概率的随机失败（失败集不固定，重跑即过，与产品代码无关）。时序敏感断言已改为 succeedWhen 轮询/延迟执行，并把相关测试的 maxTicks 从默认 20 放宽到 60 给区块就绪留出重试窗口；加固后连续 10 次全量套件无失败。
+- 测试基建随机失败已定位根因并修复：套件全部使用 Fabric 默认 8×8×8 空结构，而大量测试在结构包围盒之外的相对坐标（8–12）上放方块或生成实体；原版 runner 只对结构包围盒相交的区块做强制加载和 `areEntitiesActuallyLoadedAndTicking` 就绪等待，越界位置一旦跨进邻接区块（是否跨界取决于网格摆放位置，随每次运行的批次顺序变化），实体便落在仅 TRACKED/HIDDEN 的区块中——可见但不 tick（马铠属性全 0、铁砧不落）甚至查询不到（物品/闪电计数 0）。修复为 gametest 模组内两条 mixin（`TestInstanceBlockEntityMixin`、`GameTestInfoMixin`），把强制加载范围与测试开始前的就绪等待一致外扩 16 格（结构四周至少一整圈区块达到 ENTITY_TICKING 且实体存储 LOADED）。修复后连续 18 次 `runGameTest --rerun` 全量套件 91/91 零失败（旧行为下 18 连过概率约 15%）。
 - 568 个 JSON 全部可解析。
 - 96 个生产配方与 96 个配方解锁进度一一对应。
 - 27 个玩家可获得方块与 27 个方块战利品表一一对应。

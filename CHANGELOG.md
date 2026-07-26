@@ -24,7 +24,8 @@
 ### 工程质量
 
 - `validateResources` 新增 equipment 各层 `texture` 键与物品定义特殊模型 `base` 键的存在性校验。
-- 时序敏感的 GameTest 实体断言改为 succeedWhen 轮询/延迟执行，大幅降低偶发误报；结构区块实体加载竞态的残留限制见 TEST_REPORT。
+- 时序敏感的 GameTest 实体断言改为 succeedWhen 轮询/延迟执行，大幅降低偶发误报。
+- 根治 GameTest 结构区块实体加载竞态：测试在默认 8×8×8 结构包围盒外（相对坐标 8–12）操作实体时可能落入未强制加载的邻接区块（实体不 tick 或查询不到，约 10% 概率随机失败）。gametest 模组新增 mixin 把强制加载与就绪等待范围外扩 16 格，保证测试可触及的邻接区块在测试开始前达到 ENTITY_TICKING；连续 18 次全量套件零失败，详见 TEST_REPORT。
 - 修正 FEATURE_MATRIX/INGAME_TEST_REPORT 中的 GameTest 计数与不存在的 `fake_*` 内部方块声明。
 
 ## 1.0.0-rc.1 - 2026-07-21
