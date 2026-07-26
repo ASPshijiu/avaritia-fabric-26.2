@@ -76,7 +76,7 @@ public final class InfinityElytraItem extends Item {
 		List<LivingEntity> targets = level.getEntities(
 				EntityTypeTest.forClass(LivingEntity.class),
 				wearer.getBoundingBox().inflate(LANDING_RANGE),
-				target -> target != wearer
+				target -> target != wearer && !(target instanceof Player)
 		);
 		targets.forEach(target -> target.hurt(wearer.damageSources().fellOutOfWorld(), LANDING_DAMAGE));
 		return targets.size();

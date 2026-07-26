@@ -4790,12 +4790,15 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 
 		collisionTarget.discard();
 		farTarget.discard();
-		nearbyPlayer.setPos(Vec3.atCenterOf(helper.absolutePos(new BlockPos(14, 4, 14))));
+		nearbyPlayer.setPos(Vec3.atCenterOf(helper.absolutePos(new BlockPos(7, 4, 8))));
+		float playerHealthBeforeLanding = nearbyPlayer.getHealth();
 		var landingTarget = helper.spawnWithNoFreeWill(EntityTypes.WARDEN, new BlockPos(8, 4, 7));
 		float landingHealth = landingTarget.getHealth();
 		helper.assertTrue(InfinityElytraItem.applyLandingImpact(helper.getLevel(), wearer) >= 1
 				&& Math.abs(landingTarget.getHealth() - (landingHealth - InfinityElytraItem.LANDING_DAMAGE)) < 0.001,
 				"无尽鞘翅落地没有对两点五格内目标造成六点虚空伤害");
+		helper.assertTrue(nearbyPlayer.getHealth() == playerHealthBeforeLanding,
+				"无尽鞘翅落地冲击不应伤害玩家");
 		helper.succeed();
 	}
 
