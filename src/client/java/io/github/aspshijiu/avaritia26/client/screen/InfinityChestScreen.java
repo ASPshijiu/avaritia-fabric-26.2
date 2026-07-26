@@ -5,7 +5,6 @@ import java.util.List;
 
 import io.github.aspshijiu.avaritia26.inventory.InfinityChestMenu;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -13,7 +12,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-public final class InfinityChestScreen extends AbstractContainerScreen<InfinityChestMenu> {
+public final class InfinityChestScreen extends ScaledContainerScreen<InfinityChestMenu> {
 	private static final int WIDTH = 556;
 	private static final int HEIGHT = 293;
 	private static final Identifier SLOT_BACKGROUND = Identifier.withDefaultNamespace("container/slot");
@@ -25,8 +24,7 @@ public final class InfinityChestScreen extends AbstractContainerScreen<InfinityC
 	}
 
 	@Override
-	public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
-		super.extractBackground(graphics, mouseX, mouseY, delta);
+	protected void extractScaledBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
 		graphics.fill(leftPos, topPos, leftPos + imageWidth, topPos + imageHeight, 0xFF17131F);
 		graphics.fill(leftPos + 2, topPos + 2, leftPos + imageWidth - 2, topPos + imageHeight - 2, 0xFF2B2336);
 		graphics.fill(leftPos + 5, topPos + 14, leftPos + imageWidth - 5, topPos + 200, 0xFF100D16);
@@ -45,7 +43,7 @@ public final class InfinityChestScreen extends AbstractContainerScreen<InfinityC
 	}
 
 	@Override
-	protected void extractTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+	protected void extractScaledTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		if (menu.getCarried().isEmpty() && isInfinitySlot(hoveredSlot) && hoveredSlot.hasItem()) {
 			ItemStack stack = hoveredSlot.getItem();
 			List<Component> lines = new ArrayList<>(getTooltipFromContainerItem(stack));
@@ -57,7 +55,7 @@ public final class InfinityChestScreen extends AbstractContainerScreen<InfinityC
 			graphics.setTooltipForNextFrame(font, lines, stack.getTooltipImage(), mouseX, mouseY);
 			return;
 		}
-		super.extractTooltip(graphics, mouseX, mouseY);
+		super.extractScaledTooltip(graphics, mouseX, mouseY);
 	}
 
 	private boolean isInfinitySlot(Slot slot) {
