@@ -1643,12 +1643,14 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		BlockPos origin = new BlockPos(16, 10, 16);
 		BlockPos farStone = origin.offset(7, 7, 7);
 		BlockPos farDirt = origin.offset(-8, -8, -8);
+		BlockPos farEdge = origin.offset(8, 0, 8);
 		BlockPos wood = origin.east();
 		BlockPos bedrock = origin.east(2);
 		BlockPos glass = origin.east(3);
 		helper.setBlock(origin, Blocks.STONE);
 		helper.setBlock(farStone, Blocks.STONE);
 		helper.setBlock(farDirt, Blocks.DIRT);
+		helper.setBlock(farEdge, Blocks.STONE);
 		helper.setBlock(wood, Blocks.OAK_LOG);
 		helper.setBlock(bedrock, Blocks.BEDROCK);
 		helper.setBlock(glass, Blocks.GLASS);
@@ -1665,6 +1667,7 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.assertBlockPresent(Blocks.AIR, origin);
 		helper.assertBlockPresent(Blocks.AIR, farStone);
 		helper.assertBlockPresent(Blocks.AIR, farDirt);
+		helper.assertBlockPresent(Blocks.AIR, farEdge);
 		helper.assertBlockPresent(Blocks.AIR, glass);
 		helper.assertBlockPresent(Blocks.OAK_LOG, wood);
 		helper.assertBlockPresent(Blocks.BEDROCK, bedrock);
@@ -1675,7 +1678,7 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 					new AABB(absoluteOrigin).inflate(2.0),
 					entity -> entity.getItem().is(ModItems.MATTER_CLUSTER)
 			);
-			helper.assertTrue(clusters.size() == 1 && MatterClusterItem.getSize(clusters.getFirst().getItem()) == 3, "无尽镐没有把范围掉落压入物质团");
+			helper.assertTrue(clusters.size() == 1 && MatterClusterItem.getSize(clusters.getFirst().getItem()) == 4, "无尽镐没有把范围掉落压入物质团");
 			helper.succeed();
 		});
 	}
@@ -1823,14 +1826,16 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 
 		BlockPos areaOrigin = new BlockPos(50, 10, 50);
 		BlockPos minCorner = areaOrigin.offset(-13, -3, -13);
-		BlockPos maxXBoundary = areaOrigin.east(13);
-		BlockPos maxYBoundary = areaOrigin.above(23);
+		BlockPos maxInside = areaOrigin.offset(13, 23, 13);
+		BlockPos maxXBoundary = areaOrigin.east(14);
+		BlockPos maxYBoundary = areaOrigin.above(24);
 		BlockPos leaves = areaOrigin.east();
 		BlockPos vine = areaOrigin.west();
 		BlockPos coral = areaOrigin.north();
 		BlockPos flower = areaOrigin.south();
 		BlockPos stone = areaOrigin.south(2);
 		helper.setBlock(minCorner, Blocks.OAK_PLANKS);
+		helper.setBlock(maxInside, Blocks.OAK_PLANKS);
 		helper.setBlock(maxXBoundary, Blocks.OAK_PLANKS);
 		helper.setBlock(maxYBoundary, Blocks.OAK_PLANKS);
 		helper.setBlock(leaves, Blocks.OAK_LEAVES);
@@ -1845,6 +1850,7 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		var areaResult = ModItems.INFINITY_AXE.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
 		helper.assertTrue(areaResult.consumesAction(), "自然荒芜之斧没有接管潜行范围清理");
 		helper.assertBlockPresent(Blocks.AIR, minCorner);
+		helper.assertBlockPresent(Blocks.AIR, maxInside);
 		helper.assertBlockPresent(Blocks.OAK_PLANKS, maxXBoundary);
 		helper.assertBlockPresent(Blocks.OAK_PLANKS, maxYBoundary);
 		helper.assertBlockPresent(Blocks.AIR, leaves);

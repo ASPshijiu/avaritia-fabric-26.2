@@ -149,9 +149,9 @@ public final class ModToolEvents {
 		List<ItemStack> drops = new ArrayList<>();
 		int minY = face.getAxis() == Direction.Axis.Y ? -RANGE : -1;
 		int maxY = face.getAxis() == Direction.Axis.Y ? RANGE : RANGE * 2 - 2;
-		for (int x = -RANGE; x < RANGE; x++) {
-			for (int y = minY; y < maxY; y++) {
-				for (int z = -RANGE; z < RANGE; z++) {
+		for (int x = -RANGE; x <= RANGE; x++) {
+			for (int y = minY; y <= maxY; y++) {
+				for (int z = -RANGE; z <= RANGE; z++) {
 					breakBlock(serverLevel, player, tool, origin.offset(x, y, z), drops, state -> tool.isCorrectToolForDrops(state));
 				}
 			}
@@ -194,9 +194,9 @@ public final class ModToolEvents {
 	public static List<ItemStack> destroyClassicAxeArea(ServerLevel level, Player player, ItemStack tool) {
 		BlockPos origin = player.blockPosition();
 		List<ItemStack> drops = new ArrayList<>();
-		for (int x = -AXE_RANGE; x < AXE_RANGE; x++) {
-			for (int y = -3; y < AXE_RANGE * 2 - 3; y++) {
-				for (int z = -AXE_RANGE; z < AXE_RANGE; z++) {
+		for (int x = -AXE_RANGE; x <= AXE_RANGE; x++) {
+			for (int y = -3; y <= AXE_RANGE * 2 - 3; y++) {
+				for (int z = -AXE_RANGE; z <= AXE_RANGE; z++) {
 					breakBlock(level, player, tool, origin.offset(x, y, z), drops, InfinityAxeItem::canClearClassicMaterial);
 				}
 			}
