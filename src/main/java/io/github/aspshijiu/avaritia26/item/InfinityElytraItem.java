@@ -1,8 +1,8 @@
 package io.github.aspshijiu.avaritia26.item;
 
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.UUID;
 
 import net.minecraft.core.particles.ParticleTypes;
@@ -23,7 +23,9 @@ public final class InfinityElytraItem extends Item {
 	public static final float COLLISION_DAMAGE = 100.0F;
 	public static final double LANDING_RANGE = 2.5;
 	public static final float LANDING_DAMAGE = 6.0F;
-	private static final Set<UUID> ACTIVE_FLIGHT = new HashSet<>();
+	// 落地冲击只在滑翔结束后的短暂窗口内有效，避免死亡/断线/空中卸下鞘翅留下的旧条目误触发
+	private static final long LANDING_GRACE_TICKS = 20;
+	private static final Map<UUID, Long> ACTIVE_FLIGHT = new HashMap<>();
 
 	public InfinityElytraItem(Properties properties) {
 		super(properties);
@@ -37,11 +39,18 @@ public final class InfinityElytraItem extends Item {
 		}
 
 		if (wearer.isFallFlying()) {
-			ACTIVE_FLIGHT.add(wearer.getUUID());
+			ACTIVE_FLIGHT.put(wearer.getUUID(), level.getGameTime());
 			applyFlightTick(level, wearer);
-		} else if (wearer.onGround() && ACTIVE_FLIGHT.remove(wearer.getUUID())) {
-			applyLandingImpact(level, wearer);
+		} else if (wearer.onGround()) {
+			Long lastGlideTime = ACTIVE_FLIGHT.remove(wearer.getUUID());
+			if (lastGlideTime != null && level.getGameTime() - lastGlideTime <= LANDING_GRACE_TICKS) {
+				applyLandingImpact(level, wearer);
+			}
 		}
+	}
+
+	public static void clearFlightTracking() {
+		ACTIVE_FLIGHT.clear();
 	}
 
 	public static int applyFlightTick(ServerLevel level, LivingEntity wearer) {

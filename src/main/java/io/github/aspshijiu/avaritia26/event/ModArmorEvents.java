@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import io.github.aspshijiu.avaritia26.item.InfinityElytraItem;
 import io.github.aspshijiu.avaritia26.registry.ModItems;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -26,7 +27,10 @@ public final class ModArmorEvents {
 		ServerTickEvents.END_SERVER_TICK.register(server -> server.getPlayerList().getPlayers().forEach(ModArmorEvents::tickPlayer));
 		ServerLivingEntityEvents.ALLOW_DAMAGE.register(ModArmorEvents::allowDamage);
 		ServerLivingEntityEvents.ALLOW_DEATH.register(ModArmorEvents::allowDeath);
-		ServerLifecycleEvents.SERVER_STOPPED.register(server -> FLIGHT_GRANTED.clear());
+		ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
+			FLIGHT_GRANTED.clear();
+			InfinityElytraItem.clearFlightTracking();
+		});
 	}
 
 	public static void tickPlayer(ServerPlayer player) {
