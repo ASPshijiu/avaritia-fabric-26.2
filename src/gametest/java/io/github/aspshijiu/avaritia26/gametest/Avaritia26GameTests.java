@@ -377,23 +377,24 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		menu.removed(player);
 
 		Player creativePlayer = helper.makeMockServerPlayer(GameType.CREATIVE);
+		BlockState chestState = helper.getBlockState(pos);
 		ModBlocks.COMPRESSED_CHEST.playerWillDestroy(
-				helper.getLevel(), helper.absolutePos(pos), helper.getBlockState(pos), creativePlayer);
-		List<ItemEntity> creativeDrops = helper.getLevel().getEntitiesOfClass(
-				ItemEntity.class,
-				new AABB(helper.absolutePos(pos)).inflate(1.0),
-				entity -> entity.getItem().is(ModBlocks.COMPRESSED_CHEST_ITEM)
-		);
-		helper.assertTrue(!creativeDrops.isEmpty(), "创造模式破坏非空压缩箱应生成掉落物");
-		CompressedChestBlockEntity creativeRestored =
-				new CompressedChestBlockEntity(helper.absolutePos(pos), helper.getBlockState(pos));
-		creativeRestored.applyComponentsFromItemStack(creativeDrops.getFirst().getItem());
-		helper.assertTrue(
-				creativeRestored.getItem(0).getCount() == 32 && creativeRestored.getItem(242).getCount() == 7,
-				"创造模式破坏压缩箱的掉落物没有保留全部内容"
-		);
-		creativeDrops.forEach(ItemEntity::discard);
-		helper.succeed();
+				helper.getLevel(), helper.absolutePos(pos), chestState, creativePlayer);
+		helper.succeedWhen(() -> {
+			List<ItemEntity> creativeDrops = helper.getLevel().getEntitiesOfClass(
+					ItemEntity.class,
+					new AABB(helper.absolutePos(pos)).inflate(2.0),
+					entity -> entity.getItem().is(ModBlocks.COMPRESSED_CHEST_ITEM)
+			);
+			helper.assertTrue(!creativeDrops.isEmpty(), "创造模式破坏非空压缩箱应生成掉落物");
+			CompressedChestBlockEntity creativeRestored =
+					new CompressedChestBlockEntity(helper.absolutePos(pos), chestState);
+			creativeRestored.applyComponentsFromItemStack(creativeDrops.getFirst().getItem());
+			helper.assertTrue(
+					creativeRestored.getItem(0).getCount() == 32 && creativeRestored.getItem(242).getCount() == 7,
+					"创造模式破坏压缩箱的掉落物没有保留全部内容"
+			);
+		});
 	}
 
 	@GameTest
@@ -540,15 +541,15 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		Player creativePlayer = helper.makeMockServerPlayer(GameType.CREATIVE);
 		ModBlocks.INFINITY_CHEST.playerWillDestroy(
 				helper.getLevel(), helper.absolutePos(pos), helper.getBlockState(pos), creativePlayer);
-		List<ItemEntity> creativeDrops = helper.getLevel().getEntitiesOfClass(
-				ItemEntity.class,
-				new AABB(helper.absolutePos(pos)).inflate(1.0),
-				entity -> entity.getItem().is(ModBlocks.INFINITY_CHEST_ITEM)
-						&& entity.getItem().has(ModDataComponents.INFINITY_CHEST_CONTENTS)
-		);
-		helper.assertTrue(!creativeDrops.isEmpty(), "创造模式破坏非空无尽箱应生成带内容组件的掉落物");
-		creativeDrops.forEach(ItemEntity::discard);
-		helper.succeed();
+		helper.succeedWhen(() -> {
+			List<ItemEntity> creativeDrops = helper.getLevel().getEntitiesOfClass(
+					ItemEntity.class,
+					new AABB(helper.absolutePos(pos)).inflate(2.0),
+					entity -> entity.getItem().is(ModBlocks.INFINITY_CHEST_ITEM)
+							&& entity.getItem().has(ModDataComponents.INFINITY_CHEST_CONTENTS)
+			);
+			helper.assertTrue(!creativeDrops.isEmpty(), "创造模式破坏非空无尽箱应生成带内容组件的掉落物");
+		});
 	}
 
 	@GameTest
@@ -1482,8 +1483,8 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		var thirdSkeleton = helper.spawnWithNoFreeWill(EntityTypes.SKELETON, normalWeaponPos);
 		thirdSkeleton.hurtServer(helper.getLevel(), helper.getLevel().damageSources().playerAttack(player), 100.0F);
 
-		// 同 tick 内 spawn 的物品实体可能尚未进入实体索引，延迟 1 tick 再做数量断言
-		helper.runAfterDelay(1, () -> {
+		// 刚 spawn 的物品实体入索引的时机不确定，用轮询直到断言满足或超时
+		helper.succeedWhen(() -> {
 			List<ItemEntity> guaranteedSkulls = skullDropsNear(helper, guaranteedDropPos);
 			helper.assertTrue(
 					guaranteedSkulls.size() == 1 && guaranteedSkulls.getFirst().getItem().is(Items.WITHER_SKELETON_SKULL),
@@ -1496,7 +1497,6 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 					"炽焰之啄颅剑没有把普通骷髅头烧成凋灵骷髅头"
 			);
 			helper.assertTrue(skullDropsNear(helper, normalWeaponPos).isEmpty(), "普通钻石剑不应触发啄颅掉落");
-			helper.succeed();
 		});
 	}
 
@@ -1739,14 +1739,15 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.assertBlockPresent(Blocks.OAK_LOG, wood);
 		helper.assertBlockPresent(Blocks.BEDROCK, bedrock);
 		helper.assertTrue(pickaxe.getDamageValue() == 0, "无尽镐范围挖掘后不应产生耐久损耗");
-		helper.runAfterDelay(1, () -> {
+		// 把玩家移出拾取范围，防止轮询期间物质团被捡走
+		player.setPos(Vec3.atCenterOf(helper.absolutePos(new BlockPos(30, 2, 30))));
+		helper.succeedWhen(() -> {
 			List<ItemEntity> clusters = helper.getLevel().getEntitiesOfClass(
 					ItemEntity.class,
-					new AABB(absoluteOrigin).inflate(2.0),
+					new AABB(absoluteOrigin).inflate(3.0),
 					entity -> entity.getItem().is(ModItems.MATTER_CLUSTER)
 			);
 			helper.assertTrue(clusters.size() == 1 && MatterClusterItem.getSize(clusters.getFirst().getItem()) == 4, "无尽镐没有把范围掉落压入物质团");
-			helper.succeed();
 		});
 	}
 
@@ -1819,17 +1820,18 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.assertBlockPresent(Blocks.OAK_LOG, wood);
 		helper.assertBlockPresent(Blocks.BEDROCK, bedrock);
 		helper.assertTrue(shovel.getDamageValue() == 0, "无尽铲范围挖掘后不应产生耐久损耗");
-		helper.runAfterDelay(1, () -> {
+		// 把玩家移出拾取范围，防止轮询期间物质团被捡走
+		player.setPos(Vec3.atCenterOf(helper.absolutePos(new BlockPos(30, 2, 30))));
+		helper.succeedWhen(() -> {
 			List<ItemEntity> clusters = helper.getLevel().getEntitiesOfClass(
 					ItemEntity.class,
-					new AABB(absoluteOrigin).inflate(2.0),
+					new AABB(absoluteOrigin).inflate(3.0),
 					entity -> entity.getItem().is(ModItems.MATTER_CLUSTER)
 			);
 			helper.assertTrue(
 					clusters.size() == 1 && MatterClusterItem.getSize(clusters.getFirst().getItem()) == 2,
 					"无尽铲没有把范围掉落压入物质团"
 			);
-			helper.succeed();
 		});
 	}
 
@@ -3923,12 +3925,11 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.assertTrue(projectile.isRemoved()
 				&& player.getInventory().contains(new ItemStack(ModItems.INFINITY_TRIDENT)),
 				"无尽三叉戟命中后没有忠诚返还给投掷者");
-		// 同 tick 内 spawn 的闪电实体可能尚未进入实体索引，延迟 1 tick 再计数
-		helper.runAfterDelay(1, () -> {
+		// 刚 spawn 的闪电实体入索引的时机不确定，用轮询直到断言满足或超时
+		helper.succeedWhen(() -> {
 			int lightningAfter = helper.getLevel().getEntitiesOfClass(
 					LightningBolt.class, warden.getBoundingBox().inflate(8.0)).size();
 			helper.assertTrue(lightningAfter - lightningBefore == 2, "无尽三叉戟命中没有召唤两道闪电");
-			helper.succeed();
 		});
 	}
 
@@ -4030,30 +4031,33 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		player.setShiftKeyDown(false);
 		helper.assertTrue(CrystalSwordItem.isBladeSlashEnabled(sword), "晶态矩阵剑没有开启剑气模式");
 		ModItems.CRYSTAL_SWORD.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
-		List<BladeSlashEntity> slashes = helper.getLevel().getEntitiesOfClass(
-				BladeSlashEntity.class, player.getBoundingBox().inflate(8.0));
-		helper.assertTrue(slashes.size() == 1
-				&& Math.abs(slashes.getFirst().getDeltaMovement().length() - BladeSlashEntity.SPEED) < 0.2,
-				"晶态矩阵剑没有以预期速度发射剑气");
+		// 刚 spawn 的剑气实体入索引的时机不确定，延迟 2 tick 再查询并继续后续步骤
+		helper.runAfterDelay(2, () -> {
+			List<BladeSlashEntity> slashes = helper.getLevel().getEntitiesOfClass(
+					BladeSlashEntity.class, player.getBoundingBox().inflate(12.0));
+			helper.assertTrue(slashes.size() == 1
+					&& Math.abs(slashes.getFirst().getDeltaMovement().length() - BladeSlashEntity.SPEED) < 0.2,
+					"晶态矩阵剑没有以预期速度发射剑气");
 
-		var warden = helper.spawnWithNoFreeWill(EntityTypes.WARDEN, new BlockPos(14, 2, 10));
-		float healthBefore = warden.getHealth();
-		slashes.getFirst().applyImpact(helper.getLevel(), warden);
-		helper.assertTrue(Math.abs(warden.getHealth() - (healthBefore - BladeSlashEntity.DAMAGE)) < 0.001F,
-				"晶态矩阵剑剑气没有造成两百点伤害");
-		warden.setInvulnerable(true);
-		float attackStrengthBefore = player.getAttackStrengthScale(0.5F);
-		InteractionResult attackResult = AttackEntityCallback.EVENT.invoker().interact(
-				player, helper.getLevel(), InteractionHand.MAIN_HAND, warden, new EntityHitResult(warden));
-		helper.assertFalse(attackResult.consumesAction(), "晶态矩阵剑近战攻击不应接管原版伤害流程");
-		helper.assertFalse(warden.isInvulnerable(), "晶态矩阵剑近战没有解除目标无敌状态");
-		helper.assertTrue(player.getAttackStrengthScale(0.5F) >= attackStrengthBefore,
-				"晶态工具攻击事件不应在原版结算前重置本次攻击强度");
+			var warden = helper.spawnWithNoFreeWill(EntityTypes.WARDEN, new BlockPos(14, 2, 10));
+			float healthBefore = warden.getHealth();
+			slashes.getFirst().applyImpact(helper.getLevel(), warden);
+			helper.assertTrue(Math.abs(warden.getHealth() - (healthBefore - BladeSlashEntity.DAMAGE)) < 0.001F,
+					"晶态矩阵剑剑气没有造成两百点伤害");
+			warden.setInvulnerable(true);
+			float attackStrengthBefore = player.getAttackStrengthScale(0.5F);
+			InteractionResult attackResult = AttackEntityCallback.EVENT.invoker().interact(
+					player, helper.getLevel(), InteractionHand.MAIN_HAND, warden, new EntityHitResult(warden));
+			helper.assertFalse(attackResult.consumesAction(), "晶态矩阵剑近战攻击不应接管原版伤害流程");
+			helper.assertFalse(warden.isInvulnerable(), "晶态矩阵剑近战没有解除目标无敌状态");
+			helper.assertTrue(player.getAttackStrengthScale(0.5F) >= attackStrengthBefore,
+					"晶态工具攻击事件不应在原版结算前重置本次攻击强度");
 
-		player.setShiftKeyDown(true);
-		ModItems.CRYSTAL_SWORD.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
-		helper.assertFalse(CrystalSwordItem.isBladeSlashEnabled(sword), "晶态矩阵剑没有关闭剑气模式");
-		helper.succeed();
+			player.setShiftKeyDown(true);
+			ModItems.CRYSTAL_SWORD.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+			helper.assertFalse(CrystalSwordItem.isBladeSlashEnabled(sword), "晶态矩阵剑没有关闭剑气模式");
+			helper.succeed();
+		});
 	}
 
 	@GameTest
@@ -4458,19 +4462,14 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		helper.assertTrue(helper.getLevel().getBlockState(sandPos).is(Blocks.GLASS)
 				&& helper.getLevel().getBlockState(sandPos.east()).is(Blocks.GLASS),
 				"烈焰剑火球没有把范围沙子烧成玻璃");
-		// 同 tick 内 spawn 的物品实体可能尚未进入实体索引，延迟 1 tick 再做数量断言
-		helper.runAfterDelay(1, () -> {
+		// 刚 spawn 的物品实体入索引的时机不确定，用轮询直到断言满足或超时
+		helper.succeedWhen(() -> {
 			List<ItemEntity> skulls = skullDropsNear(helper, skeletonPos);
 			helper.assertTrue(skulls.size() == 1 && skulls.getFirst().getItem().is(Items.WITHER_SKELETON_SKULL),
 					"烈焰剑击杀骷髅没有保证掉落凋灵骷髅头 DEBUG count=" + skulls.size()
 							+ " items=" + skulls.stream().map(entity -> entity.getItem() + "@" + entity.position()).toList()
-							+ " nearAll=" + helper.getLevel().getEntitiesOfClass(ItemEntity.class,
-									new AABB(helper.absolutePos(skeletonPos)).inflate(4.0)).stream()
-									.map(entity -> entity.getItem().toString()).toList()
 							+ " skeletonAlive=" + skeleton.isAlive()
-							+ " skeletonHealth=" + skeleton.getHealth()
 							+ " mainHand=" + player.getMainHandItem());
-			helper.succeed();
 		});
 	}
 
@@ -4868,7 +4867,8 @@ public final class Avaritia26GameTests implements CustomTestMethodInvoker {
 		horse.setItemSlot(EquipmentSlot.BODY, armor.copy());
 		helper.assertTrue(horse.getItemBySlot(EquipmentSlot.BODY).is(ModItems.NEUTRON_HORSE_ARMOR),
 				"中子马铠没有装备到战马身体槽");
-		helper.runAfterDelay(1, () -> {
+		// 装备属性在马实体自身 tick 时才应用，刚 spawn 的实体首个 tick 时机不确定，多等几个 tick
+		helper.runAfterDelay(3, () -> {
 			helper.assertTrue(horse.getAttributeValue(Attributes.ARMOR) == 30.0
 					&& horse.getAttributeValue(Attributes.ARMOR_TOUGHNESS) == 1.0
 					&& horse.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE) == 1.0,
